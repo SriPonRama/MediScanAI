@@ -1,0 +1,51 @@
+
+    <svg width="500" height="400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f3e5f5;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        
+        <!-- Background -->
+        <rect width="500" height="400" fill="url(#bg)"/>
+        
+        <!-- Medical cross -->
+        <rect x="220" y="150" width="60" height="20" fill="#0d6efd" rx="10"/>
+        <rect x="240" y="130" width="20" height="60" fill="#0d6efd" rx="10"/>
+        
+        <!-- Stethoscope -->
+        <circle cx="150" cy="200" r="15" fill="none" stroke="#198754" stroke-width="3"/>
+        <path d="M 150 185 Q 120 160 100 180 Q 80 200 100 220 Q 120 240 150 215" 
+              fill="none" stroke="#198754" stroke-width="3"/>
+        
+        <!-- Heart -->
+        <path d="M 350 180 C 340 170, 320 170, 320 190 C 320 170, 300 170, 290 180 
+                 C 290 200, 320 220, 320 220 C 320 220, 350 200, 350 180 Z" 
+              fill="#dc3545"/>
+        
+        <!-- Brain -->
+        <ellipse cx="250" cy="100" rx="40" ry="30" fill="#6f42c1"/>
+        <path d="M 220 90 Q 230 80 240 90 Q 250 80 260 90 Q 270 80 280 90" 
+              fill="none" stroke="#fff" stroke-width="2"/>
+        
+        <!-- DNA Helix -->
+        <path d="M 400 120 Q 420 140 400 160 Q 380 180 400 200 Q 420 220 400 240" 
+              fill="none" stroke="#fd7e14" stroke-width="3"/>
+        <path d="M 380 120 Q 400 140 380 160 Q 360 180 380 200 Q 400 220 380 240" 
+              fill="none" stroke="#fd7e14" stroke-width="3"/>
+        
+        <!-- AI Circuit -->
+        <circle cx="100" cy="100" r="8" fill="#20c997"/>
+        <circle cx="120" cy="120" r="6" fill="#20c997"/>
+        <circle cx="80" cy="120" r="6" fill="#20c997"/>
+        <line x1="100" y1="108" x2="120" y2="114" stroke="#20c997" stroke-width="2"/>
+        <line x1="100" y1="108" x2="80" y2="114" stroke="#20c997" stroke-width="2"/>
+        
+        <!-- Text -->
+        <text x="250" y="350" text-anchor="middle" font-family="Arial, sans-serif" 
+              font-size="24" font-weight="bold" fill="#0d6efd">MediScan AI</text>
+        <text x="250" y="375" text-anchor="middle" font-family="Arial, sans-serif" 
+              font-size="14" fill="#6c757d">AI-Powered Medical Diagnosis</text>
+    </svg>
+    

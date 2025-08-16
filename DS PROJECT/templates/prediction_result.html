@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Result Header -->
+            <div class="card prediction-card shadow-lg border-0 mb-4">
+                <div class="card-header bg-{{ 'success' if prediction.prediction_result == 'Normal' else 'warning' }} text-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-{{ 'check-circle' if prediction.prediction_result == 'Normal' else 'exclamation-triangle' }} fa-2x me-3"></i>
+                            <div>
+                                <h3 class="mb-0">Analysis Complete</h3>
+                                <p class="mb-0 opacity-75">{{ prediction.body_part.title() }} X-ray Analysis for {{ patient.name }}</p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="h4 mb-0">{{ (prediction.confidence_score * 100)|round(1) }}%</div>
+                            <small class="opacity-75">Confidence</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- X-ray Image -->
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center">
+                                <img src="{{ url_for('static', filename='uploads/' + prediction.image_path) }}" 
+                                     alt="X-ray Image" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
+                                <p class="small text-muted mt-2">Uploaded: {{ prediction.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Prediction Details -->
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-diagnoses me-2"></i>Diagnosis Result
+                                    </h5>
+                                    <div class="alert alert-{{ 'success' if prediction.prediction_result == 'Normal' else 'warning' }} border-0">
+                                        <h4 class="alert-heading mb-2">{{ prediction.prediction_result }}</h4>
+                                        <p class="mb-0">{{ medical_info.description }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <h6 class="text-muted mb-2">Confidence Level</h6>
+                                    <div class="progress mb-2" style="height: 20px;">
+                                        <div class="progress-bar bg-{{ 'success' if prediction.confidence_score > 0.8 else 'warning' if prediction.confidence_score > 0.6 else 'danger' }}" 
+                                             role="progressbar" 
+                                             style="width: {{ (prediction.confidence_score * 100)|round(1) }}%"
+                                             data-confidence="{{ (prediction.confidence_score * 100)|round(1) }}">
+                                            {{ (prediction.confidence_score * 100)|round(1) }}%
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        {% if prediction.confidence_score > 0.8 %}
+                                            High confidence - Result is highly reliable
+                                        {% elif prediction.confidence_score > 0.6 %}
+                                            Moderate confidence - Consider additional examination
+                                        {% else %}
+                                            Low confidence - Recommend professional review
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="text-muted mb-2">Patient Information</h6>
+                                    <p class="mb-1"><strong>Name:</strong> {{ patient.name }}</p>
+                                    <p class="mb-1"><strong>Age:</strong> {{ patient.age }} years</p>
+                                    <p class="mb-1"><strong>Gender:</strong> {{ patient.gender.title() }}</p>
+                                    <p class="mb-0"><strong>Body Part:</strong> {{ prediction.body_part.title() }}</p>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="text-muted mb-2">Analysis Details</h6>
+                                    <p class="mb-1"><strong>Model:</strong> Deep Learning CNN</p>
+                                    <p class="mb-1"><strong>Processing Time:</strong> ~8 seconds</p>
+                                    <p class="mb-1"><strong>Image Quality:</strong> Good</p>
+                                    <p class="mb-0"><strong>Status:</strong> Analysis Complete</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medical Recommendations -->
+            {% if medical_info.medical_tips %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-prescription-bottle-alt me-2"></i>Medical Recommendations
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-info mb-3">
+                                <i class="fas fa-heart me-2"></i>Care Instructions
+                            </h6>
+                            {% for tip in medical_info.medical_tips %}
+                            <div class="medical-tip">
+                                <i class="fas fa-check-circle text-success me-2"></i>{{ tip }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-warning mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Precautions
+                            </h6>
+                            {% for precaution in medical_info.precautions %}
+                            <div class="medical-tip">
+                                <i class="fas fa-shield-alt text-warning me-2"></i>{{ precaution }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Additional Information -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-utensils me-2"></i>Dietary Recommendations
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fas fa-apple-alt text-success me-2"></i>Maintain a balanced diet</li>
+                                <li class="mb-2"><i class="fas fa-tint text-info me-2"></i>Stay well hydrated</li>
+                                <li class="mb-2"><i class="fas fa-fish text-primary me-2"></i>Include omega-3 rich foods</li>
+                                <li class="mb-0"><i class="fas fa-leaf text-success me-2"></i>Eat plenty of vegetables</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-running me-2"></i>Exercise Guidelines
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fas fa-walking text-primary me-2"></i>Regular light exercise</li>
+                                <li class="mb-2"><i class="fas fa-swimmer text-info me-2"></i>Low-impact activities</li>
+                                <li class="mb-2"><i class="fas fa-dumbbell text-warning me-2"></i>Strength training (if appropriate)</li>
+                                <li class="mb-0"><i class="fas fa-bed text-secondary me-2"></i>Adequate rest and recovery</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Important Disclaimer -->
+            <div class="alert alert-danger border-0 mb-4">
+                <h6 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Important Medical Disclaimer
+                </h6>
+                <p class="mb-0">
+                    This AI analysis is for reference purposes only and should not replace professional medical diagnosis. 
+                    Please consult with a qualified healthcare provider for proper medical evaluation and treatment decisions.
+                </p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
+                        <div>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-outline-info">
+                                <i class="fas fa-user me-2"></i>View Patient History
+                            </a>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Print Report
+                            </button>
+                            <a href="{{ url_for('upload_predict') }}" class="btn btn-success">
+                                <i class="fas fa-upload me-2"></i>Upload Another X-ray
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate the prediction result
+    animatePredictionResult();
+    
+    // Hide loading spinner if it exists
+    hideLoadingSpinner();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Upload X-ray - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-upload fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0">Upload X-ray Image</h3>
+                            <p class="mb-0 opacity-75">AI-powered medical image analysis</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" class="prediction-form" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Patient Selection -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-success mb-3">
+                                    <i class="fas fa-user me-2"></i>Select Patient
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-8 mb-3">
+                                {{ form.patient_id.label(class="form-label fw-semibold") }}
+                                {{ form.patient_id(class="form-select") }}
+                                {% if form.patient_id.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.patient_id.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">&nbsp;</label>
+                                <div>
+                                    <a href="{{ url_for('patient_form') }}" class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-plus me-2"></i>Add New Patient
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Body Part Selection -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-success mb-3">
+                                    <i class="fas fa-body me-2"></i>Body Part
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.body_part.label(class="form-label fw-semibold") }}
+                                {{ form.body_part(class="form-select") }}
+                                <div class="form-text">Select the body part shown in the X-ray image</div>
+                                {% if form.body_part.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.body_part.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title text-muted mb-2">Supported Body Parts:</h6>
+                                        <div class="row small">
+                                            <div class="col-6">
+                                                <i class="fas fa-lungs text-primary me-1"></i>Chest<br>
+                                                <i class="fas fa-hand-paper text-primary me-1"></i>Hand<br>
+                                                <i class="fas fa-walking text-primary me-1"></i>Leg
+                                            </div>
+                                            <div class="col-6">
+                                                <i class="fas fa-head-side-virus text-primary me-1"></i>Skull<br>
+                                                <i class="fas fa-spine text-primary me-1"></i>Spine<br>
+                                                <i class="fas fa-bone text-primary me-1"></i>Pelvis
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Image Upload -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-success mb-3">
+                                    <i class="fas fa-image me-2"></i>X-ray Image
+                                </h5>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="upload-area" onclick="document.getElementById('image').click()">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+                                        <h5 class="text-muted">Drag & Drop X-ray Image Here</h5>
+                                        <p class="text-muted mb-3">or click to browse files</p>
+                                        <div class="btn btn-outline-primary">
+                                            <i class="fas fa-folder-open me-2"></i>Choose File
+                                        </div>
+                                        <p class="small text-muted mt-3 mb-0">
+                                            Supported formats: JPG, JPEG, PNG (Max size: 16MB)
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                {{ form.image(class="d-none", id="image") }}
+                                {% if form.image.errors %}
+                                    <div class="text-danger small mt-2">
+                                        {% for error in form.image.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Image Preview will be inserted here by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Important Notes -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="alert alert-info border-0">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-info-circle me-2"></i>Important Notes
+                                    </h6>
+                                    <ul class="mb-0 small">
+                                        <li>Ensure the X-ray image is clear and properly oriented</li>
+                                        <li>The AI model works best with standard medical X-ray images</li>
+                                        <li>Results are for reference only and should be reviewed by a medical professional</li>
+                                        <li>Patient privacy is protected with secure encryption</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                    </a>
+                                    <div>
+                                        <button type="reset" class="btn btn-outline-warning me-2">
+                                            <i class="fas fa-undo me-2"></i>Reset
+                                        </button>
+                                        {{ form.submit(class="btn btn-success px-4") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- AI Model Information -->
+            <div class="card mt-4 border-primary">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">
+                        <i class="fas fa-robot me-2"></i>AI Model Information
+                    </h6>
+                    <div class="row small">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Model Type:</strong> Deep Learning CNN</p>
+                            <p class="mb-1"><strong>Training Data:</strong> Medical X-ray datasets</p>
+                            <p class="mb-0"><strong>Accuracy:</strong> 90%+ on test data</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Processing Time:</strong> ~5-10 seconds</p>
+                            <p class="mb-1"><strong>Supported Conditions:</strong> Multiple diseases</p>
+                            <p class="mb-0"><strong>Confidence Scoring:</strong> Percentage-based</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced file upload handling
+    const uploadArea = document.querySelector('.upload-area');
+    const fileInput = document.getElementById('image');
+    
+    // Update upload area text when file is selected
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                showAlert('Please select a valid image file (JPG, JPEG, or PNG)', 'error');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Validate file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showAlert('File size must be less than 16MB', 'error');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Update upload area
+            uploadArea.innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5 class="text-success">File Selected</h5>
+                    <p class="text-muted mb-2">${file.name}</p>
+                    <p class="small text-muted mb-3">Size: ${formatFileSize(file.size)}</p>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearFile()">
+                        <i class="fas fa-times me-2"></i>Remove File
+                    </button>
+                </div>
+            `;
+        }
+    });
+    
+    // Form validation before submission
+    const form = document.querySelector('.prediction-form');
+    form.addEventListener('submit', function(e) {
+        const patientId = document.getElementById('patient_id').value;
+        const bodyPart = document.getElementById('body_part').value;
+        const imageFile = document.getElementById('image').files[0];
+        
+        if (!patientId || !bodyPart || !imageFile) {
+            e.preventDefault();
+            showAlert('Please fill in all required fields and select an image', 'error');
+            return;
+        }
+        
+        // Show loading spinner
+        showLoadingSpinner();
+    });
+});
+
+function clearFile() {
+    const fileInput = document.getElementById('image');
+    const uploadArea = document.querySelector('.upload-area');
+    
+    fileInput.value = '';
+    
+    uploadArea.innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">Drag & Drop X-ray Image Here</h5>
+            <p class="text-muted mb-3">or click to browse files</p>
+            <div class="btn btn-outline-primary">
+                <i class="fas fa-folder-open me-2"></i>Choose File
+            </div>
+            <p class="small text-muted mt-3 mb-0">
+                Supported formats: JPG, JPEG, PNG (Max size: 16MB)
+            </p>
+        </div>
+    `;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
+{% endblock %}

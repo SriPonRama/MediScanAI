@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-1">Welcome back, {{ current_user.name }}!</h1>
+                    <p class="text-muted mb-0">Here's your medical dashboard overview</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('patient_form') }}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Add Patient
+                    </a>
+                    <a href="{{ url_for('upload_predict') }}" class="btn btn-success">
+                        <i class="fas fa-upload me-2"></i>Upload X-ray
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ patients|length }}</div>
+                <div class="text-muted">Total Patients</div>
+                <i class="fas fa-users text-primary fa-2x mt-2"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ recent_predictions|length }}</div>
+                <div class="text-muted">Recent Scans</div>
+                <i class="fas fa-x-ray text-success fa-2x mt-2"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set normal_count = recent_predictions|selectattr('prediction_result', 'equalto', 'Normal')|list|length %}
+                    {{ normal_count }}
+                </div>
+                <div class="text-muted">Normal Results</div>
+                <i class="fas fa-check-circle text-info fa-2x mt-2"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set abnormal_count = recent_predictions|length - (recent_predictions|selectattr('prediction_result', 'equalto', 'Normal')|list|length) %}
+                    {{ abnormal_count }}
+                </div>
+                <div class="text-muted">Requires Attention</div>
+                <i class="fas fa-exclamation-triangle text-warning fa-2x mt-2"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Patients List -->
+        <div class="col-lg-8 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2 text-primary"></i>Your Patients
+                        </h5>
+                        <div class="input-group" style="width: 250px;">
+                            <input type="text" class="form-control" placeholder="Search patients..." id="patientSearch" onkeyup="searchPatients()">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if patients %}
+                        <div class="row">
+                            {% for patient in patients %}
+                            <div class="col-md-6 mb-3">
+                                <div class="patient-card card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="patient-name mb-1">{{ patient.name }}</h6>
+                                                <p class="text-muted small mb-1">
+                                                    <i class="fas fa-birthday-cake me-1"></i>{{ patient.age }} years old
+                                                </p>
+                                                <p class="text-muted small mb-1">
+                                                    <i class="fas fa-venus-mars me-1"></i>{{ patient.gender.title() }}
+                                                </p>
+                                                <p class="text-muted small mb-0">
+                                                    <i class="fas fa-phone me-1"></i>{{ patient.contact }}
+                                                </p>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{{ url_for('patient_detail', patient_id=patient.id) }}">
+                                                        <i class="fas fa-eye me-2"></i>View Details
+                                                    </a></li>
+                                                    <li><a class="dropdown-item" href="{{ url_for('upload_predict') }}">
+                                                        <i class="fas fa-upload me-2"></i>Upload X-ray
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        {% set patient_predictions = patient.predictions|list %}
+                                        {% if patient_predictions %}
+                                        <div class="mt-2 pt-2 border-top">
+                                            <small class="text-muted">
+                                                <i class="fas fa-history me-1"></i>
+                                                Last scan: {{ patient_predictions[0].created_at.strftime('%b %d, %Y') }}
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No patients added yet</h5>
+                            <p class="text-muted">Start by adding your first patient to begin using MediScan AI</p>
+                            <a href="{{ url_for('patient_form') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add First Patient
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2 text-success"></i>Recent Predictions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_predictions %}
+                        {% for prediction in recent_predictions %}
+                        <div class="d-flex align-items-center mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="flex-shrink-0">
+                                <div class="prediction-icon bg-{{ 'success' if prediction.prediction_result == 'Normal' else 'warning' }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-{{ 'check' if prediction.prediction_result == 'Normal' else 'exclamation' }}"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">{{ prediction.patient.name }}</h6>
+                                <p class="mb-1 small">{{ prediction.prediction_result }}</p>
+                                <p class="mb-0 small text-muted">
+                                    {{ prediction.body_part.title() }} • {{ (prediction.confidence_score * 100)|round(1) }}% confidence
+                                </p>
+                                <p class="mb-0 small text-muted">{{ prediction.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-x-ray fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No predictions yet</p>
+                            <small class="text-muted">Upload an X-ray to get started</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-bolt me-2 text-warning"></i>Quick Actions
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('patient_form') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-user-plus me-2"></i>Add New Patient
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('upload_predict') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-upload me-2"></i>Upload X-ray
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-info w-100" onclick="changeLanguage('hi')">
+                                <i class="fas fa-language me-2"></i>Switch Language
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('about') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-info-circle me-2"></i>Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
