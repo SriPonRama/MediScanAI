@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Add Patient - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-plus fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0">Add New Patient</h3>
+                            <p class="mb-0 opacity-75">Enter patient information for medical records</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-user me-2"></i>Basic Information
+                                </h5>
+                            </div>
+                            
+                            <div class="col-md-8 mb-3">
+                                {{ form.name.label(class="form-label fw-semibold") }}
+                                {{ form.name(class="form-control", placeholder="Enter patient's full name") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.age.label(class="form-label fw-semibold") }}
+                                {{ form.age(class="form-control", placeholder="Age") }}
+                                {% if form.age.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.age.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.gender.label(class="form-label fw-semibold") }}
+                                {{ form.gender(class="form-select") }}
+                                {% if form.gender.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.gender.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.contact.label(class="form-label fw-semibold") }}
+                                {{ form.contact(class="form-control", placeholder="+91-XXXXX-XXXXX") }}
+                                {% if form.contact.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.contact.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Address Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Contact Information
+                                </h5>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                {{ form.address.label(class="form-label fw-semibold") }}
+                                {{ form.address(class="form-control", rows="3", placeholder="Enter complete address") }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.address.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.emergency_contact.label(class="form-label fw-semibold") }}
+                                {{ form.emergency_contact(class="form-control", placeholder="+91-XXXXX-XXXXX") }}
+                                {% if form.emergency_contact.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.emergency_contact.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.blood_group.label(class="form-label fw-semibold") }}
+                                {{ form.blood_group(class="form-select") }}
+                                {% if form.blood_group.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.blood_group.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Medical Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-stethoscope me-2"></i>Medical Information
+                                </h5>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                {{ form.medical_history.label(class="form-label fw-semibold") }}
+                                {{ form.medical_history(class="form-control", rows="4", placeholder="Previous medical conditions, surgeries, medications, etc.") }}
+                                <div class="form-text">Include any relevant medical history that might be important for diagnosis</div>
+                                {% if form.medical_history.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.medical_history.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                {{ form.allergies.label(class="form-label fw-semibold") }}
+                                {{ form.allergies(class="form-control", rows="3", placeholder="Known allergies to medications, foods, or other substances") }}
+                                <div class="form-text">List any known allergies or adverse reactions</div>
+                                {% if form.allergies.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.allergies.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                    </a>
+                                    <div>
+                                        <button type="reset" class="btn btn-outline-warning me-2">
+                                            <i class="fas fa-undo me-2"></i>Reset Form
+                                        </button>
+                                        {{ form.submit(class="btn btn-primary px-4") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Help Card -->
+            <div class="card mt-4 border-info">
+                <div class="card-body">
+                    <h6 class="card-title text-info">
+                        <i class="fas fa-info-circle me-2"></i>Important Information
+                    </h6>
+                    <ul class="card-text small mb-0">
+                        <li>All patient information is securely encrypted and stored</li>
+                        <li>Medical history helps improve AI diagnosis accuracy</li>
+                        <li>Emergency contact information is used only in critical situations</li>
+                        <li>You can update patient information anytime from the dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-format Indian phone number input
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInputs = document.querySelectorAll('input[type="text"][placeholder*="phone"], input[type="text"][placeholder*="Phone"]');
+
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+
+            // Handle Indian phone numbers (10 digits)
+            if (value.length >= 10) {
+                value = value.substring(0, 10);
+                // Format as +91-XXXXX-XXXXX
+                if (value.length === 10) {
+                    e.target.value = `+91-${value.substring(0, 5)}-${value.substring(5, 10)}`;
+                }
+            } else if (value.length > 0) {
+                // Partial formatting
+                if (value.length <= 5) {
+                    e.target.value = `+91-${value}`;
+                } else {
+                    e.target.value = `+91-${value.substring(0, 5)}-${value.substring(5)}`;
+                }
+            }
+        });
+
+        // Set placeholder for Indian format
+        if (input.placeholder.includes('phone') || input.placeholder.includes('Phone')) {
+            input.placeholder = input.placeholder.replace(/Phone number|phone number/, '+91-XXXXX-XXXXX');
+        }
+    });
+});
+</script>
+{% endblock %}

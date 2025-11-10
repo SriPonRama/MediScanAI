@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4" data-translate="hero-title">
+                    AI for Smarter Disease Detection
+                </h1>
+                <p class="lead mb-4" data-translate="hero-subtitle">
+                    Advanced X-ray analysis powered by artificial intelligence to help healthcare professionals 
+                    make faster, more accurate diagnoses.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('about') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-info-circle me-2"></i>Learn More
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('upload_predict') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-upload me-2"></i>Upload X-ray
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{{ url_for('static', filename='images/hero-medical.svg') }}" 
+                     alt="Medical AI Illustration" class="img-fluid" style="max-height: 500px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-3" data-translate="features-title">
+                    Why Choose MediScan AI?
+                </h2>
+                <p class="lead text-muted" data-translate="features-subtitle">
+                    Cutting-edge technology meets healthcare expertise
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-brain fa-2x"></i>
+                        </div>
+                        <h4 class="card-title" data-translate="feature1-title">AI-Powered Analysis</h4>
+                        <p class="card-text text-muted" data-translate="feature1-desc">
+                            Advanced machine learning algorithms trained on thousands of medical images 
+                            for accurate disease detection.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <h4 class="card-title" data-translate="feature2-title">Fast Results</h4>
+                        <p class="card-text text-muted" data-translate="feature2-desc">
+                            Get instant analysis results with confidence scores and detailed 
+                            medical recommendations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </div>
+                        <h4 class="card-title" data-translate="feature3-title">Multilingual Support</h4>
+                        <p class="card-text text-muted" data-translate="feature3-desc">
+                            Available in multiple languages to serve diverse communities 
+                            and healthcare providers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Supported X-ray Types -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-3" data-translate="xray-types-title">
+                    Supported X-ray Types
+                </h2>
+                <p class="lead text-muted" data-translate="xray-types-subtitle">
+                    Comprehensive analysis for various body parts
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-lungs fa-2x text-primary"></i>
+                    </div>
+                    <h6 data-translate="chest-xray">Chest X-ray</h6>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-hand-paper fa-2x text-primary"></i>
+                    </div>
+                    <h6 data-translate="hand-xray">Hand X-ray</h6>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-walking fa-2x text-primary"></i>
+                    </div>
+                    <h6 data-translate="leg-xray">Leg X-ray</h6>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-head-side-virus fa-2x text-primary"></i>
+                    </div>
+                    <h6 data-translate="skull-xray">Skull X-ray</h6>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-spine fa-2x text-primary"></i>
+                    </div>
+                    <h6 data-translate="spine-xray">Spine X-ray</h6>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="text-center">
+                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-bone fa-2x text-primary"></i>
+                    </div>
+                    <h6 data-translate="pelvis-xray">Pelvis X-ray</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3" data-translate="cta-title">
+                    Ready to Get Started?
+                </h2>
+                <p class="lead mb-4" data-translate="cta-subtitle">
+                    Join thousands of healthcare professionals using MediScan AI for better patient outcomes.
+                </p>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-5">
+                    <i class="fas fa-rocket me-2"></i>Start Free Trial
+                </a>
+                {% else %}
+                <a href="{{ url_for('upload_predict') }}" class="btn btn-light btn-lg px-5">
+                    <i class="fas fa-upload me-2"></i>Upload Your First X-ray
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
