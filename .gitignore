@@ -1,0 +1,44 @@
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+
+# Python virtual environments
+venv/
+.venv/
+venv_new/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database files
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Translation and application cache
+translation_cache.json
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / NPM artifacts
+package-lock.json
+node_modules/
