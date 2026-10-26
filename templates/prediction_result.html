@@ -1,199 +1,292 @@
 {% extends "base.html" %}
 
-{% block title %}Prediction Result - MediScan AI{% endblock %}
+{% block title %}Diagnostic Findings - {{ prediction.prediction_result }} - MediScan AI{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Result Header -->
-            <div class="card prediction-card shadow-lg border-0 mb-4">
-                <div class="card-header bg-{{ 'success' if prediction.prediction_result == 'Normal' else 'warning' }} text-white py-3">
-                    <div class="d-flex align-items-center justify-content-between">
+        <div class="col-lg-11 col-xl-10">
+            <!-- Header Banner with Diagnosis & Confidence -->
+            <div class="card prediction-card shadow-lg border-0 mb-4 overflow-hidden">
+                <div class="card-header bg-gradient-{{ 'success' if prediction.prediction_result == 'Normal' else 'danger' if medical_info.severity == 'Critical' else 'warning' }} text-white py-3 px-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                         <div class="d-flex align-items-center">
-                            <i class="fas fa-{{ 'check-circle' if prediction.prediction_result == 'Normal' else 'exclamation-triangle' }} fa-2x me-3"></i>
+                            <i class="fas fa-{{ 'check-circle' if prediction.prediction_result == 'Normal' else 'biohazard' if medical_info.severity == 'Critical' else 'exclamation-triangle' }} fa-2x me-3"></i>
                             <div>
-                                <h3 class="mb-0">Analysis Complete</h3>
-                                <p class="mb-0 opacity-75">{{ prediction.body_part.title() }} X-ray Analysis for {{ patient.name }}</p>
+                                <h3 class="mb-0 fw-bold">Radiological Evaluation Complete</h3>
+                                <p class="mb-0 opacity-75 small">
+                                    {{ prediction.body_part.title() }} Scan | Patient: <strong>{{ patient.name }}</strong> (PID-{{ "%04d"|format(patient.id) }}) | Recorded: {{ prediction.created_at.strftime('%d-%b-%Y at %I:%M %p') }}
+                                </p>
                             </div>
                         </div>
                         <div class="text-end">
-                            <div class="h4 mb-0">{{ (prediction.confidence_score * 100)|round(1) }}%</div>
-                            <small class="opacity-75">Confidence</small>
+                            <span class="badge bg-white text-dark px-3 py-2 fs-6 shadow-sm">
+                                <i class="fas fa-barcode me-1 text-primary"></i> ICD-10: <strong>{{ medical_info.icd10 or 'Z00.00' }}</strong>
+                            </span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card-body p-4">
-                    <div class="row">
-                        <!-- X-ray Image -->
-                        <div class="col-md-4 mb-4">
-                            <div class="text-center">
-                                <img src="{{ url_for('static', filename='uploads/' + prediction.image_path) }}" 
-                                     alt="X-ray Image" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
-                                <p class="small text-muted mt-2">Uploaded: {{ prediction.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Prediction Details -->
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-12 mb-3">
-                                    <h5 class="text-primary mb-3">
-                                        <i class="fas fa-diagnoses me-2"></i>Diagnosis Result
-                                    </h5>
-                                    <div class="alert alert-{{ 'success' if prediction.prediction_result == 'Normal' else 'warning' }} border-0">
-                                        <h4 class="alert-heading mb-2">{{ prediction.prediction_result }}</h4>
-                                        <p class="mb-0">{{ medical_info.description }}</p>
+                    <div class="row g-4">
+                        <!-- Left Column: Interactive Image Viewer & Explainability Heatmap -->
+                        <div class="col-lg-6">
+                            <div class="p-3 bg-light rounded-3 border">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fw-bold mb-0 text-primary">
+                                        <i class="fas fa-layer-group me-1"></i> Diagnostic Imaging & Attention Overlay
+                                    </h6>
+                                    {% if medical_info.is_dicom %}
+                                    <span class="badge bg-primary"><i class="fas fa-file-medical me-1"></i> DICOM Validated</span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Image Viewer Container with Overlay -->
+                                <div class="position-relative text-center overflow-hidden rounded bg-black d-flex align-items-center justify-content-center" style="min-height: 340px; max-height: 420px;" id="radiologyViewerContainer">
+                                    <!-- Base Original Image -->
+                                    <img src="{{ url_for('static', filename='uploads/' + prediction.image_path) }}" 
+                                         id="originalXrayImage"
+                                         alt="Radiological Scan" 
+                                         class="img-fluid rounded transition-all" 
+                                         style="max-height: 380px; object-fit: contain;">
+
+                                    <!-- Grad-CAM / Attention Heatmap Overlay (Faded via Slider) -->
+                                    {% if medical_info.heatmap_image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + medical_info.heatmap_image) }}" 
+                                         id="heatmapOverlayImage"
+                                         alt="Pathology Heatmap" 
+                                         class="position-absolute top-0 start-0 w-100 h-100 img-fluid rounded pointer-events-none transition-all" 
+                                         style="object-fit: contain; opacity: 0.5;">
+                                    {% endif %}
+                                </div>
+
+                                <!-- Feature 2: Visual Explainability Heatmap Opacity Slider -->
+                                {% if medical_info.heatmap_image %}
+                                <div class="mt-3 p-2 bg-white rounded border">
+                                    <div class="d-flex justify-content-between align-items-center small mb-1">
+                                        <span class="fw-bold"><i class="fas fa-fire text-danger me-1"></i> AI Pathology Heatmap Opacity:</span>
+                                        <span id="opacityValueBadge" class="badge bg-secondary">50%</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="heatmapOpacitySlider" min="0" max="100" value="50" oninput="updateHeatmapOpacity(this.value)">
+                                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                        <span>Raw Radiograph (0%)</span>
+                                        <span class="text-danger fw-bold"><i class="fas fa-circle text-danger" style="font-size: 8px;"></i> High Attention Area</span>
+                                        <span>Full Heatmap (100%)</span>
                                     </div>
                                 </div>
-                                
-                                <div class="col-12 mb-3">
-                                    <h6 class="text-muted mb-2">Confidence Level</h6>
-                                    <div class="progress mb-2" style="height: 20px;">
-                                        <div class="progress-bar bg-{{ 'success' if prediction.confidence_score > 0.8 else 'warning' if prediction.confidence_score > 0.6 else 'danger' }}" 
-                                             role="progressbar" 
-                                             style="width: {{ (prediction.confidence_score * 100)|round(1) }}%"
-                                             data-confidence="{{ (prediction.confidence_score * 100)|round(1) }}">
-                                            {{ (prediction.confidence_score * 100)|round(1) }}%
+                                {% endif %}
+
+                                <!-- Feature 3: Radiology Viewing Tools (Brightness, Contrast, Invert, Zoom) -->
+                                <div class="mt-2 p-2 bg-white rounded border">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <span class="small fw-bold text-muted"><i class="fas fa-sliders-h me-1"></i> Image Controls:</span>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="toggleInvertImage()" title="Invert Grayscale (Negative view)" id="invertBtn">
+                                                <i class="fas fa-adjust me-1"></i> Invert
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="adjustZoom(0.1)" title="Zoom In">
+                                                <i class="fas fa-search-plus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="adjustZoom(-0.1)" title="Zoom Out">
+                                                <i class="fas fa-search-minus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="resetImageViewer()" title="Reset Image">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    <small class="text-muted">
-                                        {% if prediction.confidence_score > 0.8 %}
-                                            High confidence - Result is highly reliable
-                                        {% elif prediction.confidence_score > 0.6 %}
-                                            Moderate confidence - Consider additional examination
-                                        {% else %}
-                                            Low confidence - Recommend professional review
-                                        {% endif %}
-                                    </small>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-2">Patient Information</h6>
-                                    <p class="mb-1"><strong>Name:</strong> {{ patient.name }}</p>
-                                    <p class="mb-1"><strong>Age:</strong> {{ patient.age }} years</p>
-                                    <p class="mb-1"><strong>Gender:</strong> {{ patient.gender.title() }}</p>
-                                    <p class="mb-0"><strong>Body Part:</strong> {{ prediction.body_part.title() }}</p>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <h6 class="text-muted mb-2">Analysis Details</h6>
-                                    <p class="mb-1"><strong>Model:</strong> Deep Learning CNN</p>
-                                    <p class="mb-1"><strong>Processing Time:</strong> ~8 seconds</p>
-                                    <p class="mb-1"><strong>Image Quality:</strong> Good</p>
-                                    <p class="mb-0"><strong>Status:</strong> Analysis Complete</p>
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-6">
+                                            <label class="form-label mb-0 small text-muted">Brightness</label>
+                                            <input type="range" class="form-range form-range-sm" id="brightnessSlider" min="50" max="200" value="100" oninput="applyImageFilters()">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label mb-0 small text-muted">Contrast</label>
+                                            <input type="range" class="form-range form-range-sm" id="contrastSlider" min="50" max="250" value="100" oninput="applyImageFilters()">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Right Column: Findings, Metrics & Differential Diagnoses -->
+                        <div class="col-lg-6">
+                            <!-- Primary Diagnostic Card -->
+                            <div class="alert alert-{{ 'success' if prediction.prediction_result == 'Normal' else 'danger' if medical_info.severity == 'Critical' else 'warning' }} border-0 shadow-sm mb-3 p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge bg-{{ 'success' if prediction.prediction_result == 'Normal' else 'danger' if medical_info.severity == 'Critical' else 'warning' }} text-white mb-1">
+                                            Primary Impression
+                                        </span>
+                                        <h4 class="alert-heading fw-bold mb-1">{{ prediction.prediction_result }}</h4>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fs-4 fw-bold">{{ (prediction.confidence_score * 100)|round(1) }}%</span>
+                                        <div class="small opacity-75">Confidence</div>
+                                    </div>
+                                </div>
+                                <p class="mb-0 mt-2 small lh-base">{{ medical_info.description }}</p>
+                            </div>
+
+                            <!-- Confidence Meter -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Confidence Reliability Scale</span>
+                                    <span>{{ (prediction.confidence_score * 100)|round(1) }}% calibrated</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-{{ 'success' if prediction.confidence_score > 0.8 else 'warning' if prediction.confidence_score > 0.6 else 'danger' }}" 
+                                         role="progressbar" 
+                                         style="width: {{ (prediction.confidence_score * 100)|round(1) }}%">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Feature 6: Multi-Label Differential Diagnosis Card -->
+                            {% if medical_info.differential_diagnosis %}
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-header bg-light py-2">
+                                    <h6 class="mb-0 fw-bold text-dark">
+                                        <i class="fas fa-list-ol me-2 text-primary"></i>Ranked Differential Diagnosis
+                                    </h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="list-group list-group-flush">
+                                        {% for diff in medical_info.differential_diagnosis %}
+                                        <div class="list-group-item px-0 py-2 border-0">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <div>
+                                                    <span class="fw-bold">{{ diff.condition }}</span>
+                                                    <span class="badge bg-light text-muted border ms-1" style="font-size: 0.7rem;">{{ diff.icd10 }}</span>
+                                                    {% if diff.severity == 'Critical' %}
+                                                    <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">Critical</span>
+                                                    {% elif diff.severity == 'High' %}
+                                                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">High</span>
+                                                    {% endif %}
+                                                </div>
+                                                <span class="fw-bold text-muted small">{{ diff.probability }}%</span>
+                                            </div>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar {{ 'bg-primary' if loop.first else 'bg-secondary opacity-75' }}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ diff.probability }}%;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                          {% endif %}
+
+                            <!-- Quantitative Computer Vision Metrics -->
+                            {% if medical_info.metrics %}
+                            <div class="card border-0 shadow-sm mb-3 bg-light">
+                                <div class="card-body p-3">
+                                    <h6 class="fw-bold text-secondary mb-2 small"><i class="fas fa-calculator me-1"></i> Objective Image Analytics:</h6>
+                                    <div class="row g-2 text-center" style="font-size: 0.8rem;">
+                                        <div class="col-4">
+                                            <div class="bg-white p-2 rounded border">
+                                                <div class="text-muted">Bilateral Asymm.</div>
+                                                <strong class="text-primary">{{ medical_info.metrics.bilateral_asymmetry_pct }}%</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-white p-2 rounded border">
+                                                <div class="text-muted">Sharpness Index</div>
+                                                <strong class="text-dark">{{ medical_info.metrics.sharpness_score }}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-white p-2 rounded border">
+                                                <div class="text-muted">Affected Field</div>
+                                                <strong class="text-danger">{{ medical_info.abnormality_density_pct or 0 }}%</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Medical Recommendations -->
-            {% if medical_info.medical_tips %}
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-info text-white py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-prescription-bottle-alt me-2"></i>Medical Recommendations
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row">
+
+                    <hr class="my-4">
+
+                    <!-- Feature 7: Voice-to-Text Clinical Dictation (AI Scribe & Notes) -->
+                    <div class="card border shadow-sm mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                            <h6 class="mb-0 fw-bold text-primary">
+                                <i class="fas fa-stethoscope me-2"></i>Reviewing Radiologist Impression & Voice Scribe
+                            </h6>
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill voice-dictate-btn" onclick="toggleVoiceDictation('doctorNotesArea', this)">
+                                <i class="fas fa-microphone me-1"></i> <span class="voice-btn-text">Voice Dictation</span>
+                            </button>
+                        </div>
+                        <div class="card-body p-3">
+                            <textarea class="form-control" id="doctorNotesArea" rows="3" placeholder="Dictate or type clinical notes and recommendations here...">{{ medical_info.doctor_notes or 'Clinical correlation recommended. Evaluated via AI Decision Support.' }}</textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Click Voice Dictation to speak directly into this report.</small>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="saveDoctorNotes({{ prediction.id }})">
+                                    <i class="fas fa-save me-1"></i> Save Clinical Impression
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Recommendations & Precautions -->
+                    {% if medical_info.medical_tips %}
+                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <h6 class="text-info mb-3">
-                                <i class="fas fa-heart me-2"></i>Care Instructions
-                            </h6>
-                            {% for tip in medical_info.medical_tips %}
-                            <div class="medical-tip">
-                                <i class="fas fa-check-circle text-success me-2"></i>{{ tip }}
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-header bg-info text-white py-2">
+                                    <h6 class="mb-0"><i class="fas fa-prescription-bottle-alt me-2"></i>Recommended Clinical Steps</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    {% for tip in medical_info.medical_tips %}
+                                    <div class="medical-tip mb-2 py-2 px-3">
+                                        <i class="fas fa-check-circle text-success me-2"></i>{{ tip }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
                             </div>
-                            {% endfor %}
                         </div>
-                        
                         <div class="col-md-6">
-                            <h6 class="text-warning mb-3">
-                                <i class="fas fa-exclamation-triangle me-2"></i>Precautions
-                            </h6>
-                            {% for precaution in medical_info.precautions %}
-                            <div class="medical-tip">
-                                <i class="fas fa-shield-alt text-warning me-2"></i>{{ precaution }}
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-header bg-warning text-dark py-2">
+                                    <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Patient Precautions</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    {% for precaution in medical_info.precautions %}
+                                    <div class="medical-tip mb-2 py-2 px-3">
+                                        <i class="fas fa-exclamation-circle text-warning me-2"></i>{{ precaution }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
                             </div>
-                            {% endfor %}
                         </div>
                     </div>
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- Additional Information -->
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card border-primary">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-utensils me-2"></i>Dietary Recommendations
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled mb-0">
-                                <li class="mb-2"><i class="fas fa-apple-alt text-success me-2"></i>Maintain a balanced diet</li>
-                                <li class="mb-2"><i class="fas fa-tint text-info me-2"></i>Stay well hydrated</li>
-                                <li class="mb-2"><i class="fas fa-fish text-primary me-2"></i>Include omega-3 rich foods</li>
-                                <li class="mb-0"><i class="fas fa-leaf text-success me-2"></i>Eat plenty of vegetables</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 mb-4">
-                    <div class="card border-success">
-                        <div class="card-header bg-success text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-running me-2"></i>Exercise Guidelines
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled mb-0">
-                                <li class="mb-2"><i class="fas fa-walking text-primary me-2"></i>Regular light exercise</li>
-                                <li class="mb-2"><i class="fas fa-swimmer text-info me-2"></i>Low-impact activities</li>
-                                <li class="mb-2"><i class="fas fa-dumbbell text-warning me-2"></i>Strength training (if appropriate)</li>
-                                <li class="mb-0"><i class="fas fa-bed text-secondary me-2"></i>Adequate rest and recovery</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Important Disclaimer -->
-            <div class="alert alert-danger border-0 mb-4">
-                <h6 class="alert-heading">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Important Medical Disclaimer
-                </h6>
-                <p class="mb-0">
-                    This AI analysis is for reference purposes only and should not replace professional medical diagnosis. 
-                    Please consult with a qualified healthcare provider for proper medical evaluation and treatment decisions.
-                </p>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="d-flex justify-content-between flex-wrap gap-2">
+                    {% endif %}
+
+                    <!-- Feature 4: Download PDF Report & Navigation Buttons -->
+                    <div class="d-flex justify-content-between flex-wrap gap-2 pt-2">
                         <div>
                             <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                <i class="fas fa-arrow-left me-1"></i> Dashboard
                             </a>
-                            <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-outline-info">
-                                <i class="fas fa-user me-2"></i>View Patient History
+                            <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-injured me-1"></i> Patient History
                             </a>
                         </div>
-                        <div>
-                            <button class="btn btn-outline-primary" onclick="window.print()">
-                                <i class="fas fa-print me-2"></i>Print Report
-                            </button>
-                            <a href="{{ url_for('upload_predict') }}" class="btn btn-success">
-                                <i class="fas fa-upload me-2"></i>Upload Another X-ray
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- Feature 4: 1-Click PDF Report Download -->
+                            <a href="{{ url_for('download_radiology_report', prediction_id=prediction.id) }}" class="btn btn-danger shadow-sm">
+                                <i class="fas fa-file-pdf me-2"></i>Download Radiology Report (PDF)
+                            </a>
+                            <a href="{{ url_for('print_radiology_report', prediction_id=prediction.id) }}" target="_blank" class="btn btn-outline-dark">
+                                <i class="fas fa-print me-1"></i> Print View
+                            </a>
+                            <a href="{{ url_for('upload_predict') }}" class="btn btn-success shadow-sm">
+                                <i class="fas fa-upload me-1"></i> Analyze Another Scan
                             </a>
                         </div>
                     </div>
@@ -204,12 +297,87 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Animate the prediction result
-    animatePredictionResult();
-    
-    // Hide loading spinner if it exists
-    hideLoadingSpinner();
-});
+// Image adjustment filter states
+let currentZoom = 1.0;
+let isInverted = false;
+
+function updateHeatmapOpacity(val) {
+    const overlay = document.getElementById('heatmapOverlayImage');
+    const badge = document.getElementById('opacityValueBadge');
+    if (overlay) {
+        overlay.style.opacity = val / 100.0;
+    }
+    if (badge) {
+        badge.innerText = val + '%';
+    }
+}
+
+function applyImageFilters() {
+    const brightness = document.getElementById('brightnessSlider').value;
+    const contrast = document.getElementById('contrastSlider').value;
+    const img = document.getElementById('originalXrayImage');
+    if (img) {
+        let filterStr = `brightness(${brightness}%) contrast(${contrast}%)`;
+        if (isInverted) {
+            filterStr += ` invert(100%)`;
+        }
+        img.style.filter = filterStr;
+    }
+}
+
+function toggleInvertImage() {
+    isInverted = !isInverted;
+    const btn = document.getElementById('invertBtn');
+    if (btn) {
+        btn.classList.toggle('btn-dark', isInverted);
+        btn.classList.toggle('btn-outline-secondary', !isInverted);
+    }
+    applyImageFilters();
+}
+
+function adjustZoom(delta) {
+    currentZoom = Math.max(0.5, Math.min(2.5, currentZoom + delta));
+    const img = document.getElementById('originalXrayImage');
+    const overlay = document.getElementById('heatmapOverlayImage');
+    if (img) img.style.transform = `scale(${currentZoom})`;
+    if (overlay) overlay.style.transform = `scale(${currentZoom})`;
+}
+
+function resetImageViewer() {
+    currentZoom = 1.0;
+    isInverted = false;
+    document.getElementById('brightnessSlider').value = 100;
+    document.getElementById('contrastSlider').value = 100;
+    const btn = document.getElementById('invertBtn');
+    if (btn) {
+        btn.classList.remove('btn-dark');
+        btn.classList.add('btn-outline-secondary');
+    }
+    const img = document.getElementById('originalXrayImage');
+    const overlay = document.getElementById('heatmapOverlayImage');
+    if (img) {
+        img.style.filter = 'none';
+        img.style.transform = 'scale(1)';
+    }
+    if (overlay) overlay.style.transform = 'scale(1)';
+}
+
+function saveDoctorNotes(predictionId) {
+    const notes = document.getElementById('doctorNotesArea').value;
+    fetch(`/prediction/${predictionId}/save_notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: notes })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Clinical impression saved to official patient record.');
+        } else {
+            alert('Error saving notes: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => alert('Failed to connect: ' + err));
+}
 </script>
 {% endblock %}

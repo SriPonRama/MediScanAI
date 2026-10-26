@@ -39,6 +39,5 @@ translation_cache.json
 Thumbs.db
 desktop.ini
 
-# Node / NPM artifacts
-package-lock.json
-node_modules/
+# Generated upload outputs
+static/uploads/heatmap_*

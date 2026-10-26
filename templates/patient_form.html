@@ -132,8 +132,13 @@
                             </div>
                             
                             <div class="col-12 mb-3">
-                                {{ form.medical_history.label(class="form-label fw-semibold") }}
-                                {{ form.medical_history(class="form-control", rows="4", placeholder="Previous medical conditions, surgeries, medications, etc.") }}
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    {{ form.medical_history.label(class="form-label fw-semibold mb-0") }}
+                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill py-0 px-2 voice-dictate-btn" onclick="toggleVoiceDictation('medical_history', this)" style="font-size: 0.75rem;">
+                                        <i class="fas fa-microphone me-1"></i> <span class="voice-btn-text">Voice Scribe</span>
+                                    </button>
+                                </div>
+                                {{ form.medical_history(class="form-control", id="medical_history", rows="4", placeholder="Previous medical conditions, surgeries, medications, etc.") }}
                                 <div class="form-text">Include any relevant medical history that might be important for diagnosis</div>
                                 {% if form.medical_history.errors %}
                                     <div class="text-danger small mt-1">
@@ -145,8 +150,13 @@
                             </div>
                             
                             <div class="col-12 mb-3">
-                                {{ form.allergies.label(class="form-label fw-semibold") }}
-                                {{ form.allergies(class="form-control", rows="3", placeholder="Known allergies to medications, foods, or other substances") }}
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    {{ form.allergies.label(class="form-label fw-semibold mb-0") }}
+                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill py-0 px-2 voice-dictate-btn" onclick="toggleVoiceDictation('allergies', this)" style="font-size: 0.75rem;">
+                                        <i class="fas fa-microphone me-1"></i> <span class="voice-btn-text">Voice Scribe</span>
+                                    </button>
+                                </div>
+                                {{ form.allergies(class="form-control", id="allergies", rows="3", placeholder="Known allergies to medications, foods, or other substances") }}
                                 <div class="form-text">List any known allergies or adverse reactions</div>
                                 {% if form.allergies.errors %}
                                     <div class="text-danger small mt-1">

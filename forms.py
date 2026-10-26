@@ -46,9 +46,9 @@ class PatientForm(FlaskForm):
 
 class ImageUploadForm(FlaskForm):
     patient_id = SelectField('Select Patient', coerce=int, validators=[DataRequired()])
-    image = FileField('X-ray Image', validators=[
+    image = FileField('X-ray Image / DICOM Scan', validators=[
         FileRequired(),
-        FileAllowed(['jpg', 'jpeg', 'png'], 'Only JPG, JPEG, and PNG images are allowed!')
+        FileAllowed(['jpg', 'jpeg', 'png', 'dcm'], 'Only JPG, JPEG, PNG, and DICOM (.dcm) files are allowed!')
     ])
     body_part = SelectField('Body Part', choices=[
         ('chest', 'Chest'),
