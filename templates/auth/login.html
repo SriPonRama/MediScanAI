@@ -10,16 +10,16 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <i class="fas fa-heartbeat fa-3x text-primary mb-3"></i>
-                        <h2 class="fw-bold" data-translate="login-title">Welcome Back</h2>
-                        <p class="text-muted" data-translate="login-subtitle">Sign in to your MediScan AI account</p>
+                        <h2 class="fw-bold" data-translate="login-title">{{ _('Welcome Back') }}</h2>
+                        <p class="text-muted" data-translate="login-subtitle">{{ _('Sign in to your MediScan AI account') }}</p>
                     </div>
                     
                     <form method="POST" novalidate>
                         {{ form.hidden_tag() }}
                         
                         <div class="mb-3">
-                            {{ form.email.label(class="form-label fw-semibold") }}
-                            {{ form.email(class="form-control form-control-lg", placeholder="Enter your email") }}
+                            <label class="form-label fw-semibold">{{ _('Email Address') }}</label>
+                            {{ form.email(class="form-control form-control-lg", placeholder=_('Enter your email')) }}
                             {% if form.email.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.email.errors %}
@@ -30,9 +30,9 @@
                         </div>
                         
                         <div class="mb-4">
-                            {{ form.password.label(class="form-label fw-semibold") }}
+                            <label class="form-label fw-semibold">{{ _('Password') }}</label>
                             <div class="input-group">
-                                {{ form.password(class="form-control form-control-lg", placeholder="Enter your password", id="password") }}
+                                {{ form.password(class="form-control form-control-lg", placeholder=_('Enter your password'), id="password") }}
                                 <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
                                     <i class="fas fa-eye" id="toggleIcon"></i>
                                 </button>
@@ -47,13 +47,13 @@
                         </div>
                         
                         <div class="d-grid mb-3">
-                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <button type="submit" class="btn btn-primary btn-lg">{{ _('Sign In') }}</button>
                         </div>
                         
                         <div class="text-center">
                             <p class="mb-0" data-translate="no-account">
-                                Don't have an account? 
-                                <a href="{{ url_for('signup') }}" class="text-primary fw-semibold text-decoration-none">Sign up here</a>
+                                {{ _("Don't have an account?") }} 
+                                <a href="{{ url_for('signup') }}" class="text-primary fw-semibold text-decoration-none">{{ _('Sign up here') }}</a>
                             </p>
                         </div>
                     </form>

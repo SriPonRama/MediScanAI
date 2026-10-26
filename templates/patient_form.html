@@ -11,8 +11,8 @@
                     <div class="d-flex align-items-center">
                         <i class="fas fa-user-plus fa-2x me-3"></i>
                         <div>
-                            <h3 class="mb-0">Add New Patient</h3>
-                            <p class="mb-0 opacity-75">Enter patient information for medical records</p>
+                            <h3 class="mb-0">{{ _('Add Patient') }}</h3>
+                            <p class="mb-0 opacity-75">{{ _('Enter patient information for medical records') }}</p>
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-primary mb-3">
-                                    <i class="fas fa-user me-2"></i>Basic Information
+                                    <i class="fas fa-user me-2"></i>{{ _('Patient') }} {{ _('Information') if _('Information') != 'Information' else '' }}
                                 </h5>
                             </div>
                             

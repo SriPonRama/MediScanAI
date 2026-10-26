@@ -8,15 +8,15 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h3 class="fw-bold text-primary mb-1">
-                <i class="fas fa-history me-2"></i>Longitudinal Progression Tracking
+                <i class="fas fa-history me-2"></i>{{ _('Longitudinal Scan Comparison') }}
             </h3>
             <p class="text-muted mb-0">
-                Patient: <strong>{{ patient.name }}</strong> (PID-{{ "%04d"|format(patient.id) }}) &bull; Temporal Evolution & Treatment Response
+                {{ _('Patient') }}: <strong>{{ patient.name }}</strong> (PID-{{ "%04d"|format(patient.id) }})
             </p>
         </div>
         <div>
             <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i> Patient History
+                <i class="fas fa-arrow-left me-1"></i> {{ _('View Details') }}
             </a>
         </div>
     </div>
@@ -26,11 +26,11 @@
         <div class="card-body p-3">
             <form method="GET" action="{{ url_for('patient_compare', patient_id=patient.id) }}" class="row g-3 align-items-end">
                 <div class="col-md-5">
-                    <label class="form-label fw-bold small text-muted">Baseline Scan (Scan A):</label>
+                    <label class="form-label fw-bold small text-muted">{{ _('Baseline Scan') }} (Scan A):</label>
                     <select name="scan1" class="form-select" onchange="this.form.submit()">
                         {% for p in predictions %}
                         <option value="{{ p.id }}" {% if p.id == scan1.id %}selected{% endif %}>
-                            Scan #{{ p.id }} &bull; {{ p.created_at.strftime('%d-%b-%Y') }} &bull; {{ p.body_part.title() }} ({{ p.prediction_result }})
+                            Scan #{{ p.id }} &bull; {{ p.created_at.strftime('%d-%b-%Y') }} &bull; {{ _(p.body_part.title()) }} ({{ _(p.prediction_result) }})
                         </option>
                         {% endfor %}
                     </select>
@@ -40,11 +40,11 @@
                     <div class="small fw-bold">VS</div>
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label fw-bold small text-muted">Follow-up Scan (Scan B):</label>
+                    <label class="form-label fw-bold small text-muted">{{ _('Follow-up Scan') }} (Scan B):</label>
                     <select name="scan2" class="form-select" onchange="this.form.submit()">
                         {% for p in predictions %}
                         <option value="{{ p.id }}" {% if p.id == scan2.id %}selected{% endif %}>
-                            Scan #{{ p.id }} &bull; {{ p.created_at.strftime('%d-%b-%Y') }} &bull; {{ p.body_part.title() }} ({{ p.prediction_result }})
+                            Scan #{{ p.id }} &bull; {{ p.created_at.strftime('%d-%b-%Y') }} &bull; {{ _(p.body_part.title()) }} ({{ _(p.prediction_result) }})
                         </option>
                         {% endfor %}
                     </select>
@@ -91,8 +91,8 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                     <div>
-                        <span class="badge bg-secondary mb-1">Baseline Examination</span>
-                        <h5 class="fw-bold mb-0 text-primary">{{ scan1.prediction_result }}</h5>
+                        <span class="badge bg-secondary mb-1">{{ _('Baseline Scan') }}</span>
+                        <h5 class="fw-bold mb-0 text-primary">{{ _(scan1.prediction_result) }}</h5>
                         <small class="text-muted">{{ scan1.created_at.strftime('%d-%b-%Y at %I:%M %p') }}</small>
                     </div>
                     <span class="fs-5 fw-bold text-muted">{{ (scan1.confidence_score * 100)|round(1) }}%</span>
@@ -105,13 +105,13 @@
                 </div>
                 <div class="card-footer bg-light p-3">
                     <div class="d-flex justify-content-between small">
-                        <span>Anatomical Region: <strong>{{ scan1.body_part.title() }}</strong></span>
+                        <span>{{ _('Body Part') }}: <strong>{{ _(scan1.body_part.title()) }}</strong></span>
                         <span>ICD-10: <strong>{{ scan1_info.icd10 or 'N/A' }}</strong></span>
                     </div>
                     {% if scan1_info.heatmap_image %}
                     <div class="mt-2 text-center">
                         <a href="{{ url_for('static', filename='uploads/' + scan1_info.heatmap_image) }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-fire me-1"></i> View Baseline Heatmap
+                            <i class="fas fa-fire me-1"></i> {{ _('Interactive Grad-CAM Heatmap') }}
                         </a>
                     </div>
                     {% endif %}
@@ -124,8 +124,8 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                     <div>
-                        <span class="badge bg-primary mb-1">Follow-up Examination</span>
-                        <h5 class="fw-bold mb-0 text-{{ 'success' if scan2.prediction_result == 'Normal' else 'danger' }}">{{ scan2.prediction_result }}</h5>
+                        <span class="badge bg-primary mb-1">{{ _('Follow-up Scan') }}</span>
+                        <h5 class="fw-bold mb-0 text-{{ 'success' if scan2.prediction_result == 'Normal' else 'danger' }}">{{ _(scan2.prediction_result) }}</h5>
                         <small class="text-muted">{{ scan2.created_at.strftime('%d-%b-%Y at %I:%M %p') }}</small>
                     </div>
                     <span class="fs-5 fw-bold text-muted">{{ (scan2.confidence_score * 100)|round(1) }}%</span>
@@ -138,13 +138,13 @@
                 </div>
                 <div class="card-footer bg-light p-3">
                     <div class="d-flex justify-content-between small">
-                        <span>Anatomical Region: <strong>{{ scan2.body_part.title() }}</strong></span>
+                        <span>{{ _('Body Part') }}: <strong>{{ _(scan2.body_part.title()) }}</strong></span>
                         <span>ICD-10: <strong>{{ scan2_info.icd10 or 'N/A' }}</strong></span>
                     </div>
                     {% if scan2_info.heatmap_image %}
                     <div class="mt-2 text-center">
                         <a href="{{ url_for('static', filename='uploads/' + scan2_info.heatmap_image) }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-fire me-1"></i> View Follow-up Heatmap
+                            <i class="fas fa-fire me-1"></i> {{ _('Interactive Grad-CAM Heatmap') }}
                         </a>
                     </div>
                     {% endif %}

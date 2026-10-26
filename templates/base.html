@@ -29,36 +29,42 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('index') }}">{{ _('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}">About Us</a>
+                        <a class="nav-link" href="{{ url_for('about') }}">{{ _('About Us') }}</a>
                     </li>
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}" data-translate="dashboard">Dashboard</a>
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">{{ _('Dashboard') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('patient_form') }}" data-translate="add-patient">Add Patient</a>
+                        <a class="nav-link" href="{{ url_for('patient_form') }}">{{ _('Add Patient') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('upload_predict') }}" data-translate="upload-xray">Upload X-ray</a>
+                        <a class="nav-link" href="{{ url_for('upload_predict') }}">{{ _('Upload X-ray') }}</a>
                     </li>
                     {% endif %}
                 </ul>
                 
                 <!-- Language Selector -->
                 <div class="dropdown me-3">
-                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-globe me-1"></i>
-                        <span id="currentLanguage">English</span>
+                        <span id="currentLanguage">{{ current_lang_info.flag if current_lang_info else '🌐' }} {{ current_lang_info.native if current_lang_info else 'English' }}</span>
                     </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">English</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('hi')">हिंदी</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('ta')">தமிழ்</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('te')">తెలుగు</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('bn')">বাংলা</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 380px; overflow-y: auto;">
+                        <li class="dropdown-header small text-uppercase fw-bold text-muted"><i class="fas fa-language me-1"></i> {{ _('Select Language') }}</li>
+                        {% for code, lang in supported_languages.items() %}
+                        <li>
+                            <a class="dropdown-item d-flex justify-content-between align-items-center {% if code == current_lang %}active fw-bold{% endif %}" 
+                               href="{{ url_for('set_language', lang_code=code) }}"
+                               onclick="if(window.changeLanguage) { window.changeLanguage('{{ code }}'); }">
+                                <span>{{ lang.flag }} {{ lang.native }} <small class="text-muted ms-1">({{ lang.name }})</small></span>
+                                {% if code == current_lang %}<i class="fas fa-check ms-2"></i>{% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
                 
@@ -70,20 +76,20 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                <i class="fas fa-tachometer-alt me-2"></i>{{ _('Dashboard') }}
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                <i class="fas fa-sign-out-alt me-2"></i>{{ _('Logout') }}
                             </a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        <a class="nav-link" href="{{ url_for('login') }}">{{ _('Login') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+                        <a class="nav-link" href="{{ url_for('signup') }}">{{ _('Sign Up') }}</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -116,11 +122,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <h5><i class="fas fa-heartbeat me-2"></i>MediScan AI</h5>
-                    <p class="mb-0">AI for Smarter Disease Detection</p>
-                    <p class="small text-muted">Empowering healthcare with artificial intelligence</p>
+                    <p class="mb-0">{{ _('AI for Smarter Disease Detection') }}</p>
+                    <p class="small text-muted">{{ _('Empowering healthcare with artificial intelligence') }}</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <h6>Contact Us</h6>
+                    <h6>{{ _('Contact Us') }}</h6>
                     <p class="mb-1"><i class="fas fa-envelope me-2"></i>info@mediscan-ai.com</p>
                     <p class="mb-1"><i class="fas fa-phone me-2"></i>+91-98765-43210</p>
                     <div class="mt-2">

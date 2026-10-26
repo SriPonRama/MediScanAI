@@ -161,23 +161,7 @@ function handleFormSubmit(event) {
 function changeLanguage(langCode) {
     currentLanguage = langCode;
     localStorage.setItem('mediscan_language', langCode);
-    updateLanguageDisplay();
-    translatePage();
-}
-
-function updateLanguageDisplay() {
-    const currentLangElement = document.getElementById('currentLanguage');
-    const languages = {
-        'en': 'English',
-        'hi': 'हिंदी',
-        'ta': 'தமிழ்',
-        'te': 'తెలుగు',
-        'bn': 'বাংলা'
-    };
-    
-    if (currentLangElement) {
-        currentLangElement.textContent = languages[currentLanguage] || 'English';
-    }
+    window.location.href = `/set_language/${langCode}`;
 }
 
 // Load translations
@@ -343,7 +327,7 @@ async function translateMedicalTerms() {
     
     for (const element of medicalTerms) {
         const text = element.textContent.trim();
-        if (text && ['Normal', 'Pneumonia', 'COVID-19', 'Fracture', 'Arthritis', 'Tuberculosis', 'Lung Cancer', 'Dislocation', 'Bone Tumor'].includes(text)) {
+        if (text && text.length < 100) {
             try {
                 const response = await fetch('/translate', {
                     method: 'POST',

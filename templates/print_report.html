@@ -43,29 +43,29 @@
         <!-- Patient Demographics Table -->
         <table class="table table-bordered table-sm mb-3">
             <thead class="table-light">
-                <tr><th colspan="4" class="py-1 text-primary"><i class="fas fa-user-injured me-1"></i> Patient Demographics & Exam Details</th></tr>
+                <tr><th colspan="4" class="py-1 text-primary"><i class="fas fa-user-injured me-1"></i> {{ _('Patient') }} {{ _('Information') if _('Information') != 'Information' else 'Details' }}</th></tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="fw-bold w-25">Patient Name:</td>
+                    <td class="fw-bold w-25">{{ _('Name') }}:</td>
                     <td class="w-25">{{ patient.name }}</td>
-                    <td class="fw-bold w-25">Patient ID / MRN:</td>
+                    <td class="fw-bold w-25">ID / MRN:</td>
                     <td class="w-25">PID-{{ patient.id }}</td>
                 </tr>
                 <tr>
-                    <td class="fw-bold">Age / Gender:</td>
-                    <td>{{ patient.age }} Years / {{ patient.gender.title() }}</td>
+                    <td class="fw-bold">{{ _('Age') }} / {{ _('Gender') }}:</td>
+                    <td>{{ patient.age }} / {{ _(patient.gender.title()) }}</td>
                     <td class="fw-bold">Blood Group:</td>
                     <td>{{ patient.blood_group or 'Not recorded' }}</td>
                 </tr>
                 <tr>
-                    <td class="fw-bold">Contact Number:</td>
+                    <td class="fw-bold">{{ _('Contact') }}:</td>
                     <td>{{ patient.contact }}</td>
-                    <td class="fw-bold">Anatomical Study:</td>
-                    <td>{{ prediction.body_part.title() }} Radiography</td>
+                    <td class="fw-bold">{{ _('Body Part') }}:</td>
+                    <td>{{ _(prediction.body_part.title()) }}</td>
                 </tr>
                 <tr>
-                    <td class="fw-bold">Clinical History:</td>
+                    <td class="fw-bold">{{ _('Medical History') }}:</td>
                     <td colspan="3">{{ patient.medical_history or 'No pre-existing history on file' }}</td>
                 </tr>
             </tbody>
@@ -76,13 +76,13 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="fw-bold mb-1 text-{{ 'success' if prediction.prediction_result == 'Normal' else 'danger' }}">
-                        DIAGNOSTIC FINDING: {{ prediction.prediction_result.upper() }}
+                        {{ _('Prediction Result') }}: {{ _(prediction.prediction_result) }}
                     </h5>
                     <p class="mb-0 text-muted">{{ medical_info.description }}</p>
                 </div>
                 <div class="text-end">
                     <span class="badge bg-secondary">ICD-10: {{ medical_info.icd10 or 'Z00.00' }}</span>
-                    <div class="fw-bold fs-6 text-primary">{{ (prediction.confidence_score * 100)|round(1) }}% Confidence</div>
+                    <div class="fw-bold fs-6 text-primary">{{ (prediction.confidence_score * 100)|round(1) }}% {{ _('Confidence Score') }}</div>
                 </div>
             </div>
         </div>
@@ -91,13 +91,13 @@
         <div class="row g-3 mb-3">
             <div class="col-6 text-center">
                 <div class="p-2 border rounded">
-                    <div class="small fw-bold text-muted mb-1">Standard Radiograph</div>
+                    <div class="small fw-bold text-muted mb-1">{{ _('Raw Radiograph') }}</div>
                     <img src="{{ url_for('static', filename='uploads/' + prediction.image_path) }}" class="scan-img" alt="X-ray">
                 </div>
             </div>
             <div class="col-6 text-center">
                 <div class="p-2 border rounded">
-                    <div class="small fw-bold text-muted mb-1">AI Pathology Attention Heatmap</div>
+                    <div class="small fw-bold text-muted mb-1">{{ _('Interactive Grad-CAM Heatmap') }}</div>
                     {% if medical_info.heatmap_image %}
                     <img src="{{ url_for('static', filename='uploads/' + medical_info.heatmap_image) }}" class="scan-img" alt="Heatmap">
                     {% else %}
@@ -112,17 +112,17 @@
         <table class="table table-bordered table-sm mb-3">
             <thead class="table-light">
                 <tr>
-                    <th>Condition / Differential</th>
-                    <th>Probability</th>
+                    <th>{{ _('Differential Diagnosis & Severity') }}</th>
+                    <th>{{ _('Confidence Score') }}</th>
                     <th>ICD-10</th>
-                    <th>Severity</th>
+                    <th>{{ _('Severity') if _('Severity') != 'Severity' else 'Severity' }}</th>
                     <th>Clinical Manifestation</th>
                 </tr>
             </thead>
             <tbody>
                 {% for diff in medical_info.differential_diagnosis[:4] %}
                 <tr>
-                    <td class="fw-bold">{{ diff.condition }}</td>
+                    <td class="fw-bold">{{ diff.condition_translated or _(diff.condition) }}</td>
                     <td>{{ diff.probability }}%</td>
                     <td>{{ diff.icd10 }}</td>
                     <td>{{ diff.severity }}</td>

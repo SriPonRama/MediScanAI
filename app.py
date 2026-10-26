@@ -51,6 +51,28 @@ ml_predictor = EnhancedMLPredictor()
 translator = TranslationService()
 medical_info = MedicalInfoService()
 
+@app.context_processor
+def inject_translation():
+    current_lang = session.get('lang', 'en')
+    
+    def _translate(text):
+        if not text:
+            return text
+        return translator.translate_text(text, current_lang)
+    
+    return {
+        'current_lang': current_lang,
+        'current_lang_info': translator.supported_languages.get(current_lang, {'name': 'English', 'native': 'English', 'flag': '🌐'}),
+        'supported_languages': translator.supported_languages,
+        '_': _translate,
+        't': _translate
+    }
+
+@app.template_filter('translate')
+def translate_filter(text):
+    current_lang = session.get('lang', 'en')
+    return translator.translate_text(text, current_lang)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -258,75 +280,38 @@ def patient_detail(patient_id):
 
     return render_template('patient_detail.html', patient=patient, predictions=predictions)
 
+@app.route('/set_language/<lang_code>')
+def set_language(lang_code):
+    """Switch active website language"""
+    if lang_code in translator.supported_languages:
+        session['lang'] = lang_code
+    
+    referrer = request.referrer
+    if referrer and (request.host in referrer or referrer.startswith('/')):
+        return redirect(referrer)
+    return redirect(url_for('dashboard' if current_user.is_authenticated else 'index'))
+
 @app.route('/translate', methods=['POST'])
-@login_required
 def translate_text():
     """API endpoint for text translation"""
-    data = request.get_json()
+    data = request.get_json() or {}
     text = data.get('text', '')
-    target_language = data.get('target_language', 'en')
+    target_language = data.get('target_language', session.get('lang', 'en'))
 
     if not text:
         return jsonify({'error': 'No text provided'}), 400
 
     try:
-        # Use local translations for common medical terms
-        local_translations = {
-            'hi': {
-                'Normal': 'सामान्य',
-                'Pneumonia': 'निमोनिया',
-                'COVID-19': 'कोविड-19',
-                'Fracture': 'हड्डी टूटना',
-                'Arthritis': 'गठिया',
-                'Tuberculosis': 'तपेदिक',
-                'Lung Cancer': 'फेफड़ों का कैंसर',
-                'Dislocation': 'हड्डी का खिसकना',
-                'Bone Tumor': 'हड्डी का ट्यूमर'
-            },
-            'ta': {
-                'Normal': 'சாதாரண',
-                'Pneumonia': 'நுரையீரல் அழற்சி',
-                'COVID-19': 'கோவிட்-19',
-                'Fracture': 'எலும்பு முறிவு',
-                'Arthritis': 'மூட்டு வலி',
-                'Tuberculosis': 'காசநோய்',
-                'Lung Cancer': 'நுரையீரல் புற்றுநோய்',
-                'Dislocation': 'எலும்பு இடப்பெயர்வு',
-                'Bone Tumor': 'எலும்பு கட்டி'
-            },
-            'te': {
-                'Normal': 'సాధారణ',
-                'Pneumonia': 'న్యుమోనియా',
-                'COVID-19': 'కోవిడ్-19',
-                'Fracture': 'ఎముక విరుపు',
-                'Arthritis': 'కీళ్ల వాపు',
-                'Tuberculosis': 'క్షయవ్యాధి',
-                'Lung Cancer': 'ఊపిరితిత్తుల క్యాన్సర్',
-                'Dislocation': 'ఎముక స్థానభ్రంశం',
-                'Bone Tumor': 'ఎముక కణితి'
-            },
-            'bn': {
-                'Normal': 'স্বাভাবিক',
-                'Pneumonia': 'নিউমোনিয়া',
-                'COVID-19': 'কোভিড-১৯',
-                'Fracture': 'হাড় ভাঙা',
-                'Arthritis': 'বাত',
-                'Tuberculosis': 'যক্ষ্মা',
-                'Lung Cancer': 'ফুসফুসের ক্যান্সার',
-                'Dislocation': 'হাড়ের স্থানচ্যুতি',
-                'Bone Tumor': 'হাড়ের টিউমার'
-            }
-        }
-        
-        if target_language in local_translations and text in local_translations[target_language]:
-            translated_text = local_translations[target_language][text]
-        else:
-            # Fallback to original text if no translation available
-            translated_text = text
-            
-        return jsonify({'translated_text': translated_text})
+        translated_text = translator.translate_text(text, target_language)
+        return jsonify({
+            'success': True,
+            'original_text': text,
+            'translated_text': translated_text,
+            'target_language': target_language
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/model_info/<body_part>')
 @login_required
@@ -389,9 +374,32 @@ def view_prediction(prediction_id):
             except Exception as e:
                 print(f"Error generating on-the-fly details: {e}")
 
+    # Dynamic localization of medical tips, description, and differential diagnosis
+    current_lang = session.get('lang', 'en')
+    if current_lang != 'en':
+        display_info = dict(medical_info_data)
+        if 'description' in display_info:
+            display_info['description'] = translator.translate_text(display_info['description'], current_lang)
+        if 'medical_tips' in display_info and isinstance(display_info['medical_tips'], list):
+            display_info['medical_tips'] = [translator.translate_text(tip, current_lang) for tip in display_info['medical_tips']]
+        if 'dietary_recommendations' in display_info and isinstance(display_info['dietary_recommendations'], list):
+            display_info['dietary_recommendations'] = [translator.translate_text(tip, current_lang) for tip in display_info['dietary_recommendations']]
+        if 'exercise_recommendations' in display_info and isinstance(display_info['exercise_recommendations'], list):
+            display_info['exercise_recommendations'] = [translator.translate_text(tip, current_lang) for tip in display_info['exercise_recommendations']]
+        if 'differential_diagnosis' in display_info and isinstance(display_info['differential_diagnosis'], list):
+            translated_diff = []
+            for item in display_info['differential_diagnosis']:
+                it = dict(item)
+                it['condition_translated'] = translator.translate_text(it.get('condition', ''), current_lang)
+                translated_diff.append(it)
+            display_info['differential_diagnosis'] = translated_diff
+        medical_info_to_render = display_info
+    else:
+        medical_info_to_render = medical_info_data
+
     return render_template('prediction_result.html',
                          prediction=prediction,
-                         medical_info=medical_info_data,
+                         medical_info=medical_info_to_render,
                          patient=prediction.patient)
 
 @app.route('/prediction/<int:prediction_id>/download_report')
@@ -435,6 +443,19 @@ def print_radiology_report(prediction_id):
         medical_info_data = json.loads(prediction.additional_info) if prediction.additional_info else {}
     except Exception:
         medical_info_data = {}
+
+    current_lang = session.get('lang', 'en')
+    if current_lang != 'en':
+        display_info = dict(medical_info_data)
+        if 'description' in display_info:
+            display_info['description'] = translator.translate_text(display_info['description'], current_lang)
+        if 'medical_tips' in display_info and isinstance(display_info['medical_tips'], list):
+            display_info['medical_tips'] = [translator.translate_text(tip, current_lang) for tip in display_info['medical_tips']]
+        if 'dietary_recommendations' in display_info and isinstance(display_info['dietary_recommendations'], list):
+            display_info['dietary_recommendations'] = [translator.translate_text(tip, current_lang) for tip in display_info['dietary_recommendations']]
+        if 'exercise_recommendations' in display_info and isinstance(display_info['exercise_recommendations'], list):
+            display_info['exercise_recommendations'] = [translator.translate_text(tip, current_lang) for tip in display_info['exercise_recommendations']]
+        medical_info_data = display_info
 
     return render_template('print_report.html',
                          prediction=prediction,

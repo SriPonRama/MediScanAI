@@ -11,8 +11,8 @@
                     <div class="d-flex align-items-center">
                         <i class="fas fa-upload fa-2x me-3"></i>
                         <div>
-                            <h3 class="mb-0">Upload X-ray Image</h3>
-                            <p class="mb-0 opacity-75">AI-powered medical image analysis</p>
+                            <h3 class="mb-0">{{ _('Upload Medical X-Ray') }}</h3>
+                            <p class="mb-0 opacity-75">{{ _('AI for Smarter Disease Detection') }}</p>
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-success mb-3">
-                                    <i class="fas fa-user me-2"></i>Select Patient
+                                    <i class="fas fa-user me-2"></i>{{ _('Select Patient') }}
                                 </h5>
                             </div>
                             
@@ -45,7 +45,7 @@
                                 <label class="form-label fw-semibold">&nbsp;</label>
                                 <div>
                                     <a href="{{ url_for('patient_form') }}" class="btn btn-outline-primary w-100">
-                                        <i class="fas fa-plus me-2"></i>Add New Patient
+                                        <i class="fas fa-plus me-2"></i>{{ _('Add Patient') }}
                                     </a>
                                 </div>
                             </div>
@@ -55,14 +55,14 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-success mb-3">
-                                    <i class="fas fa-body me-2"></i>Body Part
+                                    <i class="fas fa-body me-2"></i>{{ _('Select Body Part') }}
                                 </h5>
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.body_part.label(class="form-label fw-semibold") }}
                                 {{ form.body_part(class="form-select") }}
-                                <div class="form-text">Select the body part shown in the X-ray image</div>
+                                <div class="form-text">{{ _('Select Body Part') }}</div>
                                 {% if form.body_part.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.body_part.errors %}
@@ -75,17 +75,17 @@
                             <div class="col-md-6">
                                 <div class="card bg-light border-0">
                                     <div class="card-body p-3">
-                                        <h6 class="card-title text-muted mb-2">Supported Body Parts:</h6>
+                                        <h6 class="card-title text-muted mb-2">{{ _('Body Part') }}:</h6>
                                         <div class="row small">
                                             <div class="col-6">
-                                                <i class="fas fa-lungs text-primary me-1"></i>Chest<br>
-                                                <i class="fas fa-hand-paper text-primary me-1"></i>Hand<br>
-                                                <i class="fas fa-walking text-primary me-1"></i>Leg
+                                                <i class="fas fa-lungs text-primary me-1"></i>{{ _('Chest') }}<br>
+                                                <i class="fas fa-hand-paper text-primary me-1"></i>{{ _('Hand') }}<br>
+                                                <i class="fas fa-walking text-primary me-1"></i>{{ _('Leg') }}
                                             </div>
                                             <div class="col-6">
-                                                <i class="fas fa-head-side-virus text-primary me-1"></i>Skull<br>
-                                                <i class="fas fa-spine text-primary me-1"></i>Spine<br>
-                                                <i class="fas fa-bone text-primary me-1"></i>Pelvis
+                                                <i class="fas fa-head-side-virus text-primary me-1"></i>{{ _('Skull') }}<br>
+                                                <i class="fas fa-spine text-primary me-1"></i>{{ _('Spine') }}<br>
+                                                <i class="fas fa-bone text-primary me-1"></i>{{ _('Pelvis') }}
                                             </div>
                                         </div>
                                     </div>
@@ -97,7 +97,7 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-success mb-3">
-                                    <i class="fas fa-image me-2"></i>X-ray Image
+                                    <i class="fas fa-image me-2"></i>{{ _('Upload X-ray') }}
                                 </h5>
                             </div>
                             
@@ -105,13 +105,12 @@
                                 <div class="upload-area" onclick="document.getElementById('image').click()">
                                     <div class="text-center">
                                         <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
-                                        <h5 class="text-muted">Drag & Drop X-ray Image Here</h5>
-                                        <p class="text-muted mb-3">or click to browse files</p>
-                                        <div class="btn btn-outline-primary">
-                                            <i class="fas fa-folder-open me-2"></i>Choose File
+                                        <h5 class="text-muted">{{ _('Drag and drop X-ray image here, or click to browse') }}</h5>
+                                        <div class="btn btn-outline-primary mt-2">
+                                            <i class="fas fa-folder-open me-2"></i>{{ _('Upload X-ray') }}
                                         </div>
                                         <p class="small text-muted mt-3 mb-0">
-                                            Supported formats: JPG, JPEG, PNG (Max size: 16MB)
+                                            {{ _('Supports DICOM (.dcm), JPEG, PNG') }}
                                         </p>
                                     </div>
                                 </div>
@@ -129,35 +128,20 @@
                             </div>
                         </div>
                         
-                        <!-- Important Notes -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="alert alert-info border-0">
-                                    <h6 class="alert-heading">
-                                        <i class="fas fa-info-circle me-2"></i>Important Notes
-                                    </h6>
-                                    <ul class="mb-0 small">
-                                        <li>Ensure the X-ray image is clear and properly oriented</li>
-                                        <li>The AI model works best with standard medical X-ray images</li>
-                                        <li>Results are for reference only and should be reviewed by a medical professional</li>
-                                        <li>Patient privacy is protected with secure encryption</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
                         <!-- Form Actions -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="d-flex justify-content-between">
                                     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                        <i class="fas fa-arrow-left me-2"></i>{{ _('Dashboard') }}
                                     </a>
                                     <div>
                                         <button type="reset" class="btn btn-outline-warning me-2">
-                                            <i class="fas fa-undo me-2"></i>Reset
+                                            <i class="fas fa-undo me-2"></i>{{ _('Reset View') }}
                                         </button>
-                                        {{ form.submit(class="btn btn-success px-4") }}
+                                        <button type="submit" class="btn btn-success px-4">
+                                            <i class="fas fa-microscope me-2"></i>{{ _('Analyze X-Ray') }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
