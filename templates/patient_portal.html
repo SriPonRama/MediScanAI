@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Portal - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm overflow-hidden" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white; border-radius: 16px;">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow" style="width: 72px; height: 72px; font-size: 2rem;">
+                                <i class="fas fa-user-injured"></i>
+                            </div>
+                            <div>
+                                <span class="badge bg-light text-primary fw-semibold px-3 py-1 mb-2">{{ _('Patient Health Portal') }} &bull; #{{ patient.id }}</span>
+                                <h1 class="h2 fw-bold mb-1">{{ patient.name }}</h1>
+                                <p class="mb-0 opacity-85">
+                                    <i class="fas fa-calendar-alt me-1"></i>{{ _('DOB') }}: <strong>{{ patient.dob or _('Not specified') }}</strong> &bull;
+                                    <i class="fas fa-venus-mars me-1"></i>{{ _(patient.gender.title()) if patient.gender else '' }} &bull;
+                                    <i class="fas fa-tint me-1"></i>{{ _('Blood Group') }}: <strong>{{ patient.blood_group or _('Not specified') }}</strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-light">
+                                <i class="fas fa-user-cog me-1"></i>{{ _('Profile & Allergies') }}
+                            </a>
+                            <a href="{{ url_for('messages') }}" class="btn btn-warning text-dark fw-semibold shadow-sm">
+                                <i class="fas fa-comments me-1"></i>{{ _('Ask Doctor') }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Vitals Quick Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius: 12px; background: #fdfefe;">
+                <div class="text-danger mb-2"><i class="fas fa-heartbeat fa-2x"></i></div>
+                <div class="small text-muted mb-1">{{ _('Blood Pressure') }}</div>
+                <h5 class="fw-bold mb-0 text-dark">{{ latest_checkup.blood_pressure if latest_checkup and latest_checkup.blood_pressure else '--/--' }}</h5>
+                <small class="text-muted" style="font-size: 0.75rem;">mmHg</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius: 12px; background: #fdfefe;">
+                <div class="text-primary mb-2"><i class="fas fa-wave-square fa-2x"></i></div>
+                <div class="small text-muted mb-1">{{ _('Heart Rate') }}</div>
+                <h5 class="fw-bold mb-0 text-dark">{{ latest_checkup.heart_rate if latest_checkup and latest_checkup.heart_rate else '--' }}</h5>
+                <small class="text-muted" style="font-size: 0.75rem;">bpm</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius: 12px; background: #fdfefe;">
+                <div class="text-warning mb-2"><i class="fas fa-burn fa-2x"></i></div>
+                <div class="small text-muted mb-1">{{ _('Blood Sugar') }}</div>
+                <h5 class="fw-bold mb-0 text-dark">{{ latest_checkup.blood_sugar if latest_checkup and latest_checkup.blood_sugar else '--' }}</h5>
+                <small class="text-muted" style="font-size: 0.75rem;">mg/dL</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius: 12px; background: #fdfefe;">
+                <div class="text-info mb-2"><i class="fas fa-thermometer-half fa-2x"></i></div>
+                <div class="small text-muted mb-1">{{ _('Temperature') }}</div>
+                <h5 class="fw-bold mb-0 text-dark">{{ latest_checkup.temperature if latest_checkup and latest_checkup.temperature else '--' }}</h5>
+                <small class="text-muted" style="font-size: 0.75rem;">°F</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius: 12px; background: #fdfefe;">
+                <div class="text-secondary mb-2"><i class="fas fa-weight fa-2x"></i></div>
+                <div class="small text-muted mb-1">{{ _('Weight') }}</div>
+                <h5 class="fw-bold mb-0 text-dark">{{ latest_checkup.weight if latest_checkup and latest_checkup.weight else '--' }}</h5>
+                <small class="text-muted" style="font-size: 0.75rem;">kg</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card border-0 shadow-sm h-100 text-center p-3" style="border-radius: 12px; background: #fdfefe;">
+                <div class="text-success mb-2"><i class="fas fa-notes-medical fa-2x"></i></div>
+                <div class="small text-muted mb-1">{{ _('Total Visits') }}</div>
+                <h5 class="fw-bold mb-0 text-dark">{{ checkups|length }}</h5>
+                <small class="text-muted" style="font-size: 0.75rem;">{{ _('Scans') }}: {{ predictions|length }}</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Content Area: Checkups & X-ray Scans -->
+        <div class="col-lg-8">
+            <!-- Nav Tabs -->
+            <ul class="nav nav-pills mb-4 nav-fill p-1 bg-white rounded shadow-sm border" id="patientTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-semibold" id="checkups-tab" data-bs-toggle="pill" data-bs-target="#checkups-content" type="button" role="tab">
+                        <i class="fas fa-stethoscope me-2"></i>{{ _('Hospital Visits & Checkup History') }} ({{ checkups|length }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-semibold" id="scans-tab" data-bs-toggle="pill" data-bs-target="#scans-content" type="button" role="tab">
+                        <i class="fas fa-x-ray me-2"></i>{{ _('X-ray Scans & AI Predictions') }} ({{ predictions|length }})
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="patientTabsContent">
+                <!-- Tab 1: Checkups History -->
+                <div class="tab-pane fade show active" id="checkups-content" role="tabpanel">
+                    {% if checkups %}
+                        <div class="timeline position-relative">
+                            {% for checkup in checkups %}
+                            <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; border-left: 5px solid #0d6efd !important;">
+                                <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-primary me-2">
+                                            <i class="fas fa-calendar-check me-1"></i>{{ checkup.visit_date.strftime('%d %b %Y, %I:%M %p') }}
+                                        </span>
+                                        <span class="text-muted small">
+                                            <i class="fas fa-user-md me-1 text-primary"></i><strong>Dr. {{ checkup.doctor_name }}</strong>
+                                            {% if checkup.hospital_name %} &bull; {{ checkup.hospital_name }}{% endif %}
+                                        </span>
+                                    </div>
+                                    {% if checkup.next_follow_up %}
+                                    <span class="badge bg-warning text-dark mt-2 mt-md-0">
+                                        <i class="fas fa-clock me-1"></i>{{ _('Follow-up') }}: {{ checkup.next_follow_up }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body p-4">
+                                    <!-- Recorded Vitals Chips -->
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        {% if checkup.blood_pressure %}
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            <i class="fas fa-heartbeat text-danger me-1"></i>{{ _('BP') }}: <strong>{{ checkup.blood_pressure }}</strong>
+                                        </span>
+                                        {% endif %}
+                                        {% if checkup.heart_rate %}
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            <i class="fas fa-wave-square text-primary me-1"></i>{{ _('Heart Rate') }}: <strong>{{ checkup.heart_rate }}</strong>
+                                        </span>
+                                        {% endif %}
+                                        {% if checkup.blood_sugar %}
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            <i class="fas fa-burn text-warning me-1"></i>{{ _('Sugar') }}: <strong>{{ checkup.blood_sugar }}</strong>
+                                        </span>
+                                        {% endif %}
+                                        {% if checkup.temperature %}
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            <i class="fas fa-thermometer-half text-info me-1"></i>{{ _('Temp') }}: <strong>{{ checkup.temperature }}</strong>
+                                        </span>
+                                        {% endif %}
+                                        {% if checkup.weight %}
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            <i class="fas fa-weight text-secondary me-1"></i>{{ _('Weight') }}: <strong>{{ checkup.weight }}</strong>
+                                        </span>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if checkup.symptoms %}
+                                    <div class="mb-3">
+                                        <h6 class="text-muted small text-uppercase fw-bold mb-1">
+                                            <i class="fas fa-stethoscope text-primary me-1"></i>{{ _('Symptoms Reported') }}
+                                        </h6>
+                                        <p class="mb-0 text-dark">{{ checkup.symptoms }}</p>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mb-3">
+                                        <h6 class="text-muted small text-uppercase fw-bold mb-1">
+                                            <i class="fas fa-diagnoses text-success me-1"></i>{{ _('Doctor Clinical Diagnosis') }}
+                                        </h6>
+                                        <div class="p-3 bg-light rounded border-start border-3 border-success text-dark">
+                                            {{ checkup.diagnosis }}
+                                        </div>
+                                    </div>
+
+                                    {% if checkup.prescriptions %}
+                                    <div class="mb-3">
+                                        <h6 class="text-muted small text-uppercase fw-bold mb-1">
+                                            <i class="fas fa-pills text-danger me-1"></i>{{ _('Prescriptions & Medication Plan') }}
+                                        </h6>
+                                        <div class="p-3 bg-light rounded text-dark" style="white-space: pre-line;">{{ checkup.prescriptions }}</div>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if checkup.clinical_notes %}
+                                    <div>
+                                        <h6 class="text-muted small text-uppercase fw-bold mb-1">
+                                            <i class="fas fa-clipboard-list text-info me-1"></i>{{ _('Advice & Recommendations') }}
+                                        </h6>
+                                        <p class="mb-0 text-muted fst-italic">{{ checkup.clinical_notes }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 14px;">
+                            <i class="fas fa-notes-medical fa-4x text-muted mb-3 opacity-50"></i>
+                            <h4>{{ _('No Checkup Visits Recorded Yet') }}</h4>
+                            <p class="text-muted mb-0">{{ _('Whenever your attending doctor records a clinical consultation, it will appear here immediately with all vitals, diagnosis, and prescriptions.') }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tab 2: X-ray Scans & Predictions -->
+                <div class="tab-pane fade" id="scans-content" role="tabpanel">
+                    {% if predictions %}
+                        <div class="row g-3">
+                            {% for pred in predictions %}
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 14px;">
+                                    <div class="card-body p-3 p-md-4">
+                                        <div class="row align-items-center g-3">
+                                            <!-- Scan Preview -->
+                                            <div class="col-md-3 text-center">
+                                                <div class="position-relative d-inline-block">
+                                                    <img src="{{ url_for('static', filename='uploads/' + pred.image_path) }}" 
+                                                         alt="X-ray Scan" 
+                                                         class="img-fluid rounded shadow-sm" 
+                                                         style="max-height: 140px; object-fit: cover; border: 2px solid #e9ecef;">
+                                                    <span class="position-absolute bottom-0 start-0 m-1 badge bg-dark bg-opacity-75">
+                                                        {{ pred.body_part.title() }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <!-- Details -->
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    {% if pred.prediction_result == 'Normal' %}
+                                                    <span class="badge bg-success-subtle text-success border border-success px-2 py-1">
+                                                        <i class="fas fa-check-circle me-1"></i>{{ _('Normal') }}
+                                                    </span>
+                                                    {% else %}
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger px-2 py-1">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ pred.prediction_result }}
+                                                    </span>
+                                                    {% endif %}
+                                                    <span class="text-muted small">
+                                                        <i class="fas fa-calendar-alt me-1"></i>{{ pred.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                                                    </span>
+                                                </div>
+                                                <h5 class="fw-bold mb-1">{{ pred.prediction_result }} {{ _('Detection') }}</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <small class="text-muted">{{ _('Model Confidence') }}:</small>
+                                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                                        <div class="progress-bar {% if pred.prediction_result == 'Normal' %}bg-success{% else %}bg-danger{% endif %}" 
+                                                             style="width: {{ (pred.confidence_score * 100)|round(1) }}%;"></div>
+                                                    </div>
+                                                    <small class="fw-bold">{{ (pred.confidence_score * 100)|round(1) }}%</small>
+                                                </div>
+                                                <p class="text-muted small mb-0">
+                                                    <i class="fas fa-lock text-success me-1"></i>{{ _('Permanent Audit Protected') }} &bull; {{ _('Validated Diagnostic Scan') }}
+                                                </p>
+                                            </div>
+                                            <!-- Action Buttons -->
+                                            <div class="col-md-3 text-md-end d-flex flex-column gap-2">
+                                                <a href="{{ url_for('view_prediction', prediction_id=pred.id) }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-eye me-1"></i>{{ _('View Full Analysis') }}
+                                                </a>
+                                                <a href="{{ url_for('download_radiology_report', prediction_id=pred.id) }}" class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-file-pdf me-1"></i>{{ _('Download PDF') }}
+                                                </a>
+                                                <a href="{{ url_for('print_radiology_report', prediction_id=pred.id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-print me-1"></i>{{ _('Print Report') }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 14px;">
+                            <i class="fas fa-x-ray fa-4x text-muted mb-3 opacity-50"></i>
+                            <h4>{{ _('No X-ray Scans Uploaded Yet') }}</h4>
+                            <p class="text-muted mb-0">{{ _('When your doctor uploads an X-ray scan and executes an AI prediction, it will appear here immediately with high-resolution imagery and clinical radiology reports.') }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Personal Profile & Doctor Support -->
+        <div class="col-lg-4">
+            <!-- Medical Alert Card -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px; background: #fff;">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-id-card text-primary me-2"></i>{{ _('Patient Information') }}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">{{ _('Full Name (Legal ID)') }}</small>
+                        <span class="fw-semibold fs-6 text-dark">{{ patient.name }}</span>
+                        <span class="badge bg-secondary ms-1" style="font-size: 0.65rem;" title="{{ _('Protected: Controlled by medical provider') }}">
+                            <i class="fas fa-lock me-1"></i>{{ _('Locked') }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">{{ _('Registered Contact') }}</small>
+                        <span class="fw-semibold text-dark">{{ patient.contact }}</span>
+                        <span class="badge bg-secondary ms-1" style="font-size: 0.65rem;" title="{{ _('Protected: Controlled by medical provider') }}">
+                            <i class="fas fa-lock me-1"></i>{{ _('Locked') }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">{{ _('Date of Birth') }}</small>
+                        <span class="fw-semibold text-dark">{{ patient.dob or _('Not specified') }} ({{ patient.age }} {{ _('years') }})</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">{{ _('Emergency Contact') }}</small>
+                        <span class="fw-semibold text-dark">{{ patient.emergency_contact or _('None provided') }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">{{ _('Residential Address') }}</small>
+                        <span class="text-dark">{{ patient.address or _('None provided') }}</span>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">{{ _('Known Medical Allergies') }}</small>
+                        {% if patient.allergies %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger p-2 d-block text-start mt-1">
+                            <i class="fas fa-exclamation-triangle me-1"></i>{{ patient.allergies }}
+                        </span>
+                        {% else %}
+                        <span class="text-muted small">{{ _('No documented allergies') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 text-center border-top">
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-edit me-1"></i>{{ _('Update Address / Allergies') }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Attending Doctors & Quick Communication -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px;">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-user-md text-success me-2"></i>{{ _('Your Doctors') }}
+                    </h5>
+                    <a href="{{ url_for('messages') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-inbox me-1"></i>{{ _('Inbox') }}
+                    </a>
+                </div>
+                <div class="card-body p-3">
+                    {% if doctors %}
+                        <div class="list-group list-group-flush">
+                            {% for doc in doctors %}
+                            <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center border-bottom">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">Dr. {{ doc.name }}</h6>
+                                        <small class="text-muted d-block">{{ doc.specialization or _('General Practitioner') }}</small>
+                                        <small class="text-muted" style="font-size: 0.75rem;">{{ doc.hospital_name or 'MediScan AI' }}</small>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('chat_conversation', recipient_id=doc.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-comment-dots"></i>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">{{ _('No doctors associated yet.') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Health Portal Safety Notice -->
+            <div class="alert alert-info border-0 shadow-sm" style="border-radius: 14px;">
+                <h6 class="alert-heading fw-bold">
+                    <i class="fas fa-shield-alt me-1"></i>{{ _('Clinical Records Integrity') }}
+                </h6>
+                <p class="small mb-0">
+                    {{ _('Diagnostic imaging records and physician checkups are tamper-proof and permanently linked to your medical profile for continuity of care. You can message your doctor in any language, and they will receive your query with automated translation assistance.') }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#predictions') {
+        const scanTab = document.getElementById('scans-tab');
+        if (scanTab) {
+            const tab = new bootstrap.Tab(scanTab);
+            tab.show();
+        }
+    } else if (window.location.hash === '#checkups') {
+        const checkTab = document.getElementById('checkups-tab');
+        if (checkTab) {
+            const tab = new bootstrap.Tab(checkTab);
+            tab.show();
+        }
+    }
+});
+</script>
+{% endblock %}

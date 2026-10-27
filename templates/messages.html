@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Messages & Consultations - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 16px; height: calc(100vh - 170px); min-height: 600px;">
+        <div class="row g-0 h-100">
+            <!-- Left Sidebar: Contacts List -->
+            <div class="col-md-4 col-lg-3 border-end bg-light d-flex flex-column h-100">
+                <!-- Sidebar Header -->
+                <div class="p-3 bg-white border-bottom">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-comments text-primary me-2"></i>{{ _('Conversations') }}
+                        </h5>
+                        <span class="badge bg-primary rounded-pill">{{ contacts|length }}</span>
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="contactSearch" class="form-control bg-light border-start-0" placeholder="{{ _('Search contacts...') }}" onkeyup="filterContacts()">
+                    </div>
+                </div>
+
+                <!-- Contacts Scrollable List -->
+                <div class="overflow-auto flex-grow-1" id="contactsList">
+                    {% if contacts %}
+                        {% for c in contacts %}
+                        {% set u = c.user %}
+                        {% set p = c.patient %}
+                        <a href="{{ url_for('chat_conversation', recipient_id=u.id) }}" 
+                           class="contact-item list-group-item list-group-item-action p-3 border-bottom d-flex align-items-center gap-3 {% if active_chat and active_chat.id == u.id %}bg-white border-start border-primary border-4 shadow-sm{% endif %}"
+                           style="transition: all 0.2s ease;">
+                            <div class="position-relative">
+                                <div class="rounded-circle {% if u.is_doctor() %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10 text-{% if u.is_doctor() %}primary{% else %}success{% endif %} d-flex align-items-center justify-content-center" 
+                                     style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                    {% if u.is_doctor() %}
+                                    <i class="fas fa-user-md"></i>
+                                    {% else %}
+                                    <i class="fas fa-user-injured"></i>
+                                    {% endif %}
+                                </div>
+                                {% if c.unread > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
+                                    {{ c.unread }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <h6 class="mb-0 text-truncate fw-semibold text-dark">
+                                        {% if u.is_doctor() %}Dr. {% endif %}{{ u.name }}
+                                    </h6>
+                                </div>
+                                <small class="text-muted d-block text-truncate">
+                                    {% if u.is_doctor() %}
+                                    {{ u.specialization or _('General Practitioner') }}
+                                    {% else %}
+                                    {{ _('Patient') }} #{{ p.id if p else u.id }} &bull; {{ p.gender.title() if p else '' }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center p-4 text-muted">
+                            <i class="fas fa-inbox fa-3x mb-2 opacity-50"></i>
+                            <p class="small mb-0">{{ _('No conversation partners available yet.') }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Area: Chat Conversation Thread -->
+            <div class="col-md-8 col-lg-9 d-flex flex-column h-100 bg-white">
+                {% if active_chat %}
+                <!-- Chat Header -->
+                <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-white shadow-sm" style="z-index: 5;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle {% if active_chat.is_doctor() %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10 text-{% if active_chat.is_doctor() %}primary{% else %}success{% endif %} d-flex align-items-center justify-content-center" 
+                             style="width: 44px; height: 44px; font-size: 1.2rem;">
+                            {% if active_chat.is_doctor() %}
+                            <i class="fas fa-user-md"></i>
+                            {% else %}
+                            <i class="fas fa-user-injured"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold">
+                                {% if active_chat.is_doctor() %}Dr. {% endif %}{{ active_chat.name }}
+                                <span class="badge {% if active_chat.is_doctor() %}bg-primary{% else %}bg-success{% endif %} ms-1 small" style="font-size: 0.7rem;">
+                                    {{ active_chat.role.title() }}
+                                </span>
+                            </h5>
+                            <small class="text-muted">
+                                {% if active_chat.is_doctor() %}
+                                <i class="fas fa-hospital me-1"></i>{{ active_chat.hospital_name or 'MediScan AI' }} &bull; {{ active_chat.specialization or '' }}
+                                {% else %}
+                                <i class="fas fa-phone me-1"></i>{{ active_chat.phone }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Target Language Dropdown for Translation -->
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small text-muted d-none d-lg-inline"><i class="fas fa-language text-primary me-1"></i>{{ _('Translate into') }}:</span>
+                        <select id="chatTargetLanguage" class="form-select form-select-sm" style="width: auto;">
+                            {% for code, lang in supported_languages.items() %}
+                            <option value="{{ code }}" {% if code == current_lang %}selected{% endif %}>
+                                {{ lang.flag }} {{ lang.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Messages Thread Scroll Area -->
+                <div class="flex-grow-1 p-4 overflow-auto" id="messagesContainer" style="background: #f8fafc;">
+                    {% if chat_messages %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for msg in chat_messages %}
+                            {% set is_me = (msg.sender_id == current_user.id) %}
+                            <div class="d-flex flex-column {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
+                                <div class="message-bubble p-3 rounded shadow-sm position-relative" 
+                                     id="msg-{{ msg.id }}"
+                                     style="max-width: 75%; {% if is_me %}background: #0d6efd; color: white; border-bottom-right-radius: 4px !important;{% else %}background: white; color: #212529; border: 1px solid #e9ecef; border-bottom-left-radius: 4px !important;{% endif %}">
+                                    
+                                    <!-- Sender Name / Role -->
+                                    <div class="small fw-semibold mb-1 opacity-75" style="font-size: 0.75rem;">
+                                        {% if is_me %}
+                                        {{ _('You') }}
+                                        {% else %}
+                                        {% if msg.sender.is_doctor() %}Dr. {% endif %}{{ msg.sender.name }}
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Message Body -->
+                                    <div class="msg-text fs-6 mb-1" style="white-space: pre-wrap; word-break: break-word;">{{ msg.message }}</div>
+
+                                    <!-- Inline Translated Output Container -->
+                                    <div class="translated-box mt-2 p-2 rounded d-none" 
+                                         style="{% if is_me %}background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;{% else %}background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a;{% endif %} font-size: 0.9rem;">
+                                        <div class="d-flex align-items-center justify-content-between mb-1 small opacity-75">
+                                            <span><i class="fas fa-language me-1"></i><span class="target-lang-label"></span>:</span>
+                                            <button class="btn btn-link btn-sm p-0 text-decoration-none {% if is_me %}text-white{% else %}text-muted{% endif %}" onclick="closeTranslation({{ msg.id }})">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <div class="translated-text fw-medium"></div>
+                                    </div>
+
+                                    <!-- Metadata & Translate Action Button -->
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mt-2 pt-1 {% if is_me %}border-top border-white border-opacity-25{% else %}border-top border-light{% endif %}" style="font-size: 0.72rem;">
+                                        <span class="opacity-75">
+                                            <i class="fas fa-clock me-1"></i>{{ msg.created_at.strftime('%I:%M %p') }}
+                                        </span>
+                                        <button type="button" 
+                                                class="btn btn-sm py-0 px-2 rounded-pill {% if is_me %}btn-outline-light{% else %}btn-outline-primary{% endif %}" 
+                                                style="font-size: 0.7rem;"
+                                                onclick="translateMessage({{ msg.id }}, `{{ msg.message|e }}`)">
+                                            <i class="fas fa-language me-1"></i>{{ _('Translate') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                            <div class="rounded-circle bg-light p-4 mb-3">
+                                <i class="fas fa-comments fa-3x text-primary opacity-50"></i>
+                            </div>
+                            <h5>{{ _('Start a Medical Consultation') }}</h5>
+                            <p class="small text-muted text-center" style="max-width: 400px;">
+                                {{ _('Send queries regarding diagnostic findings, medication routines, or symptoms in your native language (e.g. Tamil, Telugu, Hindi, English). Real-time translation will assist seamlessly.') }}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Message Input Box -->
+                <div class="p-3 bg-white border-top">
+                    <form method="POST" action="{{ url_for('chat_conversation', recipient_id=active_chat.id) }}" id="chatForm">
+                        {{ form.hidden_tag() }}
+                        <div class="input-group">
+                            <textarea name="message" id="messageInput" rows="2" class="form-control border-end-0" 
+                                      placeholder="{{ _('Type your message or medical query in any language (e.g., Tamil, English, Hindi)...') }}" 
+                                      required style="resize: none;"></textarea>
+                            <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+                                <i class="fas fa-paper-plane"></i>
+                                <span class="d-none d-sm-inline">{{ _('Send') }}</span>
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                <i class="fas fa-globe text-primary me-1"></i>{{ _('Multilingual Support Active') }} &bull; {{ _('Press Enter to send (Shift+Enter for new line)') }}
+                            </small>
+                            <span class="badge bg-light text-secondary border" style="font-size: 0.7rem;">
+                                <i class="fas fa-lock text-success me-1"></i>{{ _('End-to-End Logged EHR') }}
+                            </span>
+                        </div>
+                    </form>
+                </div>
+
+                {% else %}
+                <!-- No Active Chat Selected -->
+                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted p-4">
+                    <div class="rounded-circle bg-light p-4 mb-3">
+                        <i class="fas fa-comment-medical fa-4x text-primary opacity-50"></i>
+                    </div>
+                    <h4>{{ _('Select a Conversation') }}</h4>
+                    <p class="text-muted text-center" style="max-width: 400px;">
+                        {{ _('Choose a patient or doctor from the left sidebar to review consultation history and communicate with multilingual translation assistance.') }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto scroll to bottom of chat
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+document.addEventListener('DOMContentLoaded', scrollToBottom);
+
+// Filter contacts search
+function filterContacts() {
+    const query = document.getElementById('contactSearch').value.toLowerCase();
+    const items = document.querySelectorAll('.contact-item');
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
+// Enter key submit behavior
+const msgInput = document.getElementById('messageInput');
+if (msgInput) {
+    msgInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (this.value.trim() !== '') {
+                document.getElementById('chatForm').submit();
+            }
+        }
+    });
+}
+
+// Multilingual Inline Translation
+function translateMessage(msgId, text) {
+    const bubble = document.getElementById('msg-' + msgId);
+    if (!bubble) return;
+
+    const transBox = bubble.querySelector('.translated-box');
+    const transText = bubble.querySelector('.translated-text');
+    const langLabel = bubble.querySelector('.target-lang-label');
+    const targetLangSelect = document.getElementById('chatTargetLanguage');
+    const targetLang = targetLangSelect ? targetLangSelect.value : 'en';
+    const targetLangName = targetLangSelect ? targetLangSelect.options[targetLangSelect.selectedIndex].text : 'English';
+
+    transBox.classList.remove('d-none');
+    transText.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Translating...';
+    langLabel.innerText = targetLangName;
+
+    fetch('{{ url_for("api_translate") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            text: text,
+            target_lang: targetLang
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.translated_text) {
+            transText.innerText = data.translated_text;
+            scrollToBottom();
+        } else {
+            transText.innerText = text;
+        }
+    })
+    .catch(err => {
+        console.error('Translation error:', err);
+        transText.innerText = 'Unable to translate. Please try again.';
+    });
+}
+
+function closeTranslation(msgId) {
+    const bubble = document.getElementById('msg-' + msgId);
+    if (bubble) {
+        const transBox = bubble.querySelector('.translated-box');
+        if (transBox) transBox.classList.add('d-none');
+    }
+}
+</script>
+{% endblock %}

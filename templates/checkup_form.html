@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Record Clinical Checkup - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="card-header bg-primary text-white py-4 px-4 px-md-5">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-1">{{ _('Record Clinical Checkup & Hospital Visit') }}</h3>
+                                <p class="mb-0 opacity-85">{{ _('Store physical vitals, diagnoses, and prescriptions directly into the patient chart') }}</p>
+                            </div>
+                        </div>
+                        <span class="badge bg-light text-primary px-3 py-2 fw-semibold">
+                            <i class="fas fa-hospital me-1"></i>{{ current_user.hospital_name or 'MediScan Central Hospital' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <!-- Patient Selection -->
+                        <div class="card border bg-light mb-4" style="border-radius: 12px;">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold text-primary mb-3">
+                                    <i class="fas fa-user-injured me-2"></i>{{ _('Patient Identification') }}
+                                </h5>
+                                <div class="row align-items-end g-3">
+                                    <div class="col-md-9">
+                                        {{ form.patient_id.label(class="form-label fw-semibold") }}
+                                        {{ form.patient_id(class="form-select form-select-lg") }}
+                                        {% if form.patient_id.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in form.patient_id.errors %}<div>{{ error }}</div>{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <div class="form-text small text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>{{ _('Search or select patient by Name, DOB, Age, and ID') }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="{{ url_for('patient_form') }}" class="btn btn-outline-primary w-100 py-2">
+                                            <i class="fas fa-user-plus me-1"></i>{{ _('New Patient') }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vital Signs Section -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-heartbeat text-danger me-2"></i>{{ _('Vital Signs & Physical Metrics') }}
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    {{ form.blood_pressure.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fas fa-heartbeat text-danger"></i></span>
+                                        {{ form.blood_pressure(class="form-control", placeholder="e.g. 120/80") }}
+                                        <span class="input-group-text bg-light text-muted">mmHg</span>
+                                    </div>
+                                    {% if form.blood_pressure.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.blood_pressure.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-4">
+                                    {{ form.heart_rate.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fas fa-wave-square text-primary"></i></span>
+                                        {{ form.heart_rate(class="form-control", placeholder="e.g. 72") }}
+                                        <span class="input-group-text bg-light text-muted">bpm</span>
+                                    </div>
+                                    {% if form.heart_rate.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.heart_rate.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-4">
+                                    {{ form.blood_sugar.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fas fa-burn text-warning"></i></span>
+                                        {{ form.blood_sugar(class="form-control", placeholder="e.g. 95 fasting") }}
+                                        <span class="input-group-text bg-light text-muted">mg/dL</span>
+                                    </div>
+                                    {% if form.blood_sugar.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.blood_sugar.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    {{ form.temperature.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fas fa-thermometer-half text-info"></i></span>
+                                        {{ form.temperature(class="form-control", placeholder="e.g. 98.6") }}
+                                        <span class="input-group-text bg-light text-muted">°F</span>
+                                    </div>
+                                    {% if form.temperature.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.temperature.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    {{ form.weight.label(class="form-label fw-semibold") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="fas fa-weight text-secondary"></i></span>
+                                        {{ form.weight(class="form-control", placeholder="e.g. 68.5") }}
+                                        <span class="input-group-text bg-light text-muted">kg</span>
+                                    </div>
+                                    {% if form.weight.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.weight.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clinical Findings Section -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-file-medical text-primary me-2"></i>{{ _('Clinical Assessment & Examination') }}
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    {{ form.symptoms.label(class="form-label fw-semibold") }}
+                                    {{ form.symptoms(class="form-control", rows="3", placeholder=_("Describe chief complaints, pain severity, duration, or onset...")) }}
+                                    {% if form.symptoms.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.symptoms.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    {{ form.diagnosis.label(class="form-label fw-semibold") }} <span class="text-danger">*</span>
+                                    {{ form.diagnosis(class="form-control", rows="3", placeholder=_("Attending physician clinical impression, examination findings, differential diagnosis...")) }}
+                                    {% if form.diagnosis.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.diagnosis.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prescriptions & Follow-up Section -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-pills text-success me-2"></i>{{ _('Prescriptions, Advice & Follow-up') }}
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    {{ form.prescriptions.label(class="form-label fw-semibold") }}
+                                    {{ form.prescriptions(class="form-control", rows="4", placeholder="1. Amoxicillin 500mg - 1 tablet 3x daily after meals (5 days)\n2. Paracetamol 650mg - SOS for fever/pain\n3. Vitamin C 500mg - Once daily") }}
+                                    {% if form.prescriptions.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.prescriptions.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-8">
+                                    {{ form.clinical_notes.label(class="form-label fw-semibold") }}
+                                    {{ form.clinical_notes(class="form-control", rows="2", placeholder=_("Dietary advice, rest instructions, fluid intake, physical rehabilitation...")) }}
+                                    {% if form.clinical_notes.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.clinical_notes.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-4">
+                                    {{ form.next_follow_up.label(class="form-label fw-semibold") }}
+                                    {{ form.next_follow_up(class="form-control", placeholder=_("e.g. In 7 days / 2026-11-05")) }}
+                                    {% if form.next_follow_up.errors %}
+                                        <div class="text-danger small mt-1">{% for err in form.next_follow_up.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Banner -->
+                        <div class="alert alert-light border d-flex align-items-center mb-4 p-3" style="border-radius: 10px;">
+                            <i class="fas fa-bell text-primary fa-2x me-3"></i>
+                            <div>
+                                <strong class="d-block">{{ _('Immediate Patient Synchronization & Notification') }}</strong>
+                                <small class="text-muted">{{ _('Saving this checkup automatically dispatches an in-app alert to the patient. They can immediately view all recorded vitals and prescriptions on their personal portal.') }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-arrow-left me-1"></i>{{ _('Cancel') }}
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                                <i class="fas fa-save me-2"></i>{{ _('Save & Transmit Checkup Record') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

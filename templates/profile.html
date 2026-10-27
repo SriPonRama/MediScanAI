@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Profile Settings - MediScan AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <!-- Card Header -->
+                <div class="card-header bg-white py-4 px-4 px-md-5 border-bottom">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 58px; height: 58px; font-size: 1.6rem;">
+                                {% if is_doctor %}
+                                <i class="fas fa-user-md"></i>
+                                {% else %}
+                                <i class="fas fa-user-injured"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-1">{{ _('Account & Profile Management') }}</h3>
+                                <p class="mb-0 text-muted">
+                                    {% if is_doctor %}
+                                    {{ _('Update your professional credentials, medical affiliation, and clinic details') }}
+                                    {% else %}
+                                    {{ _('Manage your personal contact info, medical allergies, and emergency records') }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="badge {% if is_doctor %}bg-primary{% else %}bg-success{% endif %} px-3 py-2 fs-6">
+                            {{ user.role.title() }} {{ _('Profile') }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body p-4 p-md-5">
+                    {% if not is_doctor %}
+                    <!-- Patient Identity Protection Banner -->
+                    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mb-4 p-3" style="border-radius: 12px; background: #fff8e6;">
+                        <i class="fas fa-shield-alt text-warning fa-2x mt-1"></i>
+                        <div>
+                            <strong class="d-block text-dark">{{ _('Clinical Identity Protection Notice') }}</strong>
+                            <small class="text-secondary">
+                                {{ _('To prevent medical misidentification and ensure tamper-proof electronic health records (EHR), your legal Name and registered Mobile Number are locked. Only your attending physician or hospital administrator can alter these primary identifiers.') }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        {% if is_doctor %}
+                        <!-- Doctor Fields -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                {{ form.name.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-user-md text-primary"></i></span>
+                                    {{ form.name(class="form-control") }}
+                                </div>
+                                {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.name.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.phone.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-phone text-primary"></i></span>
+                                    {{ form.phone(class="form-control") }}
+                                </div>
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.phone.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.hospital_name.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-hospital text-primary"></i></span>
+                                    {{ form.hospital_name(class="form-control", placeholder=_("e.g. City General Hospital")) }}
+                                </div>
+                                {% if form.hospital_name.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.hospital_name.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                {{ form.specialization.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-stethoscope text-primary"></i></span>
+                                    {{ form.specialization(class="form-control", placeholder=_("e.g. Radiologist, Orthopedic Surgeon")) }}
+                                </div>
+                                {% if form.specialization.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.specialization.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <!-- Patient Fields: Locked Name & Mobile + Editable Medical Fields -->
+                        <div class="row g-3 mb-4">
+                            <!-- Locked Legal Name -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted d-flex justify-content-between">
+                                    <span>{{ _('Full Legal Name') }}</span>
+                                    <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{{ _('Locked') }}</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="fas fa-id-card"></i></span>
+                                    <input type="text" class="form-control bg-light text-muted" value="{{ user.name }}" readonly disabled>
+                                </div>
+                                <small class="text-muted" style="font-size: 0.78rem;">{{ _('Managed by attending physician') }}</small>
+                            </div>
+
+                            <!-- Locked Mobile Number -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted d-flex justify-content-between">
+                                    <span>{{ _('Registered Mobile Number') }}</span>
+                                    <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{{ _('Locked') }}</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="fas fa-phone"></i></span>
+                                    <input type="text" class="form-control bg-light text-muted" value="{{ user.phone }}" readonly disabled>
+                                </div>
+                                <small class="text-muted" style="font-size: 0.78rem;">{{ _('Required for primary chart pairing') }}</small>
+                            </div>
+
+                            <!-- Editable DOB -->
+                            <div class="col-md-6">
+                                {{ form.dob.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-calendar-alt text-primary"></i></span>
+                                    {{ form.dob(class="form-control", placeholder="YYYY-MM-DD") }}
+                                </div>
+                                {% if form.dob.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.dob.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Editable Blood Group -->
+                            <div class="col-md-6">
+                                {{ form.blood_group.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-tint text-danger"></i></span>
+                                    {{ form.blood_group(class="form-select") }}
+                                </div>
+                                {% if form.blood_group.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.blood_group.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Editable Emergency Contact -->
+                            <div class="col-md-6">
+                                {{ form.emergency_contact.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-phone-alt text-warning"></i></span>
+                                    {{ form.emergency_contact(class="form-control", placeholder="+91-XXXXX-XXXXX") }}
+                                </div>
+                                {% if form.emergency_contact.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.emergency_contact.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Editable Residential Address -->
+                            <div class="col-md-6">
+                                {{ form.address.label(class="form-label fw-semibold") }}
+                                {{ form.address(class="form-control", rows="2", placeholder=_("Street address, city, state, postal code")) }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.address.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Editable Allergies -->
+                            <div class="col-12">
+                                {{ form.allergies.label(class="form-label fw-semibold") }}
+                                {{ form.allergies(class="form-control", rows="2", placeholder=_("e.g. Penicillin, Sulfa drugs, Peanuts, Latex, Aspirin")) }}
+                                {% if form.allergies.errors %}
+                                    <div class="text-danger small mt-1">{% for err in form.allergies.errors %}<div>{{ err }}</div>{% endfor %}</div>
+                                {% endif %}
+                                <div class="form-text small text-muted">
+                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>{{ _('Keep this updated so physicians and pharmacists avoid contra-indicated prescriptions.') }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% if is_doctor %}{{ url_for('dashboard') }}{% else %}{{ url_for('patient_portal') }}{% endif %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Portal') }}
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm">
+                                <i class="fas fa-save me-1"></i>{{ _('Save Changes') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

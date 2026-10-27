@@ -29,7 +29,7 @@
                                 </h5>
                             </div>
                             
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-6 mb-3">
                                 {{ form.name.label(class="form-label fw-semibold") }}
                                 {{ form.name(class="form-control", placeholder="Enter patient's full name") }}
                                 {% if form.name.errors %}
@@ -41,12 +41,24 @@
                                 {% endif %}
                             </div>
                             
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 {{ form.age.label(class="form-label fw-semibold") }}
                                 {{ form.age(class="form-control", placeholder="Age") }}
                                 {% if form.age.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.age.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                {{ form.dob.label(class="form-label fw-semibold") }}
+                                {{ form.dob(class="form-control", type="date") }}
+                                {% if form.dob.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.dob.errors %}
                                             <div>{{ error }}</div>
                                         {% endfor %}
                                     </div>

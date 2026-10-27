@@ -15,12 +15,12 @@
                             <p class="text-muted mb-3">{{ _('Patient ID') }}: #{{ patient.id }}</p>
                             <div class="row">
                                 <div class="col-md-3 mb-2">
-                                    <small class="text-muted">{{ _('Age') }}</small>
-                                    <div class="fw-semibold">{{ patient.age }} {{ _('years') }}</div>
+                                    <small class="text-muted">{{ _('Date of Birth') }}</small>
+                                    <div class="fw-semibold">{{ patient.dob or _('Not specified') }}</div>
                                 </div>
                                 <div class="col-md-3 mb-2">
-                                    <small class="text-muted">{{ _('Gender') }}</small>
-                                    <div class="fw-semibold">{{ patient.gender.title() }}</div>
+                                    <small class="text-muted">{{ _('Age & Gender') }}</small>
+                                    <div class="fw-semibold">{{ patient.age }} {{ _('years') }} &bull; {{ patient.gender.title() }}</div>
                                 </div>
                                 <div class="col-md-3 mb-2">
                                     <small class="text-muted">{{ _('Blood Group') }}</small>
@@ -33,22 +33,31 @@
                             </div>
                         </div>
                         <div class="text-end">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-cog me-2"></i>{{ _('Actions') }}
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ url_for('upload_predict') }}">
-                                        <i class="fas fa-upload me-2"></i>{{ _('Upload X-ray') }}
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="#">
-                                        <i class="fas fa-edit me-2"></i>{{ _('Edit Patient Info') }}
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#">
-                                        <i class="fas fa-trash me-2"></i>{{ _('Delete Patient') }}
-                                    </a></li>
-                                </ul>
+                            <div class="d-flex gap-2">
+                                {% if current_user.is_doctor() %}
+                                <a href="{{ url_for('add_checkup', patient_id=patient.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-stethoscope me-1"></i>{{ _('Record Checkup') }}
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog me-1"></i>{{ _('Manage') }}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item" href="{{ url_for('upload_predict') }}">
+                                            <i class="fas fa-upload me-2 text-success"></i>{{ _('Upload X-ray Scan') }}
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('edit_patient', patient_id=patient.id) }}">
+                                            <i class="fas fa-user-edit me-2 text-primary"></i>{{ _('Edit Patient Credentials') }}
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><span class="dropdown-item text-muted small"><i class="fas fa-lock me-2 text-success"></i>{{ _('Records are permanent (Audit Protected)') }}</span></li>
+                                    </ul>
+                                </div>
+                                {% else %}
+                                <a href="{{ url_for('messages') }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-comment-medical me-1"></i>{{ _('Message Doctor') }}
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -213,6 +222,131 @@
                             <a href="{{ url_for('upload_predict') }}" class="btn btn-success">
                                 <i class="fas fa-upload me-2"></i>{{ _('Upload X-ray') }}
                             </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Clinical Checkup Visits & Vitals Section -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="mb-0">
+                            <i class="fas fa-stethoscope me-2"></i>{{ _('Clinical Checkup & Hospital Visits') }}
+                        </h5>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if current_user.is_doctor() %}
+                            <a href="{{ url_for('add_checkup', patient_id=patient.id) }}" class="btn btn-sm btn-light text-primary fw-bold">
+                                <i class="fas fa-plus me-1"></i>{{ _('Record New Checkup') }}
+                            </a>
+                            {% endif %}
+                            <span class="badge bg-light text-dark">{{ checkups|length }} {{ _('Visits Recorded') }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    {% if checkups %}
+                        <div class="timeline">
+                            {% for c in checkups %}
+                            <div class="p-3 mb-3 bg-light rounded-3 border">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-primary">
+                                            <i class="fas fa-calendar-check me-1"></i>{{ c.visit_date.strftime('%d %B %Y, %I:%M %p') }}
+                                        </h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-user-md me-1"></i>{{ c.doctor_name }} &bull; <i class="fas fa-hospital me-1"></i>{{ c.hospital_name }}
+                                        </small>
+                                    </div>
+                                    {% if c.next_follow_up %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i>{{ _('Next Follow-up') }}: {{ c.next_follow_up }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Vitals Strip -->
+                                <div class="row g-2 text-center mb-3">
+                                    {% if c.blood_pressure %}
+                                    <div class="col-6 col-md-auto">
+                                        <div class="px-2 py-1 bg-white border rounded small">
+                                            <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Blood Pressure') }}</span>
+                                            <strong class="text-danger">{{ c.blood_pressure }}</strong>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if c.heart_rate %}
+                                    <div class="col-6 col-md-auto">
+                                        <div class="px-2 py-1 bg-white border rounded small">
+                                            <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Heart Rate') }}</span>
+                                            <strong class="text-danger">{{ c.heart_rate }}</strong>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if c.blood_sugar %}
+                                    <div class="col-6 col-md-auto">
+                                        <div class="px-2 py-1 bg-white border rounded small">
+                                            <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Blood Sugar') }}</span>
+                                            <strong class="text-info">{{ c.blood_sugar }}</strong>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if c.temperature %}
+                                    <div class="col-6 col-md-auto">
+                                        <div class="px-2 py-1 bg-white border rounded small">
+                                            <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Temperature') }}</span>
+                                            <strong class="text-warning">{{ c.temperature }}</strong>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if c.weight %}
+                                    <div class="col-6 col-md-auto">
+                                        <div class="px-2 py-1 bg-white border rounded small">
+                                            <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Weight') }}</span>
+                                            <strong>{{ c.weight }}</strong>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Diagnosis & Prescriptions -->
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="p-2 bg-white rounded border h-100">
+                                            <div class="small fw-bold text-success mb-1">
+                                                <i class="fas fa-clipboard-check me-1"></i>{{ _('Clinical Diagnosis & Findings') }}
+                                            </div>
+                                            <p class="mb-0 small text-dark">{{ c.diagnosis }}</p>
+                                            {% if c.symptoms %}
+                                            <div class="small text-muted mt-1"><em>{{ _('Reported Symptoms') }}: {{ c.symptoms }}</em></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-2 bg-white rounded border h-100">
+                                            <div class="small fw-bold text-primary mb-1">
+                                                <i class="fas fa-pills me-1"></i>{{ _('Prescription & Medical Orders') }}
+                                            </div>
+                                            <p class="mb-0 small text-dark">{{ c.prescriptions or _('None recorded') }}</p>
+                                            {% if c.clinical_notes %}
+                                            <div class="small text-muted mt-1">{{ _('Advice') }}: {{ c.clinical_notes }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-stethoscope fa-3x text-muted mb-2"></i>
+                            <h6 class="text-muted">{{ _('No checkup records logged yet') }}</h6>
+                            <p class="text-muted small">{{ _('Doctor can add clinical visit vitals, prescriptions, and diagnosis notes.') }}</p>
+                            {% if current_user.is_doctor() %}
+                            <a href="{{ url_for('add_checkup', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i>{{ _('Record First Checkup') }}
+                            </a>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>

@@ -18,8 +18,13 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% if current_user.is_authenticated %}{% if current_user.is_patient() %}{{ url_for('patient_portal') }}{% else %}{{ url_for('dashboard') }}{% endif %}{% else %}{{ url_for('index') }}{% endif %}">
                 <i class="fas fa-heartbeat me-2"></i>MediScan AI
+                {% if current_user.is_authenticated %}
+                <span class="badge ms-2 {% if current_user.is_patient() %}bg-info text-dark{% else %}bg-light text-primary{% endif %} small text-uppercase" style="font-size: 0.68rem;">
+                    {{ _('Patient Portal') if current_user.is_patient() else _('Doctor Portal') }}
+                </span>
+                {% endif %}
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -28,27 +33,62 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    {% if not current_user.is_authenticated %}
+                    <!-- Landing Page Navigation (Only shown when logged out) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">{{ _('Home') }}</a>
+                        <a class="nav-link" href="{{ url_for('index') }}"><i class="fas fa-home me-1"></i>{{ _('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}">{{ _('About Us') }}</a>
+                        <a class="nav-link" href="{{ url_for('about') }}"><i class="fas fa-info-circle me-1"></i>{{ _('About Us') }}</a>
                     </li>
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">{{ _('Dashboard') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('patient_form') }}">{{ _('Add Patient') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('upload_predict') }}">{{ _('Upload X-ray') }}</a>
-                    </li>
+                    {% else %}
+                        {% if current_user.is_doctor() %}
+                        <!-- Doctor Portal Navigation (Clinical & Reports only) -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-chart-line me-1"></i>{{ _('Dashboard') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('patient_form') }}"><i class="fas fa-user-plus me-1"></i>{{ _('Add Patient') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('add_checkup') }}"><i class="fas fa-stethoscope me-1"></i>{{ _('Add Checkup') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('upload_predict') }}"><i class="fas fa-x-ray me-1"></i>{{ _('Upload X-ray') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="{{ url_for('messages') }}">
+                                <i class="fas fa-comments me-1"></i>{{ _('Messages') }}
+                                {% if unread_msgs > 0 %}
+                                <span class="badge bg-danger rounded-pill ms-1">{{ unread_msgs }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% else %}
+                        <!-- Patient Portal Navigation (Personal Health Records only) -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('patient_portal') }}"><i class="fas fa-notes-medical me-1"></i>{{ _('My Health Portal') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('patient_portal') }}#checkups"><i class="fas fa-heartbeat me-1"></i>{{ _('Checkups & Vitals') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('patient_portal') }}#predictions"><i class="fas fa-file-medical-alt me-1"></i>{{ _('X-ray Reports') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="{{ url_for('messages') }}">
+                                <i class="fas fa-comment-medical me-1"></i>{{ _('Message Doctor') }}
+                                {% if unread_msgs > 0 %}
+                                <span class="badge bg-danger rounded-pill ms-1">{{ unread_msgs }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
                 
                 <!-- Language Selector -->
-                <div class="dropdown me-3">
+                <div class="dropdown me-2">
                     <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-globe me-1"></i>
                         <span id="currentLanguage">{{ current_lang_info.flag if current_lang_info else '🌐' }} {{ current_lang_info.native if current_lang_info else 'English' }}</span>
@@ -68,28 +108,58 @@
                     </ul>
                 </div>
                 
+                {% if current_user.is_authenticated %}
+                <!-- Notifications Bell -->
+                <a class="btn btn-outline-light btn-sm position-relative me-3" href="{{ url_for('notifications') }}" title="{{ _('Notifications') }}">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_notifs > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                        {{ unread_notifs }}
+                    </span>
+                    {% endif %}
+                </a>
+                {% endif %}
+
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>{{ current_user.name }}
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fa-lg me-1"></i>
+                            <span>{{ current_user.name }}</span>
                         </a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li class="px-3 py-1">
+                                <small class="text-muted text-uppercase fw-bold">{{ current_user.role.title() }}</small>
+                                <div class="fw-semibold text-truncate" style="max-width: 180px;">{{ current_user.email }}</div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">
+                                <i class="fas fa-id-card me-2 text-primary"></i>{{ _('Profile & Settings') }}
+                            </a></li>
+                            {% if current_user.is_doctor() %}
                             <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-2"></i>{{ _('Dashboard') }}
+                                <i class="fas fa-tachometer-alt me-2 text-success"></i>{{ _('Doctor Dashboard') }}
+                            </a></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{{ url_for('patient_portal') }}">
+                                <i class="fas fa-tachometer-alt me-2 text-info"></i>{{ _('My Health Portal') }}
+                            </a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ url_for('messages') }}">
+                                <i class="fas fa-comments me-2 text-warning"></i>{{ _('Messages') }}
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
                                 <i class="fas fa-sign-out-alt me-2"></i>{{ _('Logout') }}
                             </a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">{{ _('Login') }}</a>
+                        <a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-1"></i>{{ _('Login') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('signup') }}">{{ _('Sign Up') }}</a>
+                        <a class="nav-link btn btn-outline-light btn-sm ms-lg-2 px-3 text-white" href="{{ url_for('signup') }}">{{ _('Sign Up') }}</a>
                     </li>
                     {% endif %}
                 </ul>

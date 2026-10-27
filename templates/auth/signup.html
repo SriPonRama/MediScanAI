@@ -17,6 +17,29 @@
                     <form method="POST" novalidate>
                         {{ form.hidden_tag() }}
                         
+                        <!-- Account Type / Portal Role Selection -->
+                        <div class="mb-4 p-3 bg-light rounded-3 border">
+                            <label class="form-label fw-bold d-block text-primary"><i class="fas fa-user-tag me-1"></i>{{ _('I am registering as:') }}</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="role" id="role_doctor" value="doctor" {% if form.role.data != 'patient' %}checked{% endif %} onchange="toggleDoctorFields()">
+                                    <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center" for="role_doctor">
+                                        <i class="fas fa-user-md fa-lg mb-1"></i>
+                                        <span class="fw-bold">{{ _('Doctor / Specialist') }}</span>
+                                        <small class="text-muted" style="font-size: 0.72rem;">{{ _('Hospital / Clinic Portal') }}</small>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="role" id="role_patient" value="patient" {% if form.role.data == 'patient' %}checked{% endif %} onchange="toggleDoctorFields()">
+                                    <label class="btn btn-outline-info w-100 py-2 d-flex flex-column align-items-center" for="role_patient">
+                                        <i class="fas fa-user-injured fa-lg mb-1"></i>
+                                        <span class="fw-bold text-dark">{{ _('Patient') }}</span>
+                                        <small class="text-muted" style="font-size: 0.72rem;">{{ _('Personal Health Portal') }}</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-semibold">{{ _('Full Name') }}</label>
@@ -40,6 +63,18 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Doctor Specific Fields -->
+                        <div id="doctorFieldsGroup" class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">{{ _('Hospital / Clinic') }}</label>
+                                {{ form.hospital_name(class="form-control", placeholder=_('e.g. City General Hospital')) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">{{ _('Specialty') }}</label>
+                                {{ form.specialization(class="form-control", placeholder=_('e.g. Radiologist, Orthopedic')) }}
                             </div>
                         </div>
                         
@@ -132,6 +167,13 @@ function togglePassword(fieldId, iconId) {
         toggleIcon.classList.remove('fa-eye-slash');
         toggleIcon.classList.add('fa-eye');
     }
+function toggleDoctorFields() {
+    const isDoctor = document.getElementById('role_doctor').checked;
+    const group = document.getElementById('doctorFieldsGroup');
+    if (group) {
+        group.style.display = isDoctor ? 'flex' : 'none';
+    }
 }
+document.addEventListener('DOMContentLoaded', toggleDoctorFields);
 </script>
 {% endblock %}
