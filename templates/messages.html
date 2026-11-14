@@ -11,13 +11,13 @@
                 <!-- Sidebar Header -->
                 <div class="p-3 bg-white border-bottom">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <h5 class="fw-bold mb-0">
-                            <i class="fas fa-comments text-primary me-2"></i>{{ _('Conversations') }}
+                        <h5 class="fw-bold mb-0 fs-6">
+                            <i class="bi bi-chat-dots text-primary me-2"></i>{{ _('Conversations') }}
                         </h5>
                         <span class="badge bg-primary rounded-pill">{{ contacts|length }}</span>
                     </div>
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
                         <input type="text" id="contactSearch" class="form-control bg-light border-start-0" placeholder="{{ _('Search contacts...') }}" onkeyup="filterContacts()">
                     </div>
                 </div>
@@ -32,14 +32,13 @@
                            class="contact-item list-group-item list-group-item-action p-3 border-bottom d-flex align-items-center gap-3 {% if active_chat and active_chat.id == u.id %}bg-white border-start border-primary border-4 shadow-sm{% endif %}"
                            style="transition: all 0.2s ease;">
                             <div class="position-relative">
-                                <div class="rounded-circle {% if u.is_doctor() %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10 text-{% if u.is_doctor() %}primary{% else %}success{% endif %} d-flex align-items-center justify-content-center" 
-                                     style="width: 48px; height: 48px; font-size: 1.25rem;">
+                                <span class="flat-icon-badge flat-icon-badge-md {% if u.is_doctor() %}flat-icon-primary{% else %}flat-icon-success{% endif %}">
                                     {% if u.is_doctor() %}
-                                    <i class="fas fa-user-md"></i>
+                                    <i class="bi bi-person-badge fs-5"></i>
                                     {% else %}
-                                    <i class="fas fa-user-injured"></i>
+                                    <i class="bi bi-person fs-5"></i>
                                     {% endif %}
-                                </div>
+                                </span>
                                 {% if c.unread > 0 %}
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
                                     {{ c.unread }}
@@ -64,7 +63,9 @@
                         {% endfor %}
                     {% else %}
                         <div class="text-center p-4 text-muted">
-                            <i class="fas fa-inbox fa-3x mb-2 opacity-50"></i>
+                            <span class="flat-icon-badge flat-icon-badge-lg flat-icon-secondary mb-2 d-inline-flex">
+                                <i class="bi bi-inbox fs-4 opacity-50"></i>
+                            </span>
                             <p class="small mb-0">{{ _('No conversation partners available yet.') }}</p>
                         </div>
                     {% endif %}
@@ -77,16 +78,15 @@
                 <!-- Chat Header -->
                 <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-white shadow-sm" style="z-index: 5;">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle {% if active_chat.is_doctor() %}bg-primary{% else %}bg-success{% endif %} bg-opacity-10 text-{% if active_chat.is_doctor() %}primary{% else %}success{% endif %} d-flex align-items-center justify-content-center" 
-                             style="width: 44px; height: 44px; font-size: 1.2rem;">
+                        <span class="flat-icon-badge flat-icon-badge-md {% if active_chat.is_doctor() %}flat-icon-primary{% else %}flat-icon-success{% endif %}">
                             {% if active_chat.is_doctor() %}
-                            <i class="fas fa-user-md"></i>
+                            <i class="bi bi-person-badge fs-5"></i>
                             {% else %}
-                            <i class="fas fa-user-injured"></i>
+                            <i class="bi bi-person fs-5"></i>
                             {% endif %}
-                        </div>
+                        </span>
                         <div>
-                            <h5 class="mb-0 fw-bold">
+                            <h5 class="mb-0 fw-bold fs-6">
                                 {% if active_chat.is_doctor() %}Dr. {% endif %}{{ active_chat.name }}
                                 <span class="badge {% if active_chat.is_doctor() %}bg-primary{% else %}bg-success{% endif %} ms-1 small" style="font-size: 0.7rem;">
                                     {{ active_chat.role.title() }}
@@ -94,9 +94,9 @@
                             </h5>
                             <small class="text-muted">
                                 {% if active_chat.is_doctor() %}
-                                <i class="fas fa-hospital me-1"></i>{{ active_chat.hospital_name or 'MediScan AI' }} &bull; {{ active_chat.specialization or '' }}
+                                <i class="bi bi-hospital me-1"></i>{{ active_chat.hospital_name or 'MediScan AI' }} &bull; {{ active_chat.specialization or '' }}
                                 {% else %}
-                                <i class="fas fa-phone me-1"></i>{{ active_chat.phone }}
+                                <i class="bi bi-telephone me-1"></i>{{ active_chat.phone }}
                                 {% endif %}
                             </small>
                         </div>
@@ -104,7 +104,7 @@
 
                     <!-- Target Language Dropdown for Translation -->
                     <div class="d-flex align-items-center gap-2">
-                        <span class="small text-muted d-none d-lg-inline"><i class="fas fa-language text-primary me-1"></i>{{ _('Translate into') }}:</span>
+                        <span class="small text-muted d-none d-lg-inline"><i class="bi bi-translate text-primary me-1"></i>{{ _('Translate into') }}:</span>
                         <select id="chatTargetLanguage" class="form-select form-select-sm" style="width: auto;">
                             {% for code, lang in supported_languages.items() %}
                             <option value="{{ code }}" {% if code == current_lang %}selected{% endif %}>
@@ -118,7 +118,7 @@
                 <!-- Messages Thread Scroll Area -->
                 <div class="flex-grow-1 p-4 overflow-auto" id="messagesContainer" style="background: #f8fafc;">
                     {% if chat_messages %}
-                        <div class="d-flex flex-column gap-3">
+                        <div class="d-flex flex-column gap-3" id="messagesList">
                             {% for msg in chat_messages %}
                             {% set is_me = (msg.sender_id == current_user.id) %}
                             <div class="d-flex flex-column {% if is_me %}align-items-end{% else %}align-items-start{% endif %}">
@@ -142,9 +142,9 @@
                                     <div class="translated-box mt-2 p-2 rounded d-none" 
                                          style="{% if is_me %}background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;{% else %}background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a;{% endif %} font-size: 0.9rem;">
                                         <div class="d-flex align-items-center justify-content-between mb-1 small opacity-75">
-                                            <span><i class="fas fa-language me-1"></i><span class="target-lang-label"></span>:</span>
+                                            <span><i class="bi bi-translate me-1"></i><span class="target-lang-label"></span>:</span>
                                             <button class="btn btn-link btn-sm p-0 text-decoration-none {% if is_me %}text-white{% else %}text-muted{% endif %}" onclick="closeTranslation({{ msg.id }})">
-                                                <i class="fas fa-times"></i>
+                                                <i class="bi bi-x fs-6"></i>
                                             </button>
                                         </div>
                                         <div class="translated-text fw-medium"></div>
@@ -153,13 +153,13 @@
                                     <!-- Metadata & Translate Action Button -->
                                     <div class="d-flex align-items-center justify-content-between gap-3 mt-2 pt-1 {% if is_me %}border-top border-white border-opacity-25{% else %}border-top border-light{% endif %}" style="font-size: 0.72rem;">
                                         <span class="opacity-75">
-                                            <i class="fas fa-clock me-1"></i>{{ msg.created_at.strftime('%I:%M %p') }}
+                                            <i class="bi bi-clock me-1"></i>{{ msg.created_at.strftime('%I:%M %p') }}
                                         </span>
                                         <button type="button" 
                                                 class="btn btn-sm py-0 px-2 rounded-pill {% if is_me %}btn-outline-light{% else %}btn-outline-primary{% endif %}" 
                                                 style="font-size: 0.7rem;"
                                                 onclick="translateMessage({{ msg.id }}, `{{ msg.message|e }}`)">
-                                            <i class="fas fa-language me-1"></i>{{ _('Translate') }}
+                                            <i class="bi bi-translate me-1"></i>{{ _('Translate') }}
                                         </button>
                                     </div>
                                 </div>
@@ -168,10 +168,10 @@
                         </div>
                     {% else %}
                         <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
-                            <div class="rounded-circle bg-light p-4 mb-3">
-                                <i class="fas fa-comments fa-3x text-primary opacity-50"></i>
-                            </div>
-                            <h5>{{ _('Start a Medical Consultation') }}</h5>
+                            <span class="flat-icon-badge flat-icon-badge-xl flat-icon-primary mb-3 d-inline-flex">
+                                <i class="bi bi-chat-dots fs-1"></i>
+                            </span>
+                            <h5 class="fw-bold">{{ _('Start a Medical Consultation') }}</h5>
                             <p class="small text-muted text-center" style="max-width: 400px;">
                                 {{ _('Send queries regarding diagnostic findings, medication routines, or symptoms in your native language (e.g. Tamil, Telugu, Hindi, English). Real-time translation will assist seamlessly.') }}
                             </p>
@@ -188,16 +188,16 @@
                                       placeholder="{{ _('Type your message or medical query in any language (e.g., Tamil, English, Hindi)...') }}" 
                                       required style="resize: none;"></textarea>
                             <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2">
-                                <i class="fas fa-paper-plane"></i>
+                                <i class="bi bi-send"></i>
                                 <span class="d-none d-sm-inline">{{ _('Send') }}</span>
                             </button>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-2 px-1">
                             <small class="text-muted" style="font-size: 0.75rem;">
-                                <i class="fas fa-globe text-primary me-1"></i>{{ _('Multilingual Support Active') }} &bull; {{ _('Press Enter to send (Shift+Enter for new line)') }}
+                                <i class="bi bi-globe2 text-primary me-1"></i>{{ _('Multilingual Support Active') }} &bull; {{ _('Press Enter to send (Shift+Enter for new line)') }}
                             </small>
                             <span class="badge bg-light text-secondary border" style="font-size: 0.7rem;">
-                                <i class="fas fa-lock text-success me-1"></i>{{ _('End-to-End Logged EHR') }}
+                                <i class="bi bi-shield-check text-success me-1"></i>{{ _('End-to-End Logged EHR') }}
                             </span>
                         </div>
                     </form>
@@ -206,11 +206,11 @@
                 {% else %}
                 <!-- No Active Chat Selected -->
                 <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted p-4">
-                    <div class="rounded-circle bg-light p-4 mb-3">
-                        <i class="fas fa-comment-medical fa-4x text-primary opacity-50"></i>
-                    </div>
-                    <h4>{{ _('Select a Conversation') }}</h4>
-                    <p class="text-muted text-center" style="max-width: 400px;">
+                    <span class="flat-icon-badge flat-icon-badge-xl flat-icon-primary mb-3 d-inline-flex">
+                        <i class="bi bi-chat-heart fs-1"></i>
+                    </span>
+                    <h4 class="fw-bold fs-5">{{ _('Select a Conversation') }}</h4>
+                    <p class="text-muted text-center small" style="max-width: 400px;">
                         {{ _('Choose a patient or doctor from the left sidebar to review consultation history and communicate with multilingual translation assistance.') }}
                     </p>
                 </div>
@@ -221,6 +221,9 @@
 </div>
 
 <script>
+let latestMsgId = {{ chat_messages[-1].id if chat_messages else 0 }};
+const activeChatId = {{ active_chat.id if active_chat else 'null' }};
+
 // Auto scroll to bottom of chat
 function scrollToBottom() {
     const container = document.getElementById('messagesContainer');
@@ -246,11 +249,117 @@ if (msgInput) {
     msgInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            if (this.value.trim() !== '') {
-                document.getElementById('chatForm').submit();
-            }
+            sendMessageAjax();
         }
     });
+}
+
+// AJAX Send Message (instant UI response without page reload)
+function sendMessageAjax() {
+    const input = document.getElementById('messageInput');
+    const form = document.getElementById('chatForm');
+    if (!input || !form) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            input.value = '';
+            // Fetch the newly created message immediately
+            pollNewMessages();
+        } else {
+            form.submit();
+        }
+    })
+    .catch(err => {
+        console.warn('AJAX send error, falling back to standard submit:', err);
+        form.submit();
+    });
+}
+
+// Poll for incoming messages every 4 seconds
+function pollNewMessages() {
+    if (!activeChatId) return;
+
+    fetch(`/api/messages/${activeChatId}?after=${latestMsgId}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.messages && data.messages.length > 0) {
+            let list = document.getElementById('messagesList');
+            const container = document.getElementById('messagesContainer');
+
+            // If empty placeholder was shown, clear it and create list
+            if (!list && container) {
+                container.innerHTML = '<div class="d-flex flex-column gap-3" id="messagesList"></div>';
+                list = document.getElementById('messagesList');
+            }
+
+            data.messages.forEach(msg => {
+                if (msg.id > latestMsgId) {
+                    latestMsgId = msg.id;
+                    const isMe = msg.is_me;
+                    const bubble = document.createElement('div');
+                    bubble.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
+                    bubble.innerHTML = `
+                        <div class="message-bubble p-3 rounded shadow-sm position-relative" id="msg-${msg.id}"
+                             style="max-width: 75%; ${isMe ? 'background: #0d6efd; color: white; border-bottom-right-radius: 4px !important;' : 'background: white; color: #212529; border: 1px solid #e9ecef; border-bottom-left-radius: 4px !important;'}">
+                            <div class="small fw-semibold mb-1 opacity-75" style="font-size: 0.75rem;">
+                                ${isMe ? 'You' : msg.sender_name}
+                            </div>
+                            <div class="msg-text fs-6 mb-1" style="white-space: pre-wrap; word-break: break-word;">${escapeHtml(msg.message)}</div>
+                            <div class="translated-box mt-2 p-2 rounded d-none" 
+                                 style="${isMe ? 'background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;' : 'background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a;'} font-size: 0.9rem;">
+                                <div class="d-flex align-items-center justify-content-between mb-1 small opacity-75">
+                                    <span><i class="bi bi-translate me-1"></i><span class="target-lang-label"></span>:</span>
+                                    <button class="btn btn-link btn-sm p-0 text-decoration-none ${isMe ? 'text-white' : 'text-muted'}" onclick="closeTranslation(${msg.id})">
+                                        <i class="bi bi-x fs-6"></i>
+                                    </button>
+                                </div>
+                                <div class="translated-text fw-medium"></div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between gap-3 mt-2 pt-1 ${isMe ? 'border-top border-white border-opacity-25' : 'border-top border-light'}" style="font-size: 0.72rem;">
+                                <span class="opacity-75">
+                                    <i class="bi bi-clock me-1"></i>${msg.time}
+                                </span>
+                                <button type="button" 
+                                        class="btn btn-sm py-0 px-2 rounded-pill ${isMe ? 'btn-outline-light' : 'btn-outline-primary'}" 
+                                        style="font-size: 0.7rem;"
+                                        onclick="translateMessage(${msg.id}, ${JSON.stringify(msg.message)})">
+                                    <i class="bi bi-translate me-1"></i>Translate
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(bubble);
+                }
+            });
+            scrollToBottom();
+        }
+    })
+    .catch(err => console.debug('Message poll silent note:', err));
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
+}
+
+// Start polling if an active chat is selected
+if (activeChatId) {
+    setInterval(pollNewMessages, 4000);
 }
 
 // Multilingual Inline Translation

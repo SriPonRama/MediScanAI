@@ -9,7 +9,9 @@
             <div class="card shadow-lg border-0">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                        <span class="flat-icon-badge flat-icon-badge-xl flat-icon-primary mb-3 d-inline-flex">
+                            <i class="bi bi-person-plus fs-1"></i>
+                        </span>
                         <h2 class="fw-bold" data-translate="signup-title">{{ _('Create Account') }}</h2>
                         <p class="text-muted" data-translate="signup-subtitle">{{ _('Join MediScan AI for advanced medical diagnosis') }}</p>
                     </div>
@@ -19,12 +21,12 @@
                         
                         <!-- Account Type / Portal Role Selection -->
                         <div class="mb-4 p-3 bg-light rounded-3 border">
-                            <label class="form-label fw-bold d-block text-primary"><i class="fas fa-user-tag me-1"></i>{{ _('I am registering as:') }}</label>
+                            <label class="form-label fw-bold d-block text-primary"><i class="bi bi-person-badge me-1"></i>{{ _('I am registering as:') }}</label>
                             <div class="row g-2">
                                 <div class="col-6">
                                     <input type="radio" class="btn-check" name="role" id="role_doctor" value="doctor" {% if form.role.data != 'patient' %}checked{% endif %} onchange="toggleDoctorFields()">
                                     <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center" for="role_doctor">
-                                        <i class="fas fa-user-md fa-lg mb-1"></i>
+                                        <i class="bi bi-person-badge fs-4 mb-1"></i>
                                         <span class="fw-bold">{{ _('Doctor / Specialist') }}</span>
                                         <small class="text-muted" style="font-size: 0.72rem;">{{ _('Hospital / Clinic Portal') }}</small>
                                     </label>
@@ -32,7 +34,7 @@
                                 <div class="col-6">
                                     <input type="radio" class="btn-check" name="role" id="role_patient" value="patient" {% if form.role.data == 'patient' %}checked{% endif %} onchange="toggleDoctorFields()">
                                     <label class="btn btn-outline-info w-100 py-2 d-flex flex-column align-items-center" for="role_patient">
-                                        <i class="fas fa-user-injured fa-lg mb-1"></i>
+                                        <i class="bi bi-person fs-4 mb-1"></i>
                                         <span class="fw-bold text-dark">{{ _('Patient') }}</span>
                                         <small class="text-muted" style="font-size: 0.72rem;">{{ _('Personal Health Portal') }}</small>
                                     </label>
@@ -96,7 +98,7 @@
                                 <div class="input-group">
                                     {{ form.password(class="form-control", placeholder=_('Create a password'), id="password") }}
                                     <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', 'toggleIcon1')">
-                                        <i class="fas fa-eye" id="toggleIcon1"></i>
+                                        <i class="bi bi-eye" id="toggleIcon1"></i>
                                     </button>
                                 </div>
                                 {% if form.password.errors %}
@@ -113,7 +115,7 @@
                                 <div class="input-group">
                                     {{ form.confirm_password(class="form-control", placeholder=_('Confirm your password'), id="confirm_password") }}
                                     <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password', 'toggleIcon2')">
-                                        <i class="fas fa-eye" id="toggleIcon2"></i>
+                                        <i class="bi bi-eye" id="toggleIcon2"></i>
                                     </button>
                                 </div>
                                 {% if form.confirm_password.errors %}
@@ -160,13 +162,15 @@ function togglePassword(fieldId, iconId) {
     
     if (passwordField.type === 'password') {
         passwordField.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
     } else {
         passwordField.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
     }
+}
+
 function toggleDoctorFields() {
     const isDoctor = document.getElementById('role_doctor').checked;
     const group = document.getElementById('doctorFieldsGroup');

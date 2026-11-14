@@ -18,12 +18,12 @@
     <div class="row mb-5">
         <div class="col-md-6 mb-4">
             <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-bullseye fa-3x text-primary"></i>
-                    </div>
-                    <h3 class="card-title text-center mb-3" data-translate="mission-title">{{ _('Our Mission') }}</h3>
-                    <p class="card-text" data-translate="mission-text">
+                <div class="card-body p-4 text-center">
+                    <span class="flat-icon-badge flat-icon-badge-xl flat-icon-primary mx-auto mb-3">
+                        <i class="bi bi-crosshair fs-1"></i>
+                    </span>
+                    <h3 class="card-title text-center mb-3 fw-bold" data-translate="mission-title">{{ _('Our Mission') }}</h3>
+                    <p class="card-text text-muted text-start" data-translate="mission-text">
                         {{ _('To democratize access to advanced medical diagnosis by providing AI-powered X-ray analysis that assists healthcare professionals in making faster, more accurate diagnoses, ultimately improving patient outcomes worldwide.') }}
                     </p>
                 </div>
@@ -32,12 +32,12 @@
         
         <div class="col-md-6 mb-4">
             <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-eye fa-3x text-success"></i>
-                    </div>
-                    <h3 class="card-title text-center mb-3" data-translate="vision-title">{{ _('Our Vision') }}</h3>
-                    <p class="card-text" data-translate="vision-text">
+                <div class="card-body p-4 text-center">
+                    <span class="flat-icon-badge flat-icon-badge-xl flat-icon-success mx-auto mb-3">
+                        <i class="bi bi-eye fs-1"></i>
+                    </span>
+                    <h3 class="card-title text-center mb-3 fw-bold" data-translate="vision-title">{{ _('Our Vision') }}</h3>
+                    <p class="card-text text-muted text-start" data-translate="vision-text">
                         {{ _('To become the leading AI-powered medical diagnosis platform, bridging the gap between advanced technology and healthcare accessibility, ensuring quality medical care reaches every corner of the world.') }}
                     </p>
                 </div>
@@ -48,15 +48,15 @@
     <!-- Key Features -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="text-center mb-5" data-translate="features-title">{{ _('Key Features') }}</h2>
+            <h2 class="text-center mb-5 fw-bold" data-translate="features-title">{{ _('Key Features') }}</h2>
         </div>
         
         <div class="col-md-4 mb-4">
             <div class="text-center">
-                <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                    <i class="fas fa-robot fa-2x"></i>
-                </div>
-                <h5 data-translate="ai-analysis">{{ _('Advanced AI Analysis') }}</h5>
+                <span class="flat-icon-badge flat-icon-badge-xl flat-icon-primary mx-auto mb-3">
+                    <i class="bi bi-cpu fs-1"></i>
+                </span>
+                <h5 class="fw-bold" data-translate="ai-analysis">{{ _('Advanced AI Analysis') }}</h5>
                 <p class="text-muted" data-translate="ai-analysis-desc">
                     {{ _('State-of-the-art deep learning models trained on extensive medical datasets') }}
                 </p>
@@ -65,10 +65,10 @@
         
         <div class="col-md-4 mb-4">
             <div class="text-center">
-                <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                    <i class="fas fa-shield-alt fa-2x"></i>
-                </div>
-                <h5 data-translate="secure-platform">{{ _('Secure Platform') }}</h5>
+                <span class="flat-icon-badge flat-icon-badge-xl flat-icon-success mx-auto mb-3">
+                    <i class="bi bi-shield-check fs-1"></i>
+                </span>
+                <h5 class="fw-bold" data-translate="secure-platform">{{ _('Secure Platform') }}</h5>
                 <p class="text-muted" data-translate="secure-platform-desc">
                     {{ _('security measures to protect patient data and privacy') }}
                 </p>
@@ -77,10 +77,10 @@
         
         <div class="col-md-4 mb-4">
             <div class="text-center">
-                <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                    <i class="fas fa-users fa-2x"></i>
-                </div>
-                <h5 data-translate="user-friendly">{{ _('User-Friendly Interface') }}</h5>
+                <span class="flat-icon-badge flat-icon-badge-xl flat-icon-info mx-auto mb-3">
+                    <i class="bi bi-people fs-1"></i>
+                </span>
+                <h5 class="fw-bold" data-translate="user-friendly">{{ _('User-Friendly Interface') }}</h5>
                 <p class="text-muted" data-translate="user-friendly-desc">
                     {{ _('Intuitive design that makes advanced AI accessible to all healthcare professionals') }}
                 </p>
@@ -91,39 +91,47 @@
     <!-- Technology Stack -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="text-center mb-5" data-translate="tech-stack-title">Technology Stack</h2>
+            <h2 class="text-center mb-5 fw-bold" data-translate="tech-stack-title">Technology Stack</h2>
         </div>
         
         <div class="col-lg-8 mx-auto">
             <div class="row text-center">
                 <div class="col-md-3 col-6 mb-4">
                     <div class="tech-item">
-                        <i class="fab fa-python fa-3x text-primary mb-2"></i>
-                        <h6>Python</h6>
+                        <span class="flat-icon-badge flat-icon-badge-lg flat-icon-primary mx-auto mb-2">
+                            <i class="bi bi-filetype-py fs-3"></i>
+                        </span>
+                        <h6 class="fw-bold">Python</h6>
                         <small class="text-muted">Backend Development</small>
                     </div>
                 </div>
                 
                 <div class="col-md-3 col-6 mb-4">
                     <div class="tech-item">
-                        <i class="fas fa-brain fa-3x text-success mb-2"></i>
-                        <h6>TensorFlow</h6>
+                        <span class="flat-icon-badge flat-icon-badge-lg flat-icon-success mx-auto mb-2">
+                            <i class="bi bi-diagram-3 fs-3"></i>
+                        </span>
+                        <h6 class="fw-bold">TensorFlow</h6>
                         <small class="text-muted">Machine Learning</small>
                     </div>
                 </div>
                 
                 <div class="col-md-3 col-6 mb-4">
                     <div class="tech-item">
-                        <i class="fab fa-html5 fa-3x text-warning mb-2"></i>
-                        <h6>HTML/CSS</h6>
+                        <span class="flat-icon-badge flat-icon-badge-lg flat-icon-warning mx-auto mb-2">
+                            <i class="bi bi-code-slash fs-3"></i>
+                        </span>
+                        <h6 class="fw-bold">HTML/CSS</h6>
                         <small class="text-muted">Frontend Design</small>
                     </div>
                 </div>
                 
                 <div class="col-md-3 col-6 mb-4">
                     <div class="tech-item">
-                        <i class="fas fa-database fa-3x text-info mb-2"></i>
-                        <h6>Database</h6>
+                        <span class="flat-icon-badge flat-icon-badge-lg flat-icon-info mx-auto mb-2">
+                            <i class="bi bi-database fs-3"></i>
+                        </span>
+                        <h6 class="fw-bold">Database</h6>
                         <small class="text-muted">Data Storage</small>
                     </div>
                 </div>
@@ -131,32 +139,36 @@
         </div>
     </div>
 
-   
-
     <!-- Contact Section -->
     <div class="row">
         <div class="col-12">
             <div class="card bg-light border-0">
                 <div class="card-body text-center p-5">
-                    <h3 class="mb-4" data-translate="contact-title">{{ _('Get in Touch') }}</h3>
+                    <h3 class="mb-4 fw-bold" data-translate="contact-title">{{ _('Get in Touch') }}</h3>
                     <p class="lead mb-4" data-translate="contact-subtitle">
                         {{ _('Have questions or want to learn more about MediScan AI?') }}
                     </p>
                     <div class="row justify-content-center">
                         <div class="col-md-4 mb-3">
-                            <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                            <span class="flat-icon-badge flat-icon-badge-lg flat-icon-primary mx-auto mb-2">
+                                <i class="bi bi-envelope fs-4"></i>
+                            </span>
                             <p class="mb-0"><strong>{{ _('Email') }}</strong></p>
-                            <p class="text-muted">info@mediscan-ai.com</p>
+                            <p class="text-muted small">info@mediscan-ai.com</p>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <i class="fas fa-phone fa-2x text-success mb-2"></i>
+                            <span class="flat-icon-badge flat-icon-badge-lg flat-icon-success mx-auto mb-2">
+                                <i class="bi bi-telephone fs-4"></i>
+                            </span>
                             <p class="mb-0"><strong>{{ _('Phone') }}</strong></p>
-                            <p class="text-muted">+91-98765-43210</p>
+                            <p class="text-muted small">+91-98765-43210</p>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <i class="fas fa-map-marker-alt fa-2x text-info mb-2"></i>
+                            <span class="flat-icon-badge flat-icon-badge-lg flat-icon-info mx-auto mb-2">
+                                <i class="bi bi-geo-alt fs-4"></i>
+                            </span>
                             <p class="mb-0"><strong>{{ _('Location') }}</strong></p>
-                            <p class="text-muted">Coimbatore, Tamil Nadu, India</p>
+                            <p class="text-muted small">Coimbatore, Tamil Nadu, India</p>
                         </div>
                     </div>
                 </div>

@@ -11,16 +11,16 @@
                 <div class="card-header bg-white py-4 px-4 px-md-5 border-bottom">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 58px; height: 58px; font-size: 1.6rem;">
+                            <span class="flat-icon-badge flat-icon-badge-lg {% if is_doctor %}flat-icon-primary{% else %}flat-icon-success{% endif %}">
                                 {% if is_doctor %}
-                                <i class="fas fa-user-md"></i>
+                                <i class="bi bi-person-badge fs-4"></i>
                                 {% else %}
-                                <i class="fas fa-user-injured"></i>
+                                <i class="bi bi-person fs-4"></i>
                                 {% endif %}
-                            </div>
+                            </span>
                             <div>
-                                <h3 class="fw-bold mb-1">{{ _('Account & Profile Management') }}</h3>
-                                <p class="mb-0 text-muted">
+                                <h3 class="fw-bold mb-1 fs-5">{{ _('Account & Profile Management') }}</h3>
+                                <p class="mb-0 text-muted small">
                                     {% if is_doctor %}
                                     {{ _('Update your professional credentials, medical affiliation, and clinic details') }}
                                     {% else %}
@@ -40,7 +40,9 @@
                     {% if not is_doctor %}
                     <!-- Patient Identity Protection Banner -->
                     <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mb-4 p-3" style="border-radius: 12px; background: #fff8e6;">
-                        <i class="fas fa-shield-alt text-warning fa-2x mt-1"></i>
+                        <span class="flat-icon-badge flat-icon-warning mt-1">
+                            <i class="bi bi-shield-lock fs-5"></i>
+                        </span>
                         <div>
                             <strong class="d-block text-dark">{{ _('Clinical Identity Protection Notice') }}</strong>
                             <small class="text-secondary">
@@ -59,7 +61,7 @@
                             <div class="col-md-6">
                                 {{ form.name.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-user-md text-primary"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-person-badge text-primary"></i></span>
                                     {{ form.name(class="form-control") }}
                                 </div>
                                 {% if form.name.errors %}
@@ -70,7 +72,7 @@
                             <div class="col-md-6">
                                 {{ form.phone.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-phone text-primary"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-telephone text-primary"></i></span>
                                     {{ form.phone(class="form-control") }}
                                 </div>
                                 {% if form.phone.errors %}
@@ -81,7 +83,7 @@
                             <div class="col-md-6">
                                 {{ form.hospital_name.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-hospital text-primary"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-hospital text-primary"></i></span>
                                     {{ form.hospital_name(class="form-control", placeholder=_("e.g. City General Hospital")) }}
                                 </div>
                                 {% if form.hospital_name.errors %}
@@ -92,7 +94,7 @@
                             <div class="col-md-6">
                                 {{ form.specialization.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-stethoscope text-primary"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-heart-pulse text-primary"></i></span>
                                     {{ form.specialization(class="form-control", placeholder=_("e.g. Radiologist, Orthopedic Surgeon")) }}
                                 </div>
                                 {% if form.specialization.errors %}
@@ -108,10 +110,10 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-muted d-flex justify-content-between">
                                     <span>{{ _('Full Legal Name') }}</span>
-                                    <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{{ _('Locked') }}</span>
+                                    <span class="badge bg-secondary"><i class="bi bi-lock-fill me-1"></i>{{ _('Locked') }}</span>
                                 </label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light text-muted"><i class="fas fa-id-card"></i></span>
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person-vcard"></i></span>
                                     <input type="text" class="form-control bg-light text-muted" value="{{ user.name }}" readonly disabled>
                                 </div>
                                 <small class="text-muted" style="font-size: 0.78rem;">{{ _('Managed by attending physician') }}</small>
@@ -121,10 +123,10 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-muted d-flex justify-content-between">
                                     <span>{{ _('Registered Mobile Number') }}</span>
-                                    <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{{ _('Locked') }}</span>
+                                    <span class="badge bg-secondary"><i class="bi bi-lock-fill me-1"></i>{{ _('Locked') }}</span>
                                 </label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light text-muted"><i class="fas fa-phone"></i></span>
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-phone"></i></span>
                                     <input type="text" class="form-control bg-light text-muted" value="{{ user.phone }}" readonly disabled>
                                 </div>
                                 <small class="text-muted" style="font-size: 0.78rem;">{{ _('Required for primary chart pairing') }}</small>
@@ -134,7 +136,7 @@
                             <div class="col-md-6">
                                 {{ form.dob.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-calendar-alt text-primary"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-calendar-event text-primary"></i></span>
                                     {{ form.dob(class="form-control", placeholder="YYYY-MM-DD") }}
                                 </div>
                                 {% if form.dob.errors %}
@@ -146,7 +148,7 @@
                             <div class="col-md-6">
                                 {{ form.blood_group.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-tint text-danger"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-droplet text-danger"></i></span>
                                     {{ form.blood_group(class="form-select") }}
                                 </div>
                                 {% if form.blood_group.errors %}
@@ -158,7 +160,7 @@
                             <div class="col-md-6">
                                 {{ form.emergency_contact.label(class="form-label fw-semibold") }}
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-phone-alt text-warning"></i></span>
+                                    <span class="input-group-text bg-white"><i class="bi bi-telephone-plus text-warning"></i></span>
                                     {{ form.emergency_contact(class="form-control", placeholder="+91-XXXXX-XXXXX") }}
                                 </div>
                                 {% if form.emergency_contact.errors %}
@@ -183,7 +185,7 @@
                                     <div class="text-danger small mt-1">{% for err in form.allergies.errors %}<div>{{ err }}</div>{% endfor %}</div>
                                 {% endif %}
                                 <div class="form-text small text-muted">
-                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>{{ _('Keep this updated so physicians and pharmacists avoid contra-indicated prescriptions.') }}
+                                    <i class="bi bi-exclamation-triangle text-warning me-1"></i>{{ _('Keep this updated so physicians and pharmacists avoid contra-indicated prescriptions.') }}
                                 </div>
                             </div>
                         </div>
@@ -192,10 +194,10 @@
                         <!-- Submit Button -->
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                             <a href="{% if is_doctor %}{{ url_for('dashboard') }}{% else %}{{ url_for('patient_portal') }}{% endif %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Portal') }}
+                                <i class="bi bi-arrow-left me-1"></i>{{ _('Back to Portal') }}
                             </a>
                             <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm">
-                                <i class="fas fa-save me-1"></i>{{ _('Save Changes') }}
+                                <i class="bi bi-floppy me-1"></i>{{ _('Save Changes') }}
                             </button>
                         </div>
                     </form>

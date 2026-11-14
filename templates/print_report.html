@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clinical Radiology Report - {{ patient.name }} - MediScan AI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #212529; background: #fff; font-size: 13px; }
         .report-header { border-bottom: 2px solid #0d6efd; padding-bottom: 12px; margin-bottom: 15px; }
@@ -23,15 +23,15 @@
         <div class="no-print mb-4 p-2 bg-light border rounded d-flex justify-content-between align-items-center">
             <span><strong>Radiology Print Preview</strong> &bull; Ready for physical print or Save to PDF</span>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print me-1"></i> Print / Save as PDF</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="window.close()"><i class="fas fa-times me-1"></i> Close</button>
+                <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i> Print / Save as PDF</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="window.close()"><i class="bi bi-x me-1"></i> Close</button>
             </div>
         </div>
 
         <!-- Clinic Header Banner -->
         <div class="report-header d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="fw-bold text-primary mb-0"><i class="fas fa-heartbeat me-2"></i>MEDISCAN AI RADIOLOGY LAB</h3>
+                <h3 class="fw-bold text-primary mb-0"><i class="bi bi-heart-pulse me-2"></i>MEDISCAN AI RADIOLOGY LAB</h3>
                 <small class="text-muted">Digital Imaging & Computer Vision Decision Support &bull; ISO-13485 Certified Informatics</small>
             </div>
             <div class="text-end">
@@ -43,7 +43,7 @@
         <!-- Patient Demographics Table -->
         <table class="table table-bordered table-sm mb-3">
             <thead class="table-light">
-                <tr><th colspan="4" class="py-1 text-primary"><i class="fas fa-user-injured me-1"></i> {{ _('Patient') }} {{ _('Information') if _('Information') != 'Information' else 'Details' }}</th></tr>
+                <tr><th colspan="4" class="py-1 text-primary"><i class="bi bi-person me-1"></i> {{ _('Patient') }} {{ _('Information') if _('Information') != 'Information' else 'Details' }}</th></tr>
             </thead>
             <tbody>
                 <tr>

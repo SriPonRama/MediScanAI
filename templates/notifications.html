@@ -10,11 +10,11 @@
                 <!-- Header -->
                 <div class="card-header bg-white py-4 px-4 px-md-5 border-bottom d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.3rem;">
-                            <i class="fas fa-bell"></i>
-                        </div>
+                        <span class="flat-icon-badge flat-icon-badge-lg flat-icon-primary">
+                            <i class="bi bi-bell fs-4"></i>
+                        </span>
                         <div>
-                            <h3 class="fw-bold mb-0">{{ _('Health Notifications & Alerts') }}</h3>
+                            <h3 class="fw-bold mb-0 fs-5">{{ _('Health Notifications & Alerts') }}</h3>
                             <small class="text-muted">{{ _('Real-time clinical updates, checkup notices, and doctor correspondence') }}</small>
                         </div>
                     </div>
@@ -30,33 +30,29 @@
                             {% for notif in notifications %}
                             <div class="list-group-item p-4 border-bottom d-flex align-items-start gap-3" style="transition: background 0.2s ease;">
                                 <!-- Category Icon -->
-                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
-                                     style="width: 48px; height: 48px; font-size: 1.2rem;
-                                     {% if notif.category == 'report' %}background: #fee2e2; color: #dc2626;
-                                     {% elif notif.category == 'checkup' %}background: #dbeafe; color: #2563eb;
-                                     {% else %}background: #fef3c7; color: #d97706;{% endif %}">
+                                <span class="flat-icon-badge flat-icon-badge-md flex-shrink-0 {% if notif.category == 'report' %}flat-icon-danger{% elif notif.category == 'checkup' %}flat-icon-primary{% else %}flat-icon-warning{% endif %}">
                                     {% if notif.category == 'report' %}
-                                    <i class="fas fa-x-ray"></i>
+                                    <i class="bi bi-file-earmark-medical fs-5"></i>
                                     {% elif notif.category == 'checkup' %}
-                                    <i class="fas fa-stethoscope"></i>
+                                    <i class="bi bi-clipboard2-pulse fs-5"></i>
                                     {% else %}
-                                    <i class="fas fa-comment-medical"></i>
+                                    <i class="bi bi-chat-dots fs-5"></i>
                                     {% endif %}
-                                </div>
+                                </span>
 
                                 <!-- Notification Content -->
                                 <div class="flex-grow-1">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <h6 class="fw-bold mb-0 text-dark">{{ notif.title }}</h6>
                                         <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>{{ notif.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                                            <i class="bi bi-clock me-1"></i>{{ notif.created_at.strftime('%d %b %Y, %I:%M %p') }}
                                         </small>
                                     </div>
                                     <p class="text-secondary mb-2" style="font-size: 0.95rem;">{{ notif.message }}</p>
                                     
                                     {% if notif.link %}
                                     <a href="{{ notif.link }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                        {{ _('View Details') }} <i class="fas fa-arrow-right ms-1"></i>
+                                        {{ _('View Details') }} <i class="bi bi-arrow-right ms-1"></i>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -65,9 +61,11 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5 px-4 text-muted">
-                            <i class="fas fa-bell-slash fa-4x mb-3 opacity-25"></i>
-                            <h4>{{ _('No Notifications Right Now') }}</h4>
-                            <p class="small text-muted">{{ _('You are up to date! New clinical scan reports, doctor checkups, or direct messages will appear here immediately.') }}</p>
+                            <span class="flat-icon-badge flat-icon-badge-xl flat-icon-secondary mb-3 d-inline-flex">
+                                <i class="bi bi-bell-slash fs-1 text-secondary opacity-50"></i>
+                            </span>
+                            <h4 class="fs-5 fw-bold">{{ _('No Notifications Right Now') }}</h4>
+                            <p class="small text-muted mb-0">{{ _('You are up to date! New clinical scan reports, doctor checkups, or direct messages will appear here immediately.') }}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -75,7 +73,7 @@
                 <!-- Footer -->
                 <div class="card-footer bg-light p-3 text-center border-top">
                     <a href="{% if current_user.is_doctor() %}{{ url_for('dashboard') }}{% else %}{{ url_for('patient_portal') }}{% endif %}" class="btn btn-link text-decoration-none">
-                        <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Dashboard') }}
+                        <i class="bi bi-arrow-left me-1"></i>{{ _('Back to Dashboard') }}
                     </a>
                 </div>
             </div>

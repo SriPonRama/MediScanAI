@@ -1,6 +1,7 @@
 import os
 import secrets
 import time
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
@@ -11,11 +12,20 @@ import json
 load_dotenv()
 
 # Import models and forms
-from models.database import db, User, Patient, Prediction, CheckupRecord, Notification, ChatMessage, init_db
+from models.database import db, User, Patient, Prediction, CheckupRecord, Notification, ChatMessage, PasswordResetToken, init_db
 from forms import (
     LoginForm, SignupForm, PatientForm, ImageUploadForm,
-    CheckupRecordForm, PatientProfileForm, DoctorProfileForm, ChatMessageForm
+    CheckupRecordForm, PatientProfileForm, DoctorProfileForm, ChatMessageForm,
+    ForgotPasswordForm, ResetPasswordForm
 )
+
+# Optional Flask-Mail for email notifications
+try:
+    from flask_mail import Mail, Message as MailMessage
+    HAS_FLASK_MAIL = True
+except ImportError:
+    HAS_FLASK_MAIL = False
+    Mail = None
 
 # Import ML, translation, and report utilities
 from utils.enhanced_ml_model import EnhancedMLPredictor
@@ -35,6 +45,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
+# Flask-Mail configuration (optional — only active when MAIL_USERNAME is set)
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@mediscan.ai')
+
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -43,6 +61,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
+
+# Initialize Flask-Mail if available and configured
+mail = None
+if HAS_FLASK_MAIL and app.config.get('MAIL_USERNAME'):
+    mail = Mail(app)
 
 # Initialize database with schema migrations
 init_db(app)
@@ -89,6 +112,30 @@ def translate_filter(text):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+# ---------------------------------------------------------
+# Access-control helpers (used across prediction routes)
+# ---------------------------------------------------------
+def _can_access_prediction(prediction):
+    """
+    Returns True if current_user is authorised to view the given prediction.
+    Doctors must own the patient; patients must own the linked patient record.
+    """
+    patient = prediction.patient
+    if current_user.is_doctor():
+        return patient.user_id == current_user.id
+    if current_user.is_patient():
+        return (
+            current_user.patient_id == patient.id or
+            current_user.phone == patient.contact
+        )
+    return False
+
+
+def _access_denied_redirect():
+    """Return the correct redirect endpoint on access denial, per role."""
+    return url_for('patient_portal' if current_user.is_patient() else 'dashboard')
 
 @app.route('/')
 def index():
@@ -617,10 +664,10 @@ def view_prediction(prediction_id):
     """View detailed prediction results"""
     prediction = Prediction.query.get_or_404(prediction_id)
 
-    # Check if prediction belongs to current user's patient
-    if prediction.patient.user_id != current_user.id:
+    # Allow the owning doctor OR the patient whose record it is
+    if not _can_access_prediction(prediction):
         flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(_access_denied_redirect())
 
     # Get medical information
     try:
@@ -679,12 +726,17 @@ def download_radiology_report(prediction_id):
     """Generate and download clinical PDF radiology report"""
     prediction = Prediction.query.get_or_404(prediction_id)
 
-    if prediction.patient.user_id != current_user.id:
+    if not _can_access_prediction(prediction):
         flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(_access_denied_redirect())
 
     try:
-        doctor_name = f"Dr. {current_user.name}"
+        # For PDF, always show doctor name if available; fall back to patient's linked doctor
+        if current_user.is_doctor():
+            doctor_name = f"Dr. {current_user.name}"
+        else:
+            linked_doc = User.query.get(prediction.patient.user_id)
+            doctor_name = f"Dr. {linked_doc.name}" if linked_doc else "MediScan AI Specialist"
         pdf_buffer = generate_radiology_pdf(prediction, prediction.patient, doctor_name)
         safe_name = secure_filename(prediction.patient.name).replace(' ', '_')
         report_filename = f"MediScan_Report_{safe_name}_{prediction.id}.pdf"
@@ -706,9 +758,9 @@ def print_radiology_report(prediction_id):
     """View print-ready formatted clinical radiology report"""
     prediction = Prediction.query.get_or_404(prediction_id)
 
-    if prediction.patient.user_id != current_user.id:
+    if not _can_access_prediction(prediction):
         flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(_access_denied_redirect())
 
     try:
         medical_info_data = json.loads(prediction.additional_info) if prediction.additional_info else {}
@@ -732,16 +784,19 @@ def print_radiology_report(prediction_id):
                          prediction=prediction,
                          medical_info=medical_info_data,
                          patient=prediction.patient,
-                         doctor_name=current_user.name)
+                         doctor_name=current_user.name if current_user.is_doctor() else
+                         (User.query.get(prediction.patient.user_id).name
+                          if User.query.get(prediction.patient.user_id) else 'MediScan AI Specialist'))
 
 @app.route('/prediction/<int:prediction_id>/save_notes', methods=['POST'])
 @login_required
 def save_doctor_notes(prediction_id):
-    """Save radiologist / doctor dictated impressions & clinical notes"""
+    """Save radiologist / doctor dictated impressions & clinical notes (doctor-only)"""
     prediction = Prediction.query.get_or_404(prediction_id)
 
-    if prediction.patient.user_id != current_user.id:
-        return jsonify({'error': 'Unauthorized'}), 403
+    # Only the doctor who owns this patient may add clinical notes
+    if current_user.is_patient() or prediction.patient.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized – only the responsible clinician may add notes.'}), 403
 
     data = request.get_json() or {}
     notes = data.get('notes', '').strip()
@@ -761,13 +816,24 @@ def patient_compare(patient_id):
     """Longitudinal timeline scan comparison and healing response tracking"""
     patient = Patient.query.get_or_404(patient_id)
 
-    if patient.user_id != current_user.id:
+    # Allow the owning doctor OR the patient whose record it is
+    is_authorized = (
+        (current_user.is_doctor() and patient.user_id == current_user.id) or
+        (current_user.is_patient() and (
+            current_user.patient_id == patient.id or
+            current_user.phone == patient.contact
+        ))
+    )
+    if not is_authorized:
         flash('Access denied.', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(_access_denied_redirect())
 
     predictions = Prediction.query.filter_by(patient_id=patient_id).order_by(Prediction.created_at.asc()).all()
     if len(predictions) < 2:
         flash('At least 2 scans are required to perform longitudinal comparison.', 'warning')
+        # Redirect patients to their portal, doctors to patient detail
+        if current_user.is_patient():
+            return redirect(url_for('patient_portal'))
         return redirect(url_for('patient_detail', patient_id=patient.id))
 
     scan1_id = request.args.get('scan1', type=int) or predictions[0].id
@@ -997,6 +1063,35 @@ def chat_conversation(recipient_id):
                            form=form)
 
 
+@app.route('/api/messages/<int:recipient_id>')
+@login_required
+def api_get_messages(recipient_id):
+    """Fetch new messages in a conversation thread for polling (near real-time updates)"""
+    after_id = request.args.get('after', 0, type=int)
+    thread = ChatMessage.query.filter(
+        (((ChatMessage.sender_id == current_user.id) & (ChatMessage.receiver_id == recipient_id)) |
+         ((ChatMessage.sender_id == recipient_id) & (ChatMessage.receiver_id == current_user.id))) &
+        (ChatMessage.id > after_id)
+    ).order_by(ChatMessage.created_at.asc()).all()
+
+    # Mark incoming messages as read
+    if thread:
+        ChatMessage.query.filter_by(sender_id=recipient_id, receiver_id=current_user.id, is_read=False).update({'is_read': True})
+        db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'messages': [{
+            'id': m.id,
+            'sender_id': m.sender_id,
+            'sender_name': ('Dr. ' + m.sender.name) if m.sender.is_doctor() else m.sender.name,
+            'message': m.message,
+            'time': m.created_at.strftime('%I:%M %p'),
+            'is_me': m.sender_id == current_user.id
+        } for m in thread]
+    })
+
+
 # ---------------------------------------------------------
 # In-App Notifications
 # ---------------------------------------------------------
@@ -1036,6 +1131,98 @@ def block_deletion(prediction_id=None, patient_id=None):
     if current_user.is_patient():
         return redirect(url_for('patient_portal'))
     return redirect(url_for('dashboard'))
+
+
+# ---------------------------------------------------------
+# Password Reset (Forgot Password Flow)
+# ---------------------------------------------------------
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    """Step 1 – User requests a password reset link via email"""
+    if current_user.is_authenticated:
+        return redirect(url_for('patient_portal' if current_user.is_patient() else 'dashboard'))
+
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data.lower().strip()).first()
+        if user:
+            # Invalidate any existing open tokens for this user
+            PasswordResetToken.query.filter_by(user_id=user.id, is_used=False).update({'is_used': True})
+            db.session.flush()
+
+            # Create new time-limited token (1 hour expiry)
+            raw_token = secrets.token_urlsafe(48)
+            expires_at = datetime.utcnow() + timedelta(hours=1)
+            reset_token = PasswordResetToken(
+                user_id=user.id,
+                token=raw_token,
+                expires_at=expires_at
+            )
+            db.session.add(reset_token)
+            db.session.commit()
+
+            reset_url = url_for('reset_password', token=raw_token, _external=True)
+            email_sent = False
+
+            # Attempt to send email if Flask-Mail is configured
+            if mail is not None:
+                try:
+                    msg = MailMessage(
+                        subject='MediScan AI – Password Reset Request',
+                        recipients=[user.email]
+                    )
+                    msg.body = (
+                        f"Hello {user.name},\n\n"
+                        f"A password reset was requested for your MediScan AI account.\n\n"
+                        f"Click the link below to set a new password (valid for 1 hour):\n"
+                        f"{reset_url}\n\n"
+                        f"If you did not request this, please ignore this email.\n\n"
+                        f"— MediScan AI Team"
+                    )
+                    mail.send(msg)
+                    email_sent = True
+                except Exception as exc:
+                    app.logger.error(f"Password reset email failed: {exc}")
+
+            if email_sent:
+                flash('Password reset instructions have been sent to your email address.', 'info')
+            else:
+                # Development / no-SMTP fallback: surface the link in a flash message
+                flash(
+                    f'Email delivery is not configured. '
+                    f'Use this link to reset your password (expires in 1 hour): {reset_url}',
+                    'warning'
+                )
+        else:
+            # Avoid user enumeration – always show the same message
+            flash('If that email address is registered you will receive reset instructions.', 'info')
+
+        return redirect(url_for('login'))
+
+    return render_template('auth/forgot_password.html', form=form)
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Step 2 – User sets a new password using the emailed token"""
+    if current_user.is_authenticated:
+        return redirect(url_for('patient_portal' if current_user.is_patient() else 'dashboard'))
+
+    reset_token = PasswordResetToken.query.filter_by(token=token).first()
+    if not reset_token or not reset_token.is_valid():
+        flash('This password reset link is invalid or has already expired. Please request a new one.', 'error')
+        return redirect(url_for('forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = reset_token.user
+        user.set_password(form.password.data)
+        reset_token.is_used = True
+        db.session.commit()
+        flash('Your password has been reset successfully! You can now log in.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('auth/reset_password.html', form=form, token=token)
 
 
 

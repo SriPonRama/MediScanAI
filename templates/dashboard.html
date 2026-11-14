@@ -7,60 +7,76 @@
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                    <h1 class="h2 mb-1">{{ _('Welcome back') }}, {{ current_user.name }}!</h1>
-                    <p class="text-muted mb-0">{{ _("Here's your medical dashboard overview") }}</p>
+                    <h1 class="h2 mb-1 fw-bold">{{ _('Welcome back') }}, {{ current_user.name }}!</h1>
+                    <p class="text-muted mb-0 small">{{ _("Here's your medical dashboard overview") }}</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('patient_form') }}" class="btn btn-primary">
-                        <i class="fas fa-user-plus me-2"></i><span>{{ _('Add Patient') }}</span>
+                    <a href="{{ url_for('patient_form') }}" class="btn btn-primary btn-sm px-3 py-2">
+                        <i class="bi bi-person-plus me-1"></i><span>{{ _('Add Patient') }}</span>
                     </a>
-                    <a href="{{ url_for('upload_predict') }}" class="btn btn-success">
-                        <i class="fas fa-upload me-2"></i><span>{{ _('Upload X-ray') }}</span>
+                    <a href="{{ url_for('upload_predict') }}" class="btn btn-success btn-sm px-3 py-2">
+                        <i class="bi bi-cloud-arrow-up me-1"></i><span>{{ _('Upload X-ray') }}</span>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
+    <!-- Statistics Cards with Flat Icon Badges -->
+    <div class="row mb-4 g-3">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-number">{{ patients|length }}</div>
-                <div class="text-muted">{{ _('Total Patients') }}</div>
-                <i class="fas fa-users text-primary fa-2x mt-2"></i>
+                <div class="text-muted small">{{ _('Total Patients') }}</div>
+                <div class="mt-2">
+                    <span class="flat-icon-badge flat-icon-badge-md flat-icon-primary">
+                        <i class="bi bi-people"></i>
+                    </span>
+                </div>
             </div>
         </div>
         
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-number">{{ recent_predictions|length }}</div>
-                <div class="text-muted">{{ _('Recent Scans') }}</div>
-                <i class="fas fa-x-ray text-success fa-2x mt-2"></i>
+                <div class="text-muted small">{{ _('Recent Scans') }}</div>
+                <div class="mt-2">
+                    <span class="flat-icon-badge flat-icon-badge-md flat-icon-success">
+                        <i class="bi bi-file-earmark-medical"></i>
+                    </span>
+                </div>
             </div>
         </div>
         
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-number">
                     {% set normal_count = recent_predictions|selectattr('prediction_result', 'equalto', 'Normal')|list|length %}
                     {{ normal_count }}
                 </div>
-                <div class="text-muted">{{ _('Normal Results') }}</div>
-                <i class="fas fa-check-circle text-info fa-2x mt-2"></i>
+                <div class="text-muted small">{{ _('Normal Results') }}</div>
+                <div class="mt-2">
+                    <span class="flat-icon-badge flat-icon-badge-md flat-icon-info">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                </div>
             </div>
         </div>
         
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-number">
                     {% set abnormal_count = recent_predictions|length - (recent_predictions|selectattr('prediction_result', 'equalto', 'Normal')|list|length) %}
                     {{ abnormal_count }}
                 </div>
-                <div class="text-muted">{{ _('Requires Attention') }}</div>
-                <i class="fas fa-exclamation-triangle text-warning fa-2x mt-2"></i>
+                <div class="text-muted small">{{ _('Requires Attention') }}</div>
+                <div class="mt-2">
+                    <span class="flat-icon-badge flat-icon-badge-md flat-icon-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -70,48 +86,48 @@
         <div class="col-lg-8 mb-4">
             <div class="card dashboard-card">
                 <div class="card-header bg-white border-bottom-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-users me-2 text-primary"></i><span>{{ _('Your Patients') }}</span>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-people me-2 text-primary"></i><span>{{ _('Your Patients') }}</span>
                         </h5>
                         <div class="input-group" style="width: 250px;">
-                            <input type="text" class="form-control" placeholder="{{ _('Search patients') }}..." id="patientSearch" onkeyup="searchPatients()">
-                            <span class="input-group-text">
-                                <i class="fas fa-search"></i>
+                            <input type="text" class="form-control form-control-sm" placeholder="{{ _('Search patients') }}..." id="patientSearch" onkeyup="searchPatients()">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search text-muted"></i>
                             </span>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
                     {% if patients %}
-                        <div class="row">
+                        <div class="row g-3">
                             {% for patient in patients %}
-                            <div class="col-md-6 mb-3">
-                                <div class="patient-card card border-0 shadow-sm">
+                            <div class="col-md-6">
+                                <div class="patient-card card border-0 shadow-sm h-100">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
-                                                <h6 class="patient-name mb-1">{{ patient.name }}</h6>
+                                                <h6 class="patient-name mb-1 fw-bold text-dark">{{ patient.name }}</h6>
                                                 <p class="text-muted small mb-1">
-                                                    <i class="fas fa-birthday-cake me-1"></i>{{ patient.age }} {{ _('Age') }}
+                                                    <i class="bi bi-calendar3 me-1"></i>{{ patient.age }} {{ _('Age') }}
                                                 </p>
                                                 <p class="text-muted small mb-1">
-                                                    <i class="fas fa-venus-mars me-1"></i>{{ _(patient.gender.title()) }}
+                                                    <i class="bi bi-gender-ambiguous me-1"></i>{{ _(patient.gender.title()) }}
                                                 </p>
                                                 <p class="text-muted small mb-0">
-                                                    <i class="fas fa-phone me-1"></i>{{ patient.contact }}
+                                                    <i class="bi bi-telephone me-1"></i>{{ patient.contact }}
                                                 </p>
                                             </div>
                                             <div class="dropdown">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-v"></i>
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle py-1 px-2 border-0" type="button" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
-                                                <ul class="dropdown-menu">
+                                                <ul class="dropdown-menu shadow-sm">
                                                     <li><a class="dropdown-item" href="{{ url_for('patient_detail', patient_id=patient.id) }}">
-                                                        <i class="fas fa-eye me-2"></i>{{ _('View Details') }}
+                                                        <i class="bi bi-eye me-2 text-primary"></i>{{ _('View Details') }}
                                                     </a></li>
                                                     <li><a class="dropdown-item" href="{{ url_for('upload_predict') }}">
-                                                        <i class="fas fa-upload me-2"></i>{{ _('Upload X-ray') }}
+                                                        <i class="bi bi-cloud-arrow-up me-2 text-success"></i>{{ _('Upload X-ray') }}
                                                     </a></li>
                                                 </ul>
                                             </div>
@@ -121,7 +137,7 @@
                                         {% if patient_predictions %}
                                         <div class="mt-2 pt-2 border-top">
                                             <small class="text-muted">
-                                                <i class="fas fa-history me-1"></i>
+                                                <i class="bi bi-clock-history me-1"></i>
                                                 {{ _('Scan Date') }}: {{ patient_predictions[0].created_at.strftime('%b %d, %Y') }}
                                             </small>
                                         </div>
@@ -133,11 +149,15 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5">
-                            <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                            <div class="mb-3">
+                                <span class="flat-icon-badge flat-icon-badge-xl flat-icon-secondary">
+                                    <i class="bi bi-person-plus"></i>
+                                </span>
+                            </div>
                             <h5 class="text-muted">{{ _('No patients added yet') }}</h5>
-                            <p class="text-muted">{{ _('Start by adding your first patient to begin using MediScan AI') }}</p>
-                            <a href="{{ url_for('patient_form') }}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>{{ _('Add Patient') }}
+                            <p class="text-muted small">{{ _('Start by adding your first patient to begin using MediScan AI') }}</p>
+                            <a href="{{ url_for('patient_form') }}" class="btn btn-primary btn-sm px-3">
+                                <i class="bi bi-plus-lg me-1"></i>{{ _('Add Patient') }}
                             </a>
                         </div>
                     {% endif %}
@@ -149,8 +169,8 @@
         <div class="col-lg-4 mb-4">
             <div class="card dashboard-card">
                 <div class="card-header bg-white border-bottom-0 py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clock me-2 text-success"></i><span>{{ _('Recent Predictions') }}</span>
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-clock-history me-2 text-success"></i><span>{{ _('Recent Predictions') }}</span>
                     </h5>
                 </div>
                 <div class="card-body">
@@ -158,24 +178,28 @@
                         {% for prediction in recent_predictions %}
                         <div class="d-flex align-items-center mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
                             <div class="flex-shrink-0">
-                                <div class="prediction-icon bg-{{ 'success' if prediction.prediction_result == 'Normal' else 'warning' }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                    <i class="fas fa-{{ 'check' if prediction.prediction_result == 'Normal' else 'exclamation' }}"></i>
-                                </div>
+                                <span class="flat-icon-badge flat-icon-badge-sm {% if prediction.prediction_result == 'Normal' %}flat-icon-success{% else %}flat-icon-warning{% endif %}">
+                                    <i class="bi bi-{% if prediction.prediction_result == 'Normal' %}check-lg{% else %}exclamation-lg{% endif %}"></i>
+                                </span>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-1">{{ prediction.patient.name }}</h6>
-                                <p class="mb-1 small fw-bold">{{ _(prediction.prediction_result) }}</p>
+                                <h6 class="mb-1 fw-semibold">{{ prediction.patient.name }}</h6>
+                                <p class="mb-1 small fw-bold {% if prediction.prediction_result == 'Normal' %}text-success{% else %}text-danger{% endif %}">{{ _(prediction.prediction_result) }}</p>
                                 <p class="mb-0 small text-muted">
-                                    {{ _(prediction.body_part.title()) }} • {{ (prediction.confidence_score * 100)|round(1) }}% {{ _('Confidence Score') }}
+                                    {{ _(prediction.body_part.title()) }} &bull; {{ (prediction.confidence_score * 100)|round(1) }}% {{ _('Confidence Score') }}
                                 </p>
-                                <p class="mb-0 small text-muted">{{ prediction.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                                <p class="mb-0 small text-muted" style="font-size: 0.75rem;">{{ prediction.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
                             </div>
                         </div>
                         {% endfor %}
                     {% else %}
                         <div class="text-center py-4">
-                            <i class="fas fa-x-ray fa-2x text-muted mb-2"></i>
-                            <p class="text-muted mb-0">{{ _('No predictions yet') }}</p>
+                            <div class="mb-2">
+                                <span class="flat-icon-badge flat-icon-badge-lg flat-icon-secondary">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                </span>
+                            </div>
+                            <p class="text-muted mb-0 small">{{ _('No predictions yet') }}</p>
                             <small class="text-muted">{{ _('Upload X-ray') }}</small>
                         </div>
                     {% endif %}
@@ -189,28 +213,28 @@
         <div class="col-12">
             <div class="card dashboard-card">
                 <div class="card-body">
-                    <h5 class="card-title mb-3">
-                        <i class="fas fa-bolt me-2 text-warning"></i>Quick Actions
+                    <h5 class="card-title mb-3 fw-bold">
+                        <i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions
                     </h5>
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('patient_form') }}" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-user-plus me-2"></i>Add New Patient
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('patient_form') }}" class="btn btn-outline-primary w-100 btn-sm py-2">
+                                <i class="bi bi-person-plus me-1"></i>Add New Patient
                             </a>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('upload_predict') }}" class="btn btn-outline-success w-100">
-                                <i class="fas fa-upload me-2"></i>Upload X-ray
+                        <div class="col-md-3">
+                            <a href="{{ url_for('upload_predict') }}" class="btn btn-outline-success w-100 btn-sm py-2">
+                                <i class="bi bi-cloud-arrow-up me-1"></i>Upload X-ray
                             </a>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <button class="btn btn-outline-info w-100" onclick="changeLanguage('hi')">
-                                <i class="fas fa-language me-2"></i>Switch Language
-                            </button>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('add_checkup') }}" class="btn btn-outline-info w-100 btn-sm py-2">
+                                <i class="bi bi-clipboard2-pulse me-1"></i>Add Clinical Checkup
+                            </a>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('about') }}" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-info-circle me-2"></i>Learn More
+                        <div class="col-md-3">
+                            <a href="{{ url_for('messages') }}" class="btn btn-outline-secondary w-100 btn-sm py-2">
+                                <i class="bi bi-chat-dots me-1"></i>Messages
                             </a>
                         </div>
                     </div>

@@ -47,3 +47,6 @@ dataset/
 models/weights/*.pth
 models/weights/*.h5
 
+# Pytest cache
+.pytest_cache/
+

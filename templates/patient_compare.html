@@ -7,16 +7,16 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <h3 class="fw-bold text-primary mb-1">
-                <i class="fas fa-history me-2"></i>{{ _('Longitudinal Scan Comparison') }}
+            <h3 class="fw-bold text-primary mb-1 fs-5">
+                <i class="bi bi-clock-history me-2"></i>{{ _('Longitudinal Scan Comparison') }}
             </h3>
-            <p class="text-muted mb-0">
+            <p class="text-muted mb-0 small">
                 {{ _('Patient') }}: <strong>{{ patient.name }}</strong> (PID-{{ "%04d"|format(patient.id) }})
             </p>
         </div>
         <div>
             <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i> {{ _('View Details') }}
+                <i class="bi bi-arrow-left me-1"></i> {{ _('View Details') }}
             </a>
         </div>
     </div>
@@ -36,7 +36,7 @@
                     </select>
                 </div>
                 <div class="col-md-2 text-center text-muted d-none d-md-block">
-                    <i class="fas fa-arrows-alt-h fa-2x"></i>
+                    <i class="bi bi-arrow-left-right fs-3"></i>
                     <div class="small fw-bold">VS</div>
                 </div>
                 <div class="col-md-5">
@@ -60,7 +60,7 @@
                 <div class="col-lg-8">
                     <div class="d-flex align-items-center mb-2">
                         <span class="badge bg-{{ progression_badge }} px-3 py-2 fs-6 me-3">
-                            <i class="fas fa-chart-line me-1"></i> {{ progression_status }}
+                            <i class="bi bi-graph-up-arrow me-1"></i> {{ progression_status }}
                         </span>
                         <span class="text-muted small"><strong>{{ days_elapsed }} days</strong> elapsed between examinations</span>
                     </div>
@@ -111,7 +111,7 @@
                     {% if scan1_info.heatmap_image %}
                     <div class="mt-2 text-center">
                         <a href="{{ url_for('static', filename='uploads/' + scan1_info.heatmap_image) }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-fire me-1"></i> {{ _('Interactive Grad-CAM Heatmap') }}
+                            <i class="bi bi-fire me-1"></i> {{ _('Interactive Grad-CAM Heatmap') }}
                         </a>
                     </div>
                     {% endif %}
@@ -144,7 +144,7 @@
                     {% if scan2_info.heatmap_image %}
                     <div class="mt-2 text-center">
                         <a href="{{ url_for('static', filename='uploads/' + scan2_info.heatmap_image) }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-fire me-1"></i> {{ _('Interactive Grad-CAM Heatmap') }}
+                            <i class="bi bi-fire me-1"></i> {{ _('Interactive Grad-CAM Heatmap') }}
                         </a>
                     </div>
                     {% endif %}

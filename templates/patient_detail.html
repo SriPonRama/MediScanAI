@@ -11,24 +11,24 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h2 class="mb-1">{{ patient.name }}</h2>
-                            <p class="text-muted mb-3">{{ _('Patient ID') }}: #{{ patient.id }}</p>
-                            <div class="row">
+                            <h2 class="mb-1 fw-bold">{{ patient.name }}</h2>
+                            <p class="text-muted mb-3 small">{{ _('Patient ID') }}: #{{ patient.id }}</p>
+                            <div class="row g-2">
                                 <div class="col-md-3 mb-2">
-                                    <small class="text-muted">{{ _('Date of Birth') }}</small>
-                                    <div class="fw-semibold">{{ patient.dob or _('Not specified') }}</div>
+                                    <small class="text-muted d-block">{{ _('Date of Birth') }}</small>
+                                    <div class="fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ patient.dob or _('Not specified') }}</div>
                                 </div>
                                 <div class="col-md-3 mb-2">
-                                    <small class="text-muted">{{ _('Age & Gender') }}</small>
-                                    <div class="fw-semibold">{{ patient.age }} {{ _('years') }} &bull; {{ patient.gender.title() }}</div>
+                                    <small class="text-muted d-block">{{ _('Age & Gender') }}</small>
+                                    <div class="fw-semibold"><i class="bi bi-gender-ambiguous me-1 text-primary"></i>{{ patient.age }} {{ _('years') }} &bull; {{ patient.gender.title() }}</div>
                                 </div>
                                 <div class="col-md-3 mb-2">
-                                    <small class="text-muted">{{ _('Blood Group') }}</small>
-                                    <div class="fw-semibold">{{ patient.blood_group or _('Not specified') }}</div>
+                                    <small class="text-muted d-block">{{ _('Blood Group') }}</small>
+                                    <div class="fw-semibold"><i class="bi bi-droplet-half me-1 text-danger"></i>{{ patient.blood_group or _('Not specified') }}</div>
                                 </div>
                                 <div class="col-md-3 mb-2">
-                                    <small class="text-muted">{{ _('Contact') }}</small>
-                                    <div class="fw-semibold">{{ patient.contact }}</div>
+                                    <small class="text-muted d-block">{{ _('Contact') }}</small>
+                                    <div class="fw-semibold"><i class="bi bi-telephone me-1 text-primary"></i>{{ patient.contact }}</div>
                                 </div>
                             </div>
                         </div>
@@ -36,26 +36,26 @@
                             <div class="d-flex gap-2">
                                 {% if current_user.is_doctor() %}
                                 <a href="{{ url_for('add_checkup', patient_id=patient.id) }}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-stethoscope me-1"></i>{{ _('Record Checkup') }}
+                                    <i class="bi bi-clipboard2-pulse me-1"></i>{{ _('Record Checkup') }}
                                 </a>
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-cog me-1"></i>{{ _('Manage') }}
+                                        <i class="bi bi-gear me-1"></i>{{ _('Manage') }}
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                         <li><a class="dropdown-item" href="{{ url_for('upload_predict') }}">
-                                            <i class="fas fa-upload me-2 text-success"></i>{{ _('Upload X-ray Scan') }}
+                                            <i class="bi bi-cloud-arrow-up me-2 text-success"></i>{{ _('Upload X-ray Scan') }}
                                         </a></li>
                                         <li><a class="dropdown-item" href="{{ url_for('edit_patient', patient_id=patient.id) }}">
-                                            <i class="fas fa-user-edit me-2 text-primary"></i>{{ _('Edit Patient Credentials') }}
+                                            <i class="bi bi-person-gear me-2 text-primary"></i>{{ _('Edit Patient Credentials') }}
                                         </a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><span class="dropdown-item text-muted small"><i class="fas fa-lock me-2 text-success"></i>{{ _('Records are permanent (Audit Protected)') }}</span></li>
+                                        <li><span class="dropdown-item text-muted small"><i class="bi bi-shield-lock-fill me-2 text-success"></i>{{ _('Records are permanent (Audit Protected)') }}</span></li>
                                     </ul>
                                 </div>
                                 {% else %}
                                 <a href="{{ url_for('messages') }}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-comment-medical me-1"></i>{{ _('Message Doctor') }}
+                                    <i class="bi bi-chat-dots me-1"></i>{{ _('Message Doctor') }}
                                 </a>
                                 {% endif %}
                             </div>
@@ -70,48 +70,48 @@
         <!-- Patient Information -->
         <div class="col-lg-4 mb-4">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user me-2"></i>{{ _('Patient Information') }}
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-person-vcard me-2"></i>{{ _('Patient Information') }}
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Full Name') }}</small>
+                        <small class="text-muted d-block">{{ _('Full Name') }}</small>
                         <div class="fw-semibold">{{ patient.name }}</div>
                     </div>
                     
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Age & Gender') }}</small>
+                        <small class="text-muted d-block">{{ _('Age & Gender') }}</small>
                         <div class="fw-semibold">{{ patient.age }} {{ _('years') }}, {{ patient.gender.title() }}</div>
                     </div>
                     
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Contact Number') }}</small>
+                        <small class="text-muted d-block">{{ _('Contact Number') }}</small>
                         <div class="fw-semibold">{{ patient.contact }}</div>
                     </div>
                     
                     {% if patient.emergency_contact %}
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Emergency Contact') }}</small>
+                        <small class="text-muted d-block">{{ _('Emergency Contact') }}</small>
                         <div class="fw-semibold">{{ patient.emergency_contact }}</div>
                     </div>
                     {% endif %}
                     
                     {% if patient.address %}
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Address') }}</small>
+                        <small class="text-muted d-block">{{ _('Address') }}</small>
                         <div class="fw-semibold">{{ patient.address }}</div>
                     </div>
                     {% endif %}
                     
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Blood Group') }}</small>
+                        <small class="text-muted d-block">{{ _('Blood Group') }}</small>
                         <div class="fw-semibold">{{ patient.blood_group or _('Not specified') }}</div>
                     </div>
                     
                     <div class="mb-0">
-                        <small class="text-muted">{{ _('Registered') }}</small>
+                        <small class="text-muted d-block">{{ _('Registered') }}</small>
                         <div class="fw-semibold">{{ patient.created_at.strftime('%B %d, %Y') }}</div>
                     </div>
                 </div>
@@ -120,23 +120,23 @@
             <!-- Medical History -->
             {% if patient.medical_history or patient.allergies %}
             <div class="card shadow-sm border-0 mt-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-stethoscope me-2"></i>{{ _('Medical History') }}
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-file-medical me-2"></i>{{ _('Medical History') }}
                     </h5>
                 </div>
                 <div class="card-body">
                     {% if patient.medical_history %}
                     <div class="mb-3">
-                        <small class="text-muted">{{ _('Medical History') }}</small>
+                        <small class="text-muted d-block">{{ _('Medical History') }}</small>
                         <div class="fw-semibold">{{ patient.medical_history }}</div>
                     </div>
                     {% endif %}
                     
                     {% if patient.allergies %}
                     <div class="mb-0">
-                        <small class="text-muted">{{ _('Known Allergies') }}</small>
-                        <div class="fw-semibold text-warning">{{ patient.allergies }}</div>
+                        <small class="text-muted d-block">{{ _('Known Allergies') }}</small>
+                        <div class="fw-semibold text-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ patient.allergies }}</div>
                     </div>
                     {% endif %}
                 </div>
@@ -147,15 +147,15 @@
         <!-- Prediction History -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-success text-white py-3">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h5 class="mb-0">
-                            <i class="fas fa-history me-2"></i>{{ _('X-ray Analysis History') }}
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-file-earmark-medical me-2"></i>{{ _('X-ray Analysis History') }}
                         </h5>
                         <div class="d-flex align-items-center gap-2">
                             {% if predictions|length >= 2 %}
                             <a href="{{ url_for('patient_compare', patient_id=patient.id) }}" class="btn btn-sm btn-light text-primary fw-bold">
-                                <i class="fas fa-columns me-1"></i> {{ _('Compare Scans Timeline') }}
+                                <i class="bi bi-arrow-left-right me-1"></i> {{ _('Compare Scans Timeline') }}
                             </a>
                             {% endif %}
                             <span class="badge bg-light text-dark">{{ predictions|length }} {{ _('Total Scans') }}</span>
@@ -165,7 +165,7 @@
                 <div class="card-body">
                     {% if predictions %}
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
                                         <th>{{ _('Date') }}</th>
@@ -202,10 +202,10 @@
                                         <td>
                                             <div class="btn-group btn-group-sm">
                                                 <a href="{{ url_for('view_prediction', prediction_id=prediction.id) }}" class="btn btn-outline-primary" title="View Report">
-                                                    <i class="fas fa-eye"></i>
+                                                    <i class="bi bi-eye"></i>
                                                 </a>
                                                 <a href="{{ url_for('download_radiology_report', prediction_id=prediction.id) }}" class="btn btn-outline-danger" title="Download Official PDF">
-                                                    <i class="fas fa-file-pdf"></i>
+                                                    <i class="bi bi-file-earmark-pdf"></i>
                                                 </a>
                                             </div>
                                         </td>
@@ -216,11 +216,15 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5">
-                            <i class="fas fa-x-ray fa-3x text-muted mb-3"></i>
+                            <div class="mb-3">
+                                <span class="flat-icon-badge flat-icon-badge-xl flat-icon-secondary">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                </span>
+                            </div>
                             <h5 class="text-muted">{{ _('No X-ray analyses yet') }}</h5>
-                            <p class="text-muted">{{ _('Upload the first X-ray image to start analysis') }}</p>
-                            <a href="{{ url_for('upload_predict') }}" class="btn btn-success">
-                                <i class="fas fa-upload me-2"></i>{{ _('Upload X-ray') }}
+                            <p class="text-muted small">{{ _('Upload the first X-ray image to start analysis') }}</p>
+                            <a href="{{ url_for('upload_predict') }}" class="btn btn-success btn-sm px-3">
+                                <i class="bi bi-cloud-arrow-up me-1"></i>{{ _('Upload X-ray') }}
                             </a>
                         </div>
                     {% endif %}
@@ -229,15 +233,15 @@
 
             <!-- Clinical Checkup Visits & Vitals Section -->
             <div class="card shadow-sm border-0 mt-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white py-3">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h5 class="mb-0">
-                            <i class="fas fa-stethoscope me-2"></i>{{ _('Clinical Checkup & Hospital Visits') }}
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-clipboard2-pulse me-2"></i>{{ _('Clinical Checkup & Hospital Visits') }}
                         </h5>
                         <div class="d-flex align-items-center gap-2">
                             {% if current_user.is_doctor() %}
                             <a href="{{ url_for('add_checkup', patient_id=patient.id) }}" class="btn btn-sm btn-light text-primary fw-bold">
-                                <i class="fas fa-plus me-1"></i>{{ _('Record New Checkup') }}
+                                <i class="bi bi-plus-lg me-1"></i>{{ _('Record New Checkup') }}
                             </a>
                             {% endif %}
                             <span class="badge bg-light text-dark">{{ checkups|length }} {{ _('Visits Recorded') }}</span>
@@ -252,15 +256,15 @@
                                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
                                     <div>
                                         <h6 class="fw-bold mb-0 text-primary">
-                                            <i class="fas fa-calendar-check me-1"></i>{{ c.visit_date.strftime('%d %B %Y, %I:%M %p') }}
+                                            <i class="bi bi-calendar-check me-1"></i>{{ c.visit_date.strftime('%d %B %Y, %I:%M %p') }}
                                         </h6>
                                         <small class="text-muted">
-                                            <i class="fas fa-user-md me-1"></i>{{ c.doctor_name }} &bull; <i class="fas fa-hospital me-1"></i>{{ c.hospital_name }}
+                                            <i class="bi bi-person-badge me-1"></i>{{ c.doctor_name }} &bull; <i class="bi bi-hospital me-1"></i>{{ c.hospital_name }}
                                         </small>
                                     </div>
                                     {% if c.next_follow_up %}
                                     <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-clock me-1"></i>{{ _('Next Follow-up') }}: {{ c.next_follow_up }}
+                                        <i class="bi bi-clock-history me-1"></i>{{ _('Next Follow-up') }}: {{ c.next_follow_up }}
                                     </span>
                                     {% endif %}
                                 </div>
@@ -271,7 +275,7 @@
                                     <div class="col-6 col-md-auto">
                                         <div class="px-2 py-1 bg-white border rounded small">
                                             <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Blood Pressure') }}</span>
-                                            <strong class="text-danger">{{ c.blood_pressure }}</strong>
+                                            <strong class="text-danger"><i class="bi bi-heart-pulse me-1"></i>{{ c.blood_pressure }}</strong>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -279,7 +283,7 @@
                                     <div class="col-6 col-md-auto">
                                         <div class="px-2 py-1 bg-white border rounded small">
                                             <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Heart Rate') }}</span>
-                                            <strong class="text-danger">{{ c.heart_rate }}</strong>
+                                            <strong class="text-danger"><i class="bi bi-activity me-1"></i>{{ c.heart_rate }}</strong>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -287,7 +291,7 @@
                                     <div class="col-6 col-md-auto">
                                         <div class="px-2 py-1 bg-white border rounded small">
                                             <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Blood Sugar') }}</span>
-                                            <strong class="text-info">{{ c.blood_sugar }}</strong>
+                                            <strong class="text-info"><i class="bi bi-droplet-half me-1"></i>{{ c.blood_sugar }}</strong>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -295,7 +299,7 @@
                                     <div class="col-6 col-md-auto">
                                         <div class="px-2 py-1 bg-white border rounded small">
                                             <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Temperature') }}</span>
-                                            <strong class="text-warning">{{ c.temperature }}</strong>
+                                            <strong class="text-warning"><i class="bi bi-thermometer-half me-1"></i>{{ c.temperature }}</strong>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -303,7 +307,7 @@
                                     <div class="col-6 col-md-auto">
                                         <div class="px-2 py-1 bg-white border rounded small">
                                             <span class="text-muted d-block" style="font-size: 0.72rem;">{{ _('Weight') }}</span>
-                                            <strong>{{ c.weight }}</strong>
+                                            <strong><i class="bi bi-speedometer2 me-1"></i>{{ c.weight }}</strong>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -314,18 +318,18 @@
                                     <div class="col-md-6">
                                         <div class="p-2 bg-white rounded border h-100">
                                             <div class="small fw-bold text-success mb-1">
-                                                <i class="fas fa-clipboard-check me-1"></i>{{ _('Clinical Diagnosis & Findings') }}
+                                                <i class="bi bi-clipboard2-check me-1"></i>{{ _('Clinical Diagnosis & Findings') }}
                                             </div>
                                             <p class="mb-0 small text-dark">{{ c.diagnosis }}</p>
                                             {% if c.symptoms %}
-                                            <div class="small text-muted mt-1"><em>{{ _('Reported Symptoms') }}: {{ c.symptoms }}</em></div>
+                                             <div class="small text-muted mt-1"><em>{{ _('Reported Symptoms') }}: {{ c.symptoms }}</em></div>
                                             {% endif %}
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="p-2 bg-white rounded border h-100">
                                             <div class="small fw-bold text-primary mb-1">
-                                                <i class="fas fa-pills me-1"></i>{{ _('Prescription & Medical Orders') }}
+                                                <i class="bi bi-capsule me-1"></i>{{ _('Prescription & Medical Orders') }}
                                             </div>
                                             <p class="mb-0 small text-dark">{{ c.prescriptions or _('None recorded') }}</p>
                                             {% if c.clinical_notes %}
@@ -339,12 +343,16 @@
                         </div>
                     {% else %}
                         <div class="text-center py-4">
-                            <i class="fas fa-stethoscope fa-3x text-muted mb-2"></i>
+                            <div class="mb-2">
+                                <span class="flat-icon-badge flat-icon-badge-lg flat-icon-secondary">
+                                    <i class="bi bi-clipboard2-pulse"></i>
+                                </span>
+                            </div>
                             <h6 class="text-muted">{{ _('No checkup records logged yet') }}</h6>
                             <p class="text-muted small">{{ _('Doctor can add clinical visit vitals, prescriptions, and diagnosis notes.') }}</p>
                             {% if current_user.is_doctor() %}
                             <a href="{{ url_for('add_checkup', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-plus me-1"></i>{{ _('Record First Checkup') }}
+                                <i class="bi bi-plus-lg me-1"></i>{{ _('Record First Checkup') }}
                             </a>
                             {% endif %}
                         </div>
@@ -359,9 +367,9 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>{{ _('Analysis Summary') }}
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-bar-chart-fill me-2"></i>{{ _('Analysis Summary') }}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -369,7 +377,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="stat-card bg-light">
                                 <div class="stat-number text-primary">{{ predictions|length }}</div>
-                                <div class="text-muted">{{ _('Total Scans') }}</div>
+                                <div class="text-muted small">{{ _('Total Scans') }}</div>
                             </div>
                         </div>
                         
@@ -378,7 +386,7 @@
                                 <div class="stat-number text-success">
                                     {{ predictions|selectattr('prediction_result', 'equalto', 'Normal')|list|length }}
                                 </div>
-                                <div class="text-muted">{{ _('Normal Results') }}</div>
+                                <div class="text-muted small">{{ _('Normal Results') }}</div>
                             </div>
                         </div>
                         
@@ -387,7 +395,7 @@
                                 <div class="stat-number text-warning">
                                     {{ predictions|length - (predictions|selectattr('prediction_result', 'equalto', 'Normal')|list|length) }}
                                 </div>
-                                <div class="text-muted">{{ _('Abnormal Results') }}</div>
+                                <div class="text-muted small">{{ _('Abnormal Results') }}</div>
                             </div>
                         </div>
                         
@@ -397,7 +405,7 @@
                                     {% set avg_confidence = (predictions|sum(attribute='confidence_score') / predictions|length * 100) if predictions else 0 %}
                                     {{ avg_confidence|round(1) }}%
                                 </div>
-                                <div class="text-muted">{{ _('Avg. Confidence') }}</div>
+                                <div class="text-muted small">{{ _('Avg. Confidence') }}</div>
                             </div>
                         </div>
                     </div>
@@ -410,11 +418,12 @@
     <!-- Back Button -->
     <div class="row mt-4">
         <div class="col-12">
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>{{ _('Back to Dashboard') }}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm px-3 py-2">
+                <i class="bi bi-arrow-left me-1"></i>{{ _('Back to Dashboard') }}
             </a>
         </div>
     </div>
+</div>
 </div>
 
 <script>

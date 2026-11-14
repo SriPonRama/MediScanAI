@@ -151,6 +151,28 @@ class ChatMessage(db.Model):
     def __repr__(self):
         return f'<ChatMessage from {self.sender_id} to {self.receiver_id}>'
 
+
+class PasswordResetToken(db.Model):
+    """Single-use, time-limited tokens for the forgot-password flow."""
+    __tablename__ = 'password_reset_tokens'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    token = db.Column(db.String(128), unique=True, nullable=False, index=True)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    is_used = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship back to the owning user
+    user = db.relationship('User', backref=db.backref('reset_tokens', lazy=True, cascade='all, delete-orphan'))
+
+    def is_valid(self):
+        """Return True when the token is unused and has not yet expired."""
+        return (not self.is_used) and (datetime.utcnow() < self.expires_at)
+
+    def __repr__(self):
+        return f'<PasswordResetToken user={self.user_id} used={self.is_used}>'
+
 def init_db(app):
     """Initialize database with app context and apply lightweight migrations"""
     db.init_app(app)

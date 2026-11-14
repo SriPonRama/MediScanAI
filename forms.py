@@ -108,3 +108,22 @@ class ImageUploadForm(FlaskForm):
     ], validators=[DataRequired()])
     submit = SubmitField('Upload and Analyze')
 
+
+class ForgotPasswordForm(FlaskForm):
+    """Email form for step-1 of the password reset flow."""
+    email = StringField('Email Address', validators=[DataRequired(), Email()])
+    submit = SubmitField('Send Reset Instructions')
+
+
+class ResetPasswordForm(FlaskForm):
+    """New-password form for step-2 of the password reset flow."""
+    password = PasswordField('New Password', validators=[
+        DataRequired(),
+        Length(min=6, message='Password must be at least 6 characters long')
+    ])
+    confirm_password = PasswordField('Confirm New Password', validators=[
+        DataRequired(),
+        EqualTo('password', message='Passwords must match')
+    ])
+    submit = SubmitField('Reset Password')
+
