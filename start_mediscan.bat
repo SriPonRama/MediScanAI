@@ -6,6 +6,11 @@ echo.
 
 cd /d "%~dp0"
 
+if exist "venv_new\Scripts\activate.bat" (
+    echo Activating virtual environment (venv_new)...
+    call venv_new\Scripts\activate.bat
+)
+
 echo Checking Python installation...
 python --version
 if errorlevel 1 (

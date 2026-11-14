@@ -1,0 +1,19 @@
+{
+  "venvPath": ".",
+  "venv": "venv_new",
+  "include": [
+    "app.py",
+    "forms.py",
+    "init_db.py",
+    "models",
+    "utils",
+    "tests"
+  ],
+  "exclude": [
+    "venv_new",
+    ".venv"
+  ],
+  "pythonVersion": "3.12",
+  "reportCallIssue": "none",
+  "reportAttributeAccessIssue": "none"
+}

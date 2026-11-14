@@ -8,6 +8,12 @@ Write-Host ""
 # Change to script directory
 Set-Location $PSScriptRoot
 
+# Activate virtual environment if present
+if (Test-Path ".\venv_new\Scripts\Activate.ps1") {
+    Write-Host "Activating virtual environment (venv_new)..." -ForegroundColor Yellow
+    & ".\venv_new\Scripts\Activate.ps1"
+}
+
 # Check Python installation
 Write-Host "Checking Python installation..." -ForegroundColor Yellow
 try {

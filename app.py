@@ -20,19 +20,23 @@ from forms import (
 )
 
 # Optional Flask-Mail for email notifications
+HAS_FLASK_MAIL = False
+Mail = None
+MailMessage = None
 try:
-    from flask_mail import Mail, Message as MailMessage
+    from flask_mail import Mail as _Mail, Message as _MailMessage
+    Mail = _Mail
+    MailMessage = _MailMessage
     HAS_FLASK_MAIL = True
 except ImportError:
-    HAS_FLASK_MAIL = False
-    Mail = None
+    pass
 
 # Import ML, translation, and report utilities
 from utils.enhanced_ml_model import EnhancedMLPredictor
 try:
     from utils.translator import TranslationService
 except ImportError:
-    from utils.translator_fallback import TranslationService
+    from utils.translator_fallback import TranslationService  # type: ignore[no-redef]
 from utils.medical_info import MedicalInfoService
 from utils.report_generator import generate_radiology_pdf
 
@@ -47,7 +51,8 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Flask-Mail configuration (optional — only active when MAIL_USERNAME is set)
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+mail_port_raw = os.getenv('MAIL_PORT', '587')
+app.config['MAIL_PORT'] = int(mail_port_raw) if mail_port_raw and str(mail_port_raw).isdigit() else 587
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
@@ -64,7 +69,7 @@ login_manager.login_message = 'Please log in to access this page.'
 
 # Initialize Flask-Mail if available and configured
 mail = None
-if HAS_FLASK_MAIL and app.config.get('MAIL_USERNAME'):
+if HAS_FLASK_MAIL and Mail is not None and app.config.get('MAIL_USERNAME'):
     mail = Mail(app)
 
 # Initialize database with schema migrations
@@ -122,6 +127,8 @@ def _can_access_prediction(prediction):
     Returns True if current_user is authorised to view the given prediction.
     Doctors must own the patient; patients must own the linked patient record.
     """
+    if not prediction or not prediction.patient:
+        return False
     patient = prediction.patient
     if current_user.is_doctor():
         return patient.user_id == current_user.id
@@ -460,10 +467,11 @@ def add_checkup(patient_id=None):
         # Send immediate notification to patient
         patient_user = target_patient.portal_user or User.query.filter_by(phone=target_patient.contact, role='patient').first()
         if patient_user:
+            diagnosis_summary = (form.diagnosis.data or '')[:80]
             notif = Notification(
                 user_id=patient_user.id,
                 title=f"New Clinical Checkup Recorded by Dr. {current_user.name}",
-                message=f"A new checkup record has been saved at {current_user.hospital_name}. Diagnosis: {form.diagnosis.data[:80]}. Prescriptions and vitals updated.",
+                message=f"A new checkup record has been saved at {current_user.hospital_name}. Diagnosis: {diagnosis_summary}. Prescriptions and vitals updated.",
                 category='checkup',
                 link=url_for('patient_portal')
             )
@@ -503,7 +511,7 @@ def upload_predict():
         file.save(file_path)
 
         # Get patient information for better prediction
-        patient = Patient.query.get(form.patient_id.data)
+        patient = Patient.query.get_or_404(form.patient_id.data)
         body_part = form.body_part.data
 
         # Handle DICOM or standard image
@@ -997,7 +1005,7 @@ def chat_conversation(recipient_id):
     db.session.commit()
     
     if form.validate_on_submit() or (request.method == 'POST' and request.form.get('message')):
-        msg_text = form.message.data or request.form.get('message', '').strip()
+        msg_text = (form.message.data or request.form.get('message') or '').strip()
         if msg_text:
             chat_msg = ChatMessage(
                 sender_id=current_user.id,
@@ -1144,7 +1152,8 @@ def forgot_password():
 
     form = ForgotPasswordForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower().strip()).first()
+        email_val = (form.email.data or '').lower().strip()
+        user = User.query.filter_by(email=email_val).first()
         if user:
             # Invalidate any existing open tokens for this user
             PasswordResetToken.query.filter_by(user_id=user.id, is_used=False).update({'is_used': True})
@@ -1165,7 +1174,7 @@ def forgot_password():
             email_sent = False
 
             # Attempt to send email if Flask-Mail is configured
-            if mail is not None:
+            if mail is not None and MailMessage is not None:
                 try:
                     msg = MailMessage(
                         subject='MediScan AI – Password Reset Request',
