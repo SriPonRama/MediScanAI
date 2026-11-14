@@ -14,6 +14,7 @@
     ".venv"
   ],
   "pythonVersion": "3.12",
+  "reportMissingImports": "none",
   "reportCallIssue": "none",
   "reportAttributeAccessIssue": "none"
 }

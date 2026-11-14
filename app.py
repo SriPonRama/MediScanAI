@@ -2,8 +2,8 @@ import os
 import secrets
 import time
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file  # type: ignore
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user  # type: ignore
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import json
@@ -24,7 +24,7 @@ HAS_FLASK_MAIL = False
 Mail = None
 MailMessage = None
 try:
-    from flask_mail import Mail as _Mail, Message as _MailMessage
+    from flask_mail import Mail as _Mail, Message as _MailMessage  # type: ignore
     Mail = _Mail
     MailMessage = _MailMessage
     HAS_FLASK_MAIL = True
