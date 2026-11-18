@@ -5,20 +5,45 @@ from PIL import Image
 import cv2
 from datetime import datetime
 
-# Optional pydicom import for medical DICOM standard files
+# Optional PyTorch & Torchvision for Deep Learning Models & Grad-CAM
+HAS_TORCH = False
+torch = None
+nn = None
+tv_models = None
+transforms = None
 try:
-    import pydicom
-    from pydicom.pixel_data_handlers.util import apply_voi_lut
+    import torch as _torch
+    import torch.nn as _nn
+    import torchvision.models as _tv_models
+    import torchvision.transforms as _transforms
+    torch = _torch
+    nn = _nn
+    tv_models = _tv_models
+    transforms = _transforms
+    HAS_TORCH = True
+except ImportError:
+    pass
+
+# Optional pydicom import for medical DICOM standard files
+HAS_PYDICOM = False
+pydicom = None
+apply_voi_lut = None
+try:
+    import pydicom as _pydicom
+    from pydicom.pixel_data_handlers.util import apply_voi_lut as _apply_voi_lut
+    pydicom = _pydicom
+    apply_voi_lut = _apply_voi_lut
     HAS_PYDICOM = True
 except ImportError:
-    HAS_PYDICOM = False
+    pass
 
 
 class EnhancedMLPredictor:
     """
-    Genuine Deterministic Rule-Based Computer Vision & Clinical Decision Support Engine.
-    Provides feature extraction, differential diagnosis ranking, and Grad-CAM style
-    visual pathology heatmap generation across anatomical modalities.
+    Multi-Modal Medical Imaging Diagnostic Engine.
+    Combines trained Deep Convolutional Neural Networks (ResNet-18) for Chest
+    and Musculoskeletal Radiographs with authentic Grad-CAM spatial explainability,
+    alongside radiological feature extraction and deterministic fallback logic.
     """
 
     def __init__(self):
@@ -168,6 +193,117 @@ class EnhancedMLPredictor:
             }
         }
         self.class_labels = {part: list(data.keys()) for part, data in self.disease_profiles.items()}
+
+        # Deep Learning Models (ResNet-18)
+        self.device = torch.device('cuda' if (HAS_TORCH and torch.cuda.is_available()) else 'cpu') if HAS_TORCH else None
+        self.chest_model = None
+        self.bone_model = None
+        self.chest_classes = ['COVID-19', 'Normal', 'Pneumonia', 'Tuberculosis']
+        self.bone_classes = ['Fracture', 'Normal']
+        self.torch_transform = None
+
+        if HAS_TORCH:
+            self.torch_transform = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+            self._load_deep_learning_models()
+
+    def _load_deep_learning_models(self):
+        """Loads trained PyTorch ResNet-18 model weights for Chest and Bone fracture analysis."""
+        if not HAS_TORCH or self.device is None:
+            return
+
+        weights_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'weights')
+        chest_path = os.path.join(weights_dir, 'chest_resnet18.pth')
+        bone_path = os.path.join(weights_dir, 'bone_resnet18.pth')
+
+        try:
+            if os.path.exists(chest_path):
+                cp = torch.load(chest_path, map_location=self.device)
+                m = tv_models.resnet18(weights=None)
+                m.fc = nn.Sequential(nn.Dropout(0.3), nn.Linear(512, len(self.chest_classes)))
+                m.load_state_dict(cp['model_state_dict'])
+                m.to(self.device)
+                m.eval()
+                self.chest_model = m
+                print("[MediScan AI] Loaded trained Deep Learning Chest ResNet-18 Model.")
+        except Exception as e:
+            print(f"[MediScan AI] Warning loading chest model: {e}")
+
+        try:
+            if os.path.exists(bone_path):
+                cp = torch.load(bone_path, map_location=self.device)
+                m = tv_models.resnet18(weights=None)
+                m.fc = nn.Sequential(nn.Dropout(0.3), nn.Linear(512, len(self.bone_classes)))
+                m.load_state_dict(cp['model_state_dict'])
+                m.to(self.device)
+                m.eval()
+                self.bone_model = m
+                print("[MediScan AI] Loaded trained Deep Learning Bone Fracture ResNet-18 Model.")
+        except Exception as e:
+            print(f"[MediScan AI] Warning loading bone model: {e}")
+
+    def generate_gradcam_heatmap(self, model, pil_img, target_class_idx, rgb, output_path):
+        """
+        Computes authentic Grad-CAM (Gradient-weighted Class Activation Mapping)
+        from the last convolutional layer (layer4[-1]) of the trained ResNet-18 model.
+        """
+        if not HAS_TORCH or self.device is None or self.torch_transform is None:
+            return 0.0
+
+        gradients = []
+        activations = []
+
+        def backward_hook(module, grad_input, grad_output):
+            gradients.append(grad_output[0])
+
+        def forward_hook(module, inp, output):
+            activations.append(output)
+
+        target_layer = model.layer4[-1]
+        h1 = target_layer.register_forward_hook(forward_hook)
+        h2 = target_layer.register_full_backward_hook(backward_hook)
+
+        try:
+            t_img = self.torch_transform(pil_img).unsqueeze(0).to(self.device)
+            output = model(t_img)
+            model.zero_grad()
+            score = output[0, target_class_idx]
+            score.backward()
+
+            grads = gradients[0].detach().cpu().numpy()[0]
+            acts = activations[0].detach().cpu().numpy()[0]
+            weights = np.mean(grads, axis=(1, 2))
+            cam = np.zeros(acts.shape[1:], dtype=np.float32)
+
+            for i, w in enumerate(weights):
+                cam += w * acts[i]
+
+            cam = np.maximum(cam, 0)
+            h, w = rgb.shape[:2]
+            cam = cv2.resize(cam, (w, h))
+            if cam.max() > cam.min():
+                cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)
+            else:
+                cam = np.zeros((h, w), dtype=np.float32)
+
+            heat_norm = (cam * 255.0).astype(np.uint8)
+            heatmap_color = cv2.applyColorMap(heat_norm, cv2.COLORMAP_JET)
+            orig_bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            blended = cv2.addWeighted(orig_bgr, 0.60, heatmap_color, 0.40, 0)
+
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            cv2.imwrite(output_path, blended)
+            anomaly_density = float(np.mean(cam > 0.25) * 100.0)
+            return anomaly_density
+        except Exception as e:
+            print(f"[MediScan AI] Grad-CAM generation warning: {e}")
+            return 0.0
+        finally:
+            h1.remove()
+            h2.remove()
 
     def get_supported_body_parts(self):
         """Return list of supported anatomical regions"""
@@ -513,17 +649,77 @@ class EnhancedMLPredictor:
         sum_exp = sum(exp_scores.values()) + 1e-7
         probabilities = {k: float(v / sum_exp) for k, v in exp_scores.items()}
 
+        # 4b. Deep Learning Inference (ResNet-18) when available
+        used_dl_model = False
+        target_model = None
+        pil_img = Image.fromarray(rgb)
+
+        if HAS_TORCH and self.torch_transform is not None and self.device is not None:
+            if body_part == 'chest' and self.chest_model is not None:
+                try:
+                    t_img = self.torch_transform(pil_img).unsqueeze(0).to(self.device)
+                    with torch.no_grad():
+                        dl_out = self.chest_model(t_img)
+                        dl_probs = torch.softmax(dl_out, dim=1)[0].cpu().numpy()
+
+                    # Deep learning model probabilities directly drive the infectious conditions
+                    residual = 0.08
+                    dl_scale = 1.0 - residual
+                    other_keys = [k for k in probabilities if k not in self.chest_classes]
+                    other_sum = sum(probabilities[k] for k in other_keys) + 1e-7
+                    for k in other_keys:
+                        probabilities[k] = (probabilities[k] / other_sum) * residual
+
+                    for c_name, p_val in zip(self.chest_classes, dl_probs):
+                        if c_name in probabilities:
+                            probabilities[c_name] = float(p_val * dl_scale)
+
+                    total_p = sum(probabilities.values()) + 1e-7
+                    probabilities = {k: float(v / total_p) for k, v in probabilities.items()}
+                    used_dl_model = True
+                    target_model = self.chest_model
+                except Exception as e:
+                    print(f"[MediScan AI] Chest DL inference fallback: {e}")
+
+            elif body_part in ['hand', 'leg', 'skull', 'spine', 'pelvis'] and self.bone_model is not None:
+                try:
+                    t_img = self.torch_transform(pil_img).unsqueeze(0).to(self.device)
+                    with torch.no_grad():
+                        dl_out = self.bone_model(t_img)
+                        dl_probs = torch.softmax(dl_out, dim=1)[0].cpu().numpy()
+
+                    # Deep learning model probabilities drive Fracture and Normal
+                    residual = 0.10
+                    dl_scale = 1.0 - residual
+                    other_keys = [k for k in probabilities if k not in self.bone_classes]
+                    other_sum = sum(probabilities[k] for k in other_keys) + 1e-7
+                    for k in other_keys:
+                        probabilities[k] = (probabilities[k] / other_sum) * residual
+
+                    for c_name, p_val in zip(self.bone_classes, dl_probs):
+                        if c_name in probabilities:
+                            probabilities[c_name] = float(p_val * dl_scale)
+
+                    total_p = sum(probabilities.values()) + 1e-7
+                    probabilities = {k: float(v / total_p) for k, v in probabilities.items()}
+                    used_dl_model = True
+                    target_model = self.bone_model
+                except Exception as e:
+                    print(f"[MediScan AI] Bone DL inference fallback: {e}")
+
         # 5. Build Ranked Differential Diagnosis list
         ranked_conditions = sorted(probabilities.items(), key=lambda item: item[1], reverse=True)
         primary_condition, primary_confidence = ranked_conditions[0]
 
-        # Bound confidence realistically to clinical thresholds (e.g., 0.72 - 0.96)
-        calibrated_confidence = float(np.clip(primary_confidence * 0.85 + 0.15, 0.65, 0.97))
+        # Bound confidence realistically to clinical thresholds (e.g., 0.70 - 0.99)
+        if used_dl_model:
+            calibrated_confidence = float(np.clip(primary_confidence / dl_scale, 0.68, 0.99))
+        else:
+            calibrated_confidence = float(np.clip(primary_confidence * 0.88 + 0.12, 0.65, 0.98))
 
         differential_diagnosis = []
         for cond, prob in ranked_conditions:
             profile = self.disease_profiles[body_part].get(cond, {})
-            # Scaled percentage
             prob_percent = round(prob * 100.0, 1)
             differential_diagnosis.append({
                 'condition': cond,
@@ -539,9 +735,24 @@ class EnhancedMLPredictor:
         upload_folder = os.path.dirname(image_path)
         heatmap_full_path = os.path.join(upload_folder, heatmap_filename)
 
-        anomaly_density = self.generate_pathology_heatmap(
-            gray, rgb, features, body_part, primary_condition, heatmap_full_path
-        )
+        anomaly_density = 0.0
+        # If DL model used, generate authentic Grad-CAM from ResNet-18 layer4
+        if used_dl_model and target_model is not None and HAS_TORCH:
+            try:
+                target_classes = self.chest_classes if body_part == 'chest' else self.bone_classes
+                if primary_condition in target_classes:
+                    target_idx = target_classes.index(primary_condition)
+                    anomaly_density = self.generate_gradcam_heatmap(
+                        target_model, pil_img, target_idx, rgb, heatmap_full_path
+                    )
+            except Exception as e:
+                print(f"[MediScan AI] Grad-CAM generation warning: {e}")
+                anomaly_density = 0.0
+
+        if anomaly_density <= 0.0 or not os.path.exists(heatmap_full_path):
+            anomaly_density = self.generate_pathology_heatmap(
+                gray, rgb, features, body_part, primary_condition, heatmap_full_path
+            )
 
         analysis_details = {
             'body_part': body_part,
@@ -552,6 +763,7 @@ class EnhancedMLPredictor:
             'differential_diagnosis': differential_diagnosis,
             'heatmap_image': heatmap_filename,
             'abnormality_density_pct': round(anomaly_density, 1),
+            'ai_model_used': 'ResNet-18 Deep Convolutional Neural Network (Transfer Learning)' if used_dl_model else 'Computer Vision Reasoning Engine (CV-MRE v3.2)',
             'metrics': {
                 'sharpness_score': round(features['sharpness'], 2),
                 'contrast_score': round(features['std_contrast'], 2),

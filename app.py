@@ -348,12 +348,21 @@ def patient_portal():
 @app.route('/patient_form', methods=['GET', 'POST'])
 @login_required
 def patient_form():
-    """Add new patient (Doctors only)"""
+    """Add new patient (Doctors only) — with auto-fill from registered patient users"""
     if current_user.is_patient():
         flash('Only medical practitioners can register new patients.', 'warning')
         return redirect(url_for('patient_portal'))
         
     form = PatientForm()
+
+    # Fetch registered patient users who are NOT already in this doctor's patient list
+    existing_contacts = {p.contact for p in Patient.query.filter_by(user_id=current_user.id).all()}
+    registered_patients = User.query.filter_by(role='patient').all()
+    # Build a list of patient users not yet added by this doctor
+    available_patients = [
+        u for u in registered_patients
+        if u.phone not in existing_contacts
+    ]
 
     if form.validate_on_submit():
         patient = Patient(
@@ -390,7 +399,56 @@ def patient_form():
         flash(f'Patient "{patient.name}" created successfully! You can now record checkups or upload scans.', 'success')
         return redirect(url_for('patient_detail', patient_id=patient.id))
 
-    return render_template('patient_form.html', form=form)
+    return render_template('patient_form.html', form=form, available_patients=available_patients)
+
+
+@app.route('/api/registered_patient/<int:user_id>')
+@login_required
+def get_registered_patient(user_id):
+    """API: Fetch registered patient user details for auto-fill (Doctors only)"""
+    if current_user.is_patient():
+        return jsonify({'error': 'Access denied'}), 403
+
+    user = User.query.get_or_404(user_id)
+    if user.role != 'patient':
+        return jsonify({'error': 'Not a patient user'}), 404
+
+    # Check if this patient already has a clinical profile (Patient record)
+    existing_profile = Patient.query.filter_by(contact=user.phone).first()
+
+    data = {
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'phone': user.phone,
+        'created_at': user.created_at.strftime('%Y-%m-%d') if user.created_at else '',
+    }
+
+    # If patient already has a clinical record, include that data too
+    if existing_profile:
+        data.update({
+            'age': existing_profile.age,
+            'gender': existing_profile.gender,
+            'dob': existing_profile.dob or '',
+            'address': existing_profile.address or '',
+            'medical_history': existing_profile.medical_history or '',
+            'emergency_contact': existing_profile.emergency_contact or '',
+            'blood_group': existing_profile.blood_group or '',
+            'allergies': existing_profile.allergies or '',
+        })
+    else:
+        data.update({
+            'age': '',
+            'gender': '',
+            'dob': '',
+            'address': '',
+            'medical_history': '',
+            'emergency_contact': '',
+            'blood_group': '',
+            'allergies': '',
+        })
+
+    return jsonify(data)
 
 @app.route('/patient/<int:patient_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -422,7 +480,7 @@ def edit_patient(patient_id):
         flash(f'Patient details for {patient.name} updated successfully!', 'success')
         return redirect(url_for('patient_detail', patient_id=patient.id))
         
-    return render_template('patient_form.html', form=form, patient=patient, is_edit=True)
+    return render_template('patient_form.html', form=form, patient=patient, is_edit=True, available_patients=[])
 
 @app.route('/patient/<int:patient_id>/add_checkup', methods=['GET', 'POST'])
 @app.route('/add_checkup', methods=['GET', 'POST'])

@@ -18,12 +18,12 @@
 </head>
 <body>
     <!-- Compact One-Line Navigation Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top navbar-compact">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-compact">
         <div class="container-fluid px-3 px-xl-4">
             <!-- Brand Logo with Flat Icon -->
-            <a class="navbar-brand fw-bold d-flex align-items-center me-3" href="{% if current_user.is_authenticated %}{% if current_user.is_patient() %}{{ url_for('patient_portal') }}{% else %}{{ url_for('dashboard') }}{% endif %}{% else %}{{ url_for('index') }}{% endif %}">
-                <i class="bi bi-heart-pulse-fill text-white me-2" style="font-size: 1.15rem;"></i>
-                <span>MediScan AI</span>
+            <a class="navbar-brand fw-bold d-flex align-items-center me-3 me-xl-4" href="{% if current_user.is_authenticated %}{% if current_user.is_patient() %}{{ url_for('patient_portal') }}{% else %}{{ url_for('dashboard') }}{% endif %}{% else %}{{ url_for('index') }}{% endif %}">
+                <i class="bi bi-heart-pulse-fill text-cyan me-2" style="font-size: 1.25rem;"></i>
+                <span class="text-white">MediScan AI</span>
                 {% if current_user.is_authenticated %}
                 <span class="badge ms-2 {% if current_user.is_patient() %}bg-info text-dark{% else %}bg-light text-primary{% endif %} text-uppercase" style="font-size: 0.65rem; padding: 2px 7px; letter-spacing: 0.5px;">
                     {{ _('Patient') if current_user.is_patient() else _('Doctor') }}
@@ -36,15 +36,21 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Navigation Items (Single horizontal line, compact) -->
+                <!-- Navigation Items -->
                 <ul class="navbar-nav me-auto align-items-lg-center">
                     {% if not current_user.is_authenticated %}
-                    <!-- Landing Page Navigation (Guest) -->
+                    <!-- Landing Page Navigation (Guest - matches Image 3 header) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}"><i class="bi bi-house"></i><span>{{ _('Home') }}</span></a>
+                        <a class="nav-link nav-pill-active" href="{{ url_for('index') }}"><span>{{ _('Home') }}</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}"><i class="bi bi-info-circle"></i><span>{{ _('About Us') }}</span></a>
+                        <a class="nav-link nav-link-custom" href="{{ url_for('index') }}#features"><span>{{ _('Features') }}</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="{{ url_for('index') }}#how-it-works"><span>{{ _('How It Works') }}</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="{{ url_for('about') }}"><span>{{ _('About Us') }}</span></a>
                     </li>
                     {% else %}
                         {% if current_user.is_doctor() %}
@@ -92,23 +98,23 @@
                     {% endif %}
                 </ul>
                 
-                <!-- Right Controls: Language Selector, Notifications, User Menu (All single line) -->
+                <!-- Right Controls: Language Selector, Notifications, User Menu (Image 3 Header Format) -->
                 <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
-                    <!-- Language Selector (Compact) -->
+                    <!-- Language Selector (Glass Pill Dropdown) -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-light btn-nav-compact dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-globe2"></i>
-                            <span id="currentLanguage">{{ current_lang_info.flag if current_lang_info else '🌐' }} {{ current_lang_info.native if current_lang_info else 'English' }}</span>
+                        <button class="btn btn-nav-lang dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-globe2 me-1"></i>
+                            <span id="currentLanguage">{{ current_lang_info.native if current_lang_info else 'English' }}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 380px; overflow-y: auto;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg dropdown-menu-dark" style="max-height: 380px; overflow-y: auto; background-color: #081633; border: 1px solid rgba(255,255,255,0.12);">
                             <li class="dropdown-header small text-uppercase fw-bold text-muted"><i class="bi bi-translate me-1"></i> {{ _('Select Language') }}</li>
                             {% for code, lang in supported_languages.items() %}
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center {% if code == current_lang %}active fw-bold{% endif %}" 
+                                <a class="dropdown-item d-flex justify-content-between align-items-center {% if code == current_lang %}active fw-bold text-cyan{% endif %}" 
                                    href="{{ url_for('set_language', lang_code=code) }}"
                                    onclick="if(window.changeLanguage) { window.changeLanguage('{{ code }}'); }">
                                     <span>{{ lang.flag }} {{ lang.native }} <small class="text-muted ms-1">({{ lang.name }})</small></span>
-                                    {% if code == current_lang %}<i class="bi bi-check-lg ms-2 text-primary"></i>{% endif %}
+                                    {% if code == current_lang %}<i class="bi bi-check-lg ms-2 text-cyan"></i>{% endif %}
                                 </a>
                             </li>
                             {% endfor %}
@@ -117,7 +123,7 @@
                     
                     {% if current_user.is_authenticated %}
                     <!-- Notifications Bell (Compact) -->
-                    <a class="btn btn-outline-light btn-nav-compact position-relative" href="{{ url_for('notifications') }}" title="{{ _('Notifications') }}">
+                    <a class="btn btn-outline-light btn-nav-compact btn-icon-only position-relative" href="{{ url_for('notifications') }}" title="{{ _('Notifications') }}">
                         <i class="bi bi-bell"></i>
                         {% if unread_notifs > 0 %}
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 2px 5px;">
@@ -127,8 +133,8 @@
                     </a>
                     {% endif %}
 
-                    <!-- User Profile Dropdown / Auth Buttons (Compact) -->
-                    <ul class="navbar-nav mb-0">
+                    <!-- User Profile Dropdown / Auth Buttons (Image 3 format) -->
+                    <ul class="navbar-nav mb-0 align-items-lg-center">
                         {% if current_user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle py-1 px-2 d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
@@ -162,11 +168,12 @@
                             </ul>
                         </li>
                         {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link py-1 px-2" href="{{ url_for('login') }}"><i class="bi bi-box-arrow-in-right"></i><span>{{ _('Login') }}</span></a>
+                        <!-- Guest Auth Buttons: Login (Ghost Pill) & Sign Up (Cyan Pill) -->
+                        <li class="nav-item ms-lg-1">
+                            <a class="btn btn-nav-login" href="{{ url_for('login') }}"><span>{{ _('Login') }}</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-light btn-nav-compact ms-lg-1" href="{{ url_for('signup') }}"><i class="bi bi-person-plus"></i><span>{{ _('Sign Up') }}</span></a>
+                            <a class="btn btn-nav-signup" href="{{ url_for('signup') }}"><i class="bi bi-plus-lg me-1"></i><span>{{ _('Sign Up') }}</span></a>
                         </li>
                         {% endif %}
                     </ul>
@@ -194,33 +201,94 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer with Flat Icons -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <!-- Professional Footer — dark navy, 4-column -->
+    <footer class="site-footer">
         <div class="container">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <h5 class="d-flex align-items-center mb-2">
-                        <i class="bi bi-heart-pulse-fill text-primary me-2"></i>MediScan AI
-                    </h5>
-                    <p class="mb-1 text-light opacity-75">{{ _('AI for Smarter Disease Detection') }}</p>
-                    <p class="small text-muted">{{ _('Empowering healthcare with artificial intelligence') }}</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <h6 class="text-uppercase text-muted small fw-bold mb-2">{{ _('Contact Us') }}</h6>
-                    <p class="mb-1 small"><i class="bi bi-envelope me-2 text-primary"></i>info@mediscan-ai.com</p>
-                    <p class="mb-2 small"><i class="bi bi-telephone me-2 text-primary"></i>+91-98765-43210</p>
-                    <div class="d-flex gap-3 justify-content-md-end mt-2">
-                        <a href="#" class="text-light opacity-75 hover-opacity-100 fs-5"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-light opacity-75 hover-opacity-100 fs-5"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#" class="text-light opacity-75 hover-opacity-100 fs-5"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" class="text-light opacity-75 hover-opacity-100 fs-5"><i class="bi bi-instagram"></i></a>
+            <div class="row g-5 pb-4">
+
+                <!-- Brand column -->
+                <div class="col-lg-4 col-md-6">
+                    <a class="footer-brand d-flex align-items-center gap-2 mb-3 text-decoration-none" href="{{ url_for('index') }}">
+                        <i class="bi bi-heart-pulse-fill footer-brand-icon"></i>
+                        <span class="footer-brand-name">MediScan AI</span>
+                    </a>
+                    <p class="footer-tagline">
+                        {{ _('Empowering healthcare professionals with explainable AI for faster, more accurate disease detection.') }}
+                    </p>
+                    <div class="footer-socials d-flex gap-3 mt-3">
+                        <a href="#" class="footer-social" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="footer-social" aria-label="X / Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="footer-social" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="footer-social" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                     </div>
                 </div>
+
+                <!-- Product links -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="footer-col-heading">{{ _('Product') }}</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('index') }}#features">{{ _('Features') }}</a></li>
+                        <li><a href="{{ url_for('index') }}#how-it-works">{{ _('How It Works') }}</a></li>
+                        {% if not current_user.is_authenticated %}
+                        <li><a href="{{ url_for('signup') }}">{{ _('Sign Up Free') }}</a></li>
+                        <li><a href="{{ url_for('login') }}">{{ _('Login') }}</a></li>
+                        {% else %}
+                        <li><a href="{{ url_for('upload_predict') }}">{{ _('Upload X-ray') }}</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('about') }}">{{ _('About Us') }}</a></li>
+                    </ul>
+                </div>
+
+                <!-- AI & Technology links -->
+                <div class="col-lg-3 col-md-6 col-6">
+                    <h6 class="footer-col-heading">{{ _('Technology') }}</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">{{ _('AI & Deep Learning') }}</a></li>
+                        <li><a href="#">{{ _('Grad-CAM Explainability') }}</a></li>
+                        <li><a href="#">{{ _('ResNet Architecture') }}</a></li>
+                        <li><a href="#">{{ _('Multi-Disease Detection') }}</a></li>
+                        <li><a href="#">{{ _('Multilingual Support') }}</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact column -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-col-heading">{{ _('Contact') }}</h6>
+                    <ul class="footer-links footer-contact">
+                        <li>
+                            <i class="bi bi-envelope footer-contact-icon"></i>
+                            <a href="mailto:info@mediscan-ai.com">info@mediscan-ai.com</a>
+                        </li>
+                        <li>
+                            <i class="bi bi-telephone footer-contact-icon"></i>
+                            <span>+91-98765-43210</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-geo-alt footer-contact-icon"></i>
+                            <span>Sri Eshwar College of Engineering,<br>Coimbatore, Tamil Nadu 641202</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <hr class="my-3 border-secondary opacity-25">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="mb-0 text-muted small">&copy; 2024 MediScan AI. All rights reserved.</p>
+
+            <!-- Divider -->
+            <div class="footer-divider"></div>
+
+            <!-- Bottom bar -->
+            <div class="row align-items-center py-3">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <p class="footer-copy mb-0">
+                        &copy; 2025 <strong>MediScan AI</strong>. All rights reserved.
+                        <span class="footer-copy-sep">·</span>
+                        Built with <i class="bi bi-heart-fill" style="color:#00e5ff;font-size:.7rem;"></i> for Healthcare AI
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <span class="footer-badges">
+                        <span class="footer-badge"><i class="bi bi-shield-check me-1"></i>Secure</span>
+                        <span class="footer-badge"><i class="bi bi-lock me-1"></i>Private</span>
+                        <span class="footer-badge"><i class="bi bi-cpu me-1"></i>AI-Powered</span>
+                    </span>
                 </div>
             </div>
         </div>

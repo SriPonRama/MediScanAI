@@ -1,19 +1,54 @@
 {% extends "base.html" %}
 
-{% block title %}Add Patient - MediScan AI{% endblock %}
+{% block title %}{{ _('Add Patient') if not is_edit else _('Edit Patient') }} - MediScan AI{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
+
+            {% if not is_edit and available_patients and available_patients|length > 0 %}
+            <!-- ══════════════════════════════════════════════
+                 QUICK ADD — Select from Registered Patients
+            ══════════════════════════════════════════════ -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h5 class="mb-0 fs-6 fw-bold">{{ _('Quick Add — Select Registered Patient') }}</h5>
+                            <p class="mb-0 opacity-75 small">{{ _('Auto-fill from patients who already signed up on MediScan AI') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <label for="registered-patient-select" class="form-label fw-semibold">{{ _('Select a Registered Patient') }}</label>
+                    <select id="registered-patient-select" class="form-select mb-2">
+                        <option value="">-- {{ _('Choose a registered patient to auto-fill') }} --</option>
+                        {% for p in available_patients %}
+                        <option value="{{ p.id }}">{{ p.name }} — {{ p.email }} ({{ p.phone }})</option>
+                        {% endfor %}
+                    </select>
+                    <p class="form-text text-muted small mb-0">
+                        {{ _('Selecting a patient will auto-fill the form below. You can review and edit before saving.') }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ══════════════════════════════════════════════
+                 PATIENT FORM
+            ══════════════════════════════════════════════ -->
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-primary text-white py-3">
                     <div class="d-flex align-items-center">
-                        <span class="flat-icon-badge flat-icon-badge-lg flat-icon-white me-3">
-                            <i class="bi bi-person-plus fs-4 text-primary"></i>
-                        </span>
                         <div>
-                            <h3 class="mb-0 fs-5 fw-bold">{{ _('Add Patient') }}</h3>
+                            <h3 class="mb-0 fs-5 fw-bold">
+                                {% if is_edit %}
+                                    {{ _('Edit Patient') }}: {{ patient.name }}
+                                {% else %}
+                                    {{ _('Add Patient') }}
+                                {% endif %}
+                            </h3>
                             <p class="mb-0 opacity-75 small">{{ _('Enter patient information for medical records') }}</p>
                         </div>
                     </div>
@@ -27,13 +62,13 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-primary mb-3 fs-6 fw-bold">
-                                    <i class="bi bi-person me-2"></i>{{ _('Patient') }} {{ _('Information') if _('Information') != 'Information' else '' }}
+                                    {{ _('Patient Information') }}
                                 </h5>
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.name.label(class="form-label fw-semibold") }}
-                                {{ form.name(class="form-control", placeholder="Enter patient's full name") }}
+                                {{ form.name(class="form-control", placeholder="Enter patient's full name", id="pf-name") }}
                                 {% if form.name.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.name.errors %}
@@ -45,7 +80,7 @@
                             
                             <div class="col-md-3 mb-3">
                                 {{ form.age.label(class="form-label fw-semibold") }}
-                                {{ form.age(class="form-control", placeholder="Age") }}
+                                {{ form.age(class="form-control", placeholder="Age", id="pf-age") }}
                                 {% if form.age.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.age.errors %}
@@ -57,7 +92,7 @@
 
                             <div class="col-md-3 mb-3">
                                 {{ form.dob.label(class="form-label fw-semibold") }}
-                                {{ form.dob(class="form-control", type="date") }}
+                                {{ form.dob(class="form-control", type="date", id="pf-dob") }}
                                 {% if form.dob.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.dob.errors %}
@@ -69,7 +104,7 @@
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.gender.label(class="form-label fw-semibold") }}
-                                {{ form.gender(class="form-select") }}
+                                {{ form.gender(class="form-select", id="pf-gender") }}
                                 {% if form.gender.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.gender.errors %}
@@ -81,7 +116,7 @@
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.contact.label(class="form-label fw-semibold") }}
-                                {{ form.contact(class="form-control", placeholder="+91-XXXXX-XXXXX") }}
+                                {{ form.contact(class="form-control", placeholder="+91-XXXXX-XXXXX", id="pf-contact") }}
                                 {% if form.contact.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.contact.errors %}
@@ -96,13 +131,13 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-primary mb-3 fs-6 fw-bold">
-                                    <i class="bi bi-geo-alt me-2"></i>Contact Information
+                                    {{ _('Contact Information') }}
                                 </h5>
                             </div>
                             
                             <div class="col-12 mb-3">
                                 {{ form.address.label(class="form-label fw-semibold") }}
-                                {{ form.address(class="form-control", rows="3", placeholder="Enter complete address") }}
+                                {{ form.address(class="form-control", rows="3", placeholder="Enter complete address", id="pf-address") }}
                                 {% if form.address.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.address.errors %}
@@ -114,7 +149,7 @@
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.emergency_contact.label(class="form-label fw-semibold") }}
-                                {{ form.emergency_contact(class="form-control", placeholder="+91-XXXXX-XXXXX") }}
+                                {{ form.emergency_contact(class="form-control", placeholder="+91-XXXXX-XXXXX", id="pf-emergency") }}
                                 {% if form.emergency_contact.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.emergency_contact.errors %}
@@ -126,7 +161,7 @@
                             
                             <div class="col-md-6 mb-3">
                                 {{ form.blood_group.label(class="form-label fw-semibold") }}
-                                {{ form.blood_group(class="form-select") }}
+                                {{ form.blood_group(class="form-select", id="pf-blood") }}
                                 {% if form.blood_group.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.blood_group.errors %}
@@ -141,18 +176,18 @@
                         <div class="row mb-4">
                             <div class="col-12">
                                 <h5 class="text-primary mb-3 fs-6 fw-bold">
-                                    <i class="bi bi-heart-pulse me-2"></i>Medical Information
+                                    {{ _('Medical Information') }}
                                 </h5>
                             </div>
                             
                             <div class="col-12 mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     {{ form.medical_history.label(class="form-label fw-semibold mb-0") }}
-                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill py-0 px-2 voice-dictate-btn" onclick="toggleVoiceDictation('medical_history', this)" style="font-size: 0.75rem;">
-                                        <i class="bi bi-mic me-1"></i> <span class="voice-btn-text">Voice Scribe</span>
+                                    <button type="button" class="btn btn-outline-danger btn-sm py-0 px-2 voice-dictate-btn" onclick="toggleVoiceDictation('pf-history', this)" style="font-size: 0.75rem;">
+                                        <span class="voice-btn-text">Voice Scribe</span>
                                     </button>
                                 </div>
-                                {{ form.medical_history(class="form-control", id="medical_history", rows="4", placeholder="Previous medical conditions, surgeries, medications, etc.") }}
+                                {{ form.medical_history(class="form-control", id="pf-history", rows="4", placeholder="Previous medical conditions, surgeries, medications, etc.") }}
                                 <div class="form-text">Include any relevant medical history that might be important for diagnosis</div>
                                 {% if form.medical_history.errors %}
                                     <div class="text-danger small mt-1">
@@ -166,11 +201,11 @@
                             <div class="col-12 mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     {{ form.allergies.label(class="form-label fw-semibold mb-0") }}
-                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill py-0 px-2 voice-dictate-btn" onclick="toggleVoiceDictation('allergies', this)" style="font-size: 0.75rem;">
-                                        <i class="bi bi-mic me-1"></i> <span class="voice-btn-text">Voice Scribe</span>
+                                    <button type="button" class="btn btn-outline-danger btn-sm py-0 px-2 voice-dictate-btn" onclick="toggleVoiceDictation('pf-allergies', this)" style="font-size: 0.75rem;">
+                                        <span class="voice-btn-text">Voice Scribe</span>
                                     </button>
                                 </div>
-                                {{ form.allergies(class="form-control", id="allergies", rows="3", placeholder="Known allergies to medications, foods, or other substances") }}
+                                {{ form.allergies(class="form-control", id="pf-allergies", rows="3", placeholder="Known allergies to medications, foods, or other substances") }}
                                 <div class="form-text">List any known allergies or adverse reactions</div>
                                 {% if form.allergies.errors %}
                                     <div class="text-danger small mt-1">
@@ -187,11 +222,11 @@
                             <div class="col-12">
                                 <div class="d-flex justify-content-between">
                                     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-                                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                                        Back to Dashboard
                                     </a>
                                     <div>
                                         <button type="reset" class="btn btn-outline-warning me-2">
-                                            <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Form
+                                            Reset Form
                                         </button>
                                         {{ form.submit(class="btn btn-primary px-4") }}
                                     </div>
@@ -206,13 +241,16 @@
             <div class="card mt-4 border-info">
                 <div class="card-body">
                     <h6 class="card-title text-info fw-bold">
-                        <i class="bi bi-info-circle me-2"></i>Important Information
+                        {{ _('Important Information') }}
                     </h6>
                     <ul class="card-text small mb-0">
-                        <li>All patient information is securely encrypted and stored</li>
-                        <li>Medical history helps improve AI diagnosis accuracy</li>
-                        <li>Emergency contact information is used only in critical situations</li>
-                        <li>You can update patient information anytime from the dashboard</li>
+                        <li>{{ _('All patient information is securely encrypted and stored') }}</li>
+                        <li>{{ _('Medical history helps improve AI diagnosis accuracy') }}</li>
+                        <li>{{ _('Emergency contact information is used only in critical situations') }}</li>
+                        <li>{{ _('You can update patient information anytime from the dashboard') }}</li>
+                        {% if not is_edit and available_patients and available_patients|length > 0 %}
+                        <li class="text-success fw-semibold">{{ _('Use "Quick Add" above to select a registered patient and auto-fill the form instantly') }}</li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -221,35 +259,89 @@
 </div>
 
 <script>
-// Auto-format Indian phone number input
+// ══════════════════════════════════════════════
+// Auto-fill form from registered patient selection
+// ══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
-    const phoneInputs = document.querySelectorAll('input[type="text"][placeholder*="phone"], input[type="text"][placeholder*="Phone"]');
+    var selectEl = document.getElementById('registered-patient-select');
+    if (!selectEl) return;
 
-    phoneInputs.forEach(input => {
-        input.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
+    selectEl.addEventListener('change', function() {
+        var userId = this.value;
+        if (!userId) return;
 
-            // Handle Indian phone numbers (10 digits)
-            if (value.length >= 10) {
-                value = value.substring(0, 10);
-                // Format as +91-XXXXX-XXXXX
-                if (value.length === 10) {
-                    e.target.value = `+91-${value.substring(0, 5)}-${value.substring(5, 10)}`;
+        fetch('/api/registered_patient/' + userId)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    alert('Could not load patient data: ' + data.error);
+                    return;
                 }
-            } else if (value.length > 0) {
-                // Partial formatting
-                if (value.length <= 5) {
-                    e.target.value = `+91-${value}`;
-                } else {
-                    e.target.value = `+91-${value.substring(0, 5)}-${value.substring(5)}`;
-                }
-            }
-        });
 
-        // Set placeholder for Indian format
-        if (input.placeholder.includes('phone') || input.placeholder.includes('Phone')) {
-            input.placeholder = input.placeholder.replace(/Phone number|phone number/, '+91-XXXXX-XXXXX');
-        }
+                // Fill form fields
+                var nameEl = document.getElementById('pf-name');
+                var ageEl = document.getElementById('pf-age');
+                var dobEl = document.getElementById('pf-dob');
+                var genderEl = document.getElementById('pf-gender');
+                var contactEl = document.getElementById('pf-contact');
+                var addressEl = document.getElementById('pf-address');
+                var emergencyEl = document.getElementById('pf-emergency');
+                var bloodEl = document.getElementById('pf-blood');
+                var historyEl = document.getElementById('pf-history');
+                var allergiesEl = document.getElementById('pf-allergies');
+
+                if (nameEl) nameEl.value = data.name || '';
+                if (ageEl) ageEl.value = data.age || '';
+                if (dobEl) dobEl.value = data.dob || '';
+                if (contactEl) contactEl.value = data.phone || '';
+                if (addressEl) addressEl.value = data.address || '';
+                if (emergencyEl) emergencyEl.value = data.emergency_contact || '';
+                if (historyEl) historyEl.value = data.medical_history || '';
+                if (allergiesEl) allergiesEl.value = data.allergies || '';
+
+                // Set gender dropdown
+                if (genderEl && data.gender) {
+                    var gVal = data.gender.toLowerCase();
+                    for (var i = 0; i < genderEl.options.length; i++) {
+                        if (genderEl.options[i].value === gVal) {
+                            genderEl.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                // Set blood group dropdown
+                if (bloodEl && data.blood_group) {
+                    for (var j = 0; j < bloodEl.options.length; j++) {
+                        if (bloodEl.options[j].value === data.blood_group) {
+                            bloodEl.selectedIndex = j;
+                            break;
+                        }
+                    }
+                }
+
+                // Visual feedback — briefly highlight filled fields
+                var fields = [nameEl, ageEl, dobEl, genderEl, contactEl, addressEl, emergencyEl, bloodEl, historyEl, allergiesEl];
+                fields.forEach(function(el) {
+                    if (el && el.value) {
+                        el.style.transition = 'background-color 0.4s ease';
+                        el.style.backgroundColor = '#d1fae5';
+                        setTimeout(function() {
+                            el.style.backgroundColor = '';
+                        }, 1200);
+                    }
+                });
+
+                // Scroll to the form
+                var formCard = document.querySelector('.card.shadow-lg');
+                if (formCard) {
+                    formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(function(err) {
+                console.error('Error fetching patient data:', err);
+                alert('Failed to fetch patient data. Please try again.');
+            });
     });
 });
 </script>

@@ -1,197 +1,243 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section bg-gradient-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4" data-translate="hero-title">
-                    {{ _('AI for Smarter Disease Detection') }}
+<!-- ════════════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════════ -->
+<section class="hero-section-modern position-relative text-white overflow-hidden"
+         style="background-image: linear-gradient(90deg, #020b1e 0%, rgba(2,11,30,0.96) 38%, rgba(2,11,30,0.72) 56%, rgba(2,11,30,0.18) 82%, rgba(2,11,30,0.04) 100%), url('{{ url_for('static', filename='images/hero-medical-bg.jpg') }}');">
+    <div class="container position-relative py-5">
+        <div class="row align-items-center min-vh-100 py-4">
+            <div class="col-xl-6 col-lg-7 col-md-11">
+
+                <!-- Main Heading -->
+                <h1 class="hero-title fw-bold mb-4 reveal reveal-up" style="transition-delay:.08s" data-translate="hero-title">
+                    {{ _('AI for Smarter') }}<br>
+                    <span class="hero-title-cyan">{{ _('Disease Detection') }}</span>
                 </h1>
-                <p class="lead mb-4" data-translate="hero-subtitle">
-                    {{ _('Empowering healthcare with artificial intelligence') }}
+
+                <!-- Subtitle -->
+                <p class="hero-subtitle mb-5 reveal reveal-up" style="transition-delay:.16s" data-translate="hero-subtitle">
+                    {{ _('Analyze medical data, detect potential diseases early, and support faster, more accurate diagnosis with AI.') }}
                 </p>
-                <div class="d-flex gap-3 flex-wrap">
+
+                <!-- CTA Buttons -->
+                <div class="d-flex gap-3 align-items-center flex-wrap mb-5 reveal reveal-up" style="transition-delay:.22s">
                     {% if not current_user.is_authenticated %}
-                    <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-4">
-                        <i class="fas fa-user-plus me-2"></i>{{ _('Sign Up') }}
+                    <a href="{{ url_for('signup') }}" class="btn btn-hero-primary shadow">
+                        <span>{{ _('Sign Up Free') }}</span>
                     </a>
-                    <a href="{{ url_for('about') }}" class="btn btn-outline-light btn-lg px-4">
-                        <i class="fas fa-info-circle me-2"></i>{{ _('About Us') }}
+                    <a href="#how-it-works" class="btn btn-hero-secondary">
+                        <span>{{ _('See How It Works') }}</span>
                     </a>
                     {% else %}
-                    <a href="{{ url_for('upload_predict') }}" class="btn btn-light btn-lg px-4">
-                        <i class="fas fa-upload me-2"></i>{{ _('Upload X-ray') }}
+                    <a href="{{ url_for('upload_predict') }}" class="btn btn-hero-primary shadow">
+                        <span>{{ _('Upload X-ray') }}</span>
                     </a>
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg px-4">
-                        <i class="fas fa-tachometer-alt me-2"></i>{{ _('Dashboard') }}
+                    <a href="{% if current_user.is_doctor() %}{{ url_for('dashboard') }}{% else %}{{ url_for('patient_portal') }}{% endif %}" class="btn btn-hero-secondary">
+                        <span>{{ _('Dashboard') }}</span>
                     </a>
                     {% endif %}
                 </div>
+
+                <!-- 3 Trust Badges -->
+                <div class="hero-trust-badges d-flex align-items-center gap-4 flex-wrap pt-2 reveal reveal-up" style="transition-delay:.30s">
+                    <div class="trust-badge-item d-flex align-items-center gap-2">
+                        <div class="trust-badge-icon"><i class="bi bi-lightning-charge-fill text-cyan"></i></div>
+                        <div>
+                            <div class="trust-badge-title">{{ _('Fast & Accurate') }}</div>
+                            <div class="trust-badge-sub">{{ _('AI-driven analysis') }}</div>
+                        </div>
+                    </div>
+                    <div class="trust-badge-item d-flex align-items-center gap-2">
+                        <div class="trust-badge-icon"><i class="bi bi-shield-check text-cyan"></i></div>
+                        <div>
+                            <div class="trust-badge-title">{{ _('Secure & Private') }}</div>
+                            <div class="trust-badge-sub">{{ _('Your data is protected') }}</div>
+                        </div>
+                    </div>
+                    <div class="trust-badge-item d-flex align-items-center gap-2">
+                        <div class="trust-badge-icon"><i class="bi bi-layers-fill text-cyan"></i></div>
+                        <div>
+                            <div class="trust-badge-title">{{ _('Multi-Disease') }}</div>
+                            <div class="trust-badge-sub">{{ _('Wide range of detection') }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <img src="{{ url_for('static', filename='images/hero-medical.svg') }}" 
-                     alt="Medical AI Illustration" class="img-fluid" style="max-height: 500px;">
-            </div>
+            <!-- Right column: transparent — lets the hero bg image show -->
+            <div class="col-xl-6 col-lg-5 d-none d-lg-block"></div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="row text-center mb-5">
+
+<!-- ════════════════════════════════════════════════
+     FEATURES SECTION  — white background
+════════════════════════════════════════════════ -->
+<section id="features" class="section-light py-5">
+    <div class="container py-4">
+        <div class="row text-center mb-5 reveal reveal-up">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3" data-translate="features-title">
+                <h2 class="section-heading-dark mt-2" data-translate="features-title">
                     {{ _('Why Choose MediScan AI?') }}
                 </h2>
-                <p class="lead text-muted" data-translate="features-subtitle">
-                    {{ _('Cutting-edge technology meets healthcare expertise') }}
+                <p class="section-sub-dark" data-translate="features-subtitle">
+                    {{ _('Cutting-edge deep learning meets hospital-grade healthcare expertise') }}
                 </p>
             </div>
         </div>
-        
+
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                            <i class="fas fa-brain fa-2x"></i>
-                        </div>
-                        <h4 class="card-title" data-translate="feature1-title">{{ _('AI-Powered Analysis') }}</h4>
-                        <p class="card-text text-muted" data-translate="feature1-desc">
-                            {{ _('Advanced machine learning algorithms trained on thousands of medical images for accurate disease detection.') }}
-                        </p>
+            <div class="col-md-4 reveal reveal-up" style="transition-delay:.05s">
+                <div class="light-card h-100 text-center p-4">
+                    <div class="light-card-icon icon-blue-light mx-auto mb-3">
+                        <i class="fas fa-brain fa-lg"></i>
                     </div>
+                    <h4 class="light-card-heading" data-translate="feature1-title">{{ _('AI-Powered Analysis') }}</h4>
+                    <p class="light-card-sub" data-translate="feature1-desc">
+                        {{ _('Pretrained ResNet deep neural networks trained on over 20,000 radiograms with authentic Grad-CAM explainability.') }}
+                    </p>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                            <i class="fas fa-clock fa-2x"></i>
-                        </div>
-                        <h4 class="card-title" data-translate="feature2-title">{{ _('Fast Results') }}</h4>
-                        <p class="card-text text-muted" data-translate="feature2-desc">
-                            {{ _('Get instant analysis results with confidence scores and detailed medical recommendations.') }}
-                        </p>
+
+            <div class="col-md-4 reveal reveal-up" style="transition-delay:.12s">
+                <div class="light-card h-100 text-center p-4">
+                    <div class="light-card-icon icon-green-light mx-auto mb-3">
+                        <i class="fas fa-bolt fa-lg"></i>
                     </div>
+                    <h4 class="light-card-heading" data-translate="feature2-title">{{ _('Fast Results') }}</h4>
+                    <p class="light-card-sub" data-translate="feature2-desc">
+                        {{ _('Sub-second inference delivering differential diagnostic probabilities, confidence ratings, and targeted recommendations.') }}
+                    </p>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                            <i class="fas fa-globe fa-2x"></i>
-                        </div>
-                        <h4 class="card-title" data-translate="feature3-title">{{ _('Multilingual Support') }}</h4>
-                        <p class="card-text text-muted" data-translate="feature3-desc">
-                            {{ _('Available in multiple languages to serve diverse communities and healthcare providers.') }}
-                        </p>
+
+            <div class="col-md-4 reveal reveal-up" style="transition-delay:.19s">
+                <div class="light-card h-100 text-center p-4">
+                    <div class="light-card-icon icon-primary-light mx-auto mb-3">
+                        <i class="fas fa-globe fa-lg"></i>
                     </div>
+                    <h4 class="light-card-heading" data-translate="feature3-title">{{ _('Multilingual Support') }}</h4>
+                    <p class="light-card-sub" data-translate="feature3-desc">
+                        {{ _('Instant clinical and patient translations across 13 major languages including Hindi, Tamil, Telugu, Spanish, and German.') }}
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Supported X-ray Types -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row text-center mb-5">
+
+<!-- ════════════════════════════════════════════════
+     HOW IT WORKS  — dark navy #020b1e
+════════════════════════════════════════════════ -->
+<section id="how-it-works" class="section-dark-2 py-5">
+    <div class="container py-4">
+        <div class="row text-center mb-5 reveal reveal-up">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3" data-translate="xray-types-title">
-                    {{ _('Supported X-ray Types') }}
+                <h2 class="section-heading" data-translate="how-it-works-title">
+                    {{ _('How It Works') }}
                 </h2>
-                <p class="lead text-muted" data-translate="xray-types-subtitle">
-                    {{ _('Comprehensive analysis for various body parts') }}
+                <p class="section-sub" data-translate="how-it-works-subtitle">
+                    {{ _('From scan upload to explainable AI diagnosis in three simple steps') }}
                 </p>
             </div>
         </div>
-        
+
         <div class="row g-4">
-            <div class="col-lg-2 col-md-4 col-6">
-                <div class="text-center">
-                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-lungs fa-2x text-primary"></i>
+            <div class="col-md-4 reveal reveal-left" style="transition-delay:.05s">
+                <div class="dark-card h-100 text-center p-4 step-card-hover">
+                    <div class="dark-card-icon icon-blue mx-auto mb-3">
+                        <i class="bi bi-cloud-arrow-up fs-4"></i>
                     </div>
-                    <h6>{{ _('Chest') }}</h6>
+                    <h4 class="card-heading">{{ _('1. Upload Scan') }}</h4>
+                    <p class="card-sub">
+                        {{ _('Securely upload digital X-ray scans in DICOM, PNG, or JPEG format across Chest and Bone modalities.') }}
+                    </p>
                 </div>
             </div>
-            
-            <div class="col-lg-2 col-md-4 col-6">
-                <div class="text-center">
-                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-hand-paper fa-2x text-primary"></i>
+
+            <div class="col-md-4 reveal reveal-up" style="transition-delay:.12s">
+                <div class="dark-card h-100 text-center p-4 step-card-hover">
+                    <div class="dark-card-icon icon-cyan mx-auto mb-3">
+                        <i class="bi bi-cpu fs-4"></i>
                     </div>
-                    <h6>{{ _('Hand') }}</h6>
+                    <h4 class="card-heading">{{ _('2. AI ResNet & Grad-CAM') }}</h4>
+                    <p class="card-sub">
+                        {{ _('Deep convolutional networks process image features and compute spatial heatmaps highlighting pathological regions.') }}
+                    </p>
                 </div>
             </div>
-            
-            <div class="col-lg-2 col-md-4 col-6">
-                <div class="text-center">
-                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-walking fa-2x text-primary"></i>
+
+            <div class="col-md-4 reveal reveal-right" style="transition-delay:.19s">
+                <div class="dark-card h-100 text-center p-4 step-card-hover">
+                    <div class="dark-card-icon icon-green mx-auto mb-3">
+                        <i class="bi bi-file-earmark-medical fs-4"></i>
                     </div>
-                    <h6>{{ _('Leg') }}</h6>
-                </div>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-6">
-                <div class="text-center">
-                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-head-side-virus fa-2x text-primary"></i>
-                    </div>
-                    <h6>{{ _('Skull') }}</h6>
-                </div>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-6">
-                <div class="text-center">
-                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-spine fa-2x text-primary"></i>
-                    </div>
-                    <h6>{{ _('Spine') }}</h6>
-                </div>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-6">
-                <div class="text-center">
-                    <div class="xray-icon bg-white rounded-circle shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                        <i class="fas fa-bone fa-2x text-primary"></i>
-                    </div>
-                    <h6>{{ _('Pelvis') }}</h6>
+                    <h4 class="card-heading">{{ _('3. Clinical Report') }}</h4>
+                    <p class="card-sub">
+                        {{ _('Receive immediate diagnosis, confidence metrics, differential rankings, dietary tips, and exportable PDF reports.') }}
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container text-center">
+
+<!-- ════════════════════════════════════════════════
+     CTA SECTION  — white background
+════════════════════════════════════════════════ -->
+<section class="section-light-cta py-5 position-relative overflow-hidden">
+    <div class="container text-center py-4 position-relative">
         <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <h2 class="display-5 fw-bold mb-3" data-translate="cta-title">
-                    Ready to Get Started?
+            <div class="col-lg-8 mx-auto reveal reveal-up">
+                <h2 class="cta-heading-dark mb-3" data-translate="cta-title">
+                    {{ _('Ready to Empower Your Medical Practice?') }}
                 </h2>
-                <p class="lead mb-4" data-translate="cta-subtitle">
-                    Join thousands of healthcare professionals using MediScan AI for better patient outcomes.
+                <p class="cta-sub-dark mb-5" data-translate="cta-subtitle">
+                    {{ _('Join healthcare professionals and patients using MediScan AI for accurate, fast, and explainable disease detection.') }}
                 </p>
                 {% if not current_user.is_authenticated %}
-                <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-5">
-                    <i class="fas fa-rocket me-2"></i>Start Free Trial
-                </a>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ url_for('signup') }}" class="btn btn-cta-primary shadow-lg">
+                        {{ _('Start Free Today') }}
+                    </a>
+                    <a href="{{ url_for('about') }}" class="btn btn-cta-secondary">
+                        {{ _('Learn More') }}
+                    </a>
+                </div>
                 {% else %}
-                <a href="{{ url_for('upload_predict') }}" class="btn btn-light btn-lg px-5">
-                    <i class="fas fa-upload me-2"></i>Upload Your First X-ray
+                <a href="{{ url_for('upload_predict') }}" class="btn btn-cta-primary shadow-lg">
+                    {{ _('Upload Your First X-ray') }}
                 </a>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>
+
+
+<!-- ════════════════════════════════════════════════
+     SCROLL-REVEAL SCRIPT
+════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+    const els = document.querySelectorAll('.reveal');
+    if (!els.length) return;
+
+    const io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                io.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    els.forEach(function (el) { io.observe(el); });
+}());
+</script>
 {% endblock %}

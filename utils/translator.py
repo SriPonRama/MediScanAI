@@ -30,16 +30,95 @@ SUPPORTED_LANGUAGES = {
 
 # Curated high-performance dictionary for instant zero-latency UI translation
 STATIC_DICTIONARY = {
-    # Navigation & General UI
+    # Navigation & General UI (Matches Image 3)
     'Home': {
         'hi': 'होम', 'ta': 'முகப்பு', 'te': 'హోమ్', 'bn': 'হোম',
         'mr': 'मुख्यपृष्ठ', 'gu': 'હોમ', 'kn': 'ಮುಖಪುಟ', 'ml': 'ഹോം',
         'es': 'Inicio', 'fr': 'Accueil', 'de': 'Startseite', 'ar': 'الرئيسية'
     },
+    'Features': {
+        'hi': 'विशेषताएं', 'ta': 'அம்சங்கள்', 'te': 'లక్షణాలు', 'bn': 'বৈশিষ্ট্য',
+        'mr': 'वैशिष्ट्ये', 'gu': 'વિશેષતાઓ', 'kn': 'ವೈಶಿಷ್ಟ್ಯಗಳು', 'ml': 'സവിശേഷതകൾ',
+        'es': 'Características', 'fr': 'Fonctionnalités', 'de': 'Funktionen', 'ar': 'الميزات'
+    },
+    'How It Works': {
+        'hi': 'यह कैसे काम करता है', 'ta': 'இது எவ்வாறு செயல்படுகிறது', 'te': 'ఇది ఎలా పనిచేస్తుంది', 'bn': 'এটি কীভাবে কাজ করে',
+        'mr': 'हे कसे कार्य करते', 'gu': 'તે કેવી રીતે કાર્ય કરે છે', 'kn': 'ಇದು ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ', 'ml': 'ഇത് എങ്ങനെ പ്രവർത്തിക്കുന്നു',
+        'es': 'Cómo Funciona', 'fr': 'Comment ça marche', 'de': 'Wie es funktioniert', 'ar': 'كيف يعمل'
+    },
     'About Us': {
         'hi': 'हमारे बारे में', 'ta': 'எங்களைப் பற்றி', 'te': 'మా గురించి', 'bn': 'আমাদের সম্পর্কে',
         'mr': 'आमच्याबद्दल', 'gu': 'અમારા વિશે', 'kn': 'ನಮ್ಮ ಬಗ್ಗೆ', 'ml': 'ഞങ്ങളെക്കുറിച്ച്',
         'es': 'Sobre Nosotros', 'fr': 'À propos', 'de': 'Über uns', 'ar': 'معلومات عنا'
+    },
+    'AI-Powered Healthcare Platform': {
+        'hi': 'एआई-संचालित स्वास्थ्य सेवा मंच', 'ta': 'AI-இயங்கும் சுகாதார தளம்', 'te': 'AI-ఆధారిత ఆరోగ్య సంరక్షణ ప్లాట్‌ఫారమ్', 'bn': 'এআই-চালিত স্বাস্থ্যসেবা প্ল্যাটফর্ম',
+        'mr': 'एआय-संचलित आरोग्य सेवा प्लॅटफॉर्म', 'gu': 'AI-સંચાલિત હેલ્થકેર પ્લેટફોર્મ', 'kn': 'AI-ಚಾಲಿತ ಆರೋಗ್ಯ ವೇದಿಕೆ', 'ml': 'AI-അധിഷ്ഠിത ആരോഗ്യ പ്ലാറ്റ്‌ഫോം',
+        'es': 'Plataforma de Salud Impulsada por IA', 'fr': 'Plateforme de Santé IA', 'de': 'KI-gestützte Gesundheitsplattform', 'ar': 'منصة رعاية صحية مدعومة بالذكاء الاصطناعي'
+    },
+    'AI for Smarter': {
+        'hi': 'स्मार्ट निदान के लिए एआई', 'ta': 'புத்திசாலித்தனமான AI', 'te': 'తెలివైన విశ్లేషణకు AI', 'bn': 'স্মার্ট রোগ নির্ণয়ের জন্য এআই',
+        'mr': 'स्मार्ट निदानासाठी एआय', 'gu': 'સ્માર્ટ નિદાન માટે AI', 'kn': 'ಬುದ್ಧಿವಂತ ರೋಗನಿರ್ಣಯಕ್ಕೆ AI', 'ml': 'മികച്ച രോഗനിർണ്ണയത്തിന് AI',
+        'es': 'IA para un Diagnóstico Inteligente', 'fr': 'L\'IA pour un Diagnostic Plus Intelligent', 'de': 'KI für intelligentere', 'ar': 'ذكاء اصطناعي لتشخيص أذكى'
+    },
+    'Disease Detection': {
+        'hi': 'रोग का पता लगाना', 'ta': 'நோய் கண்டறிதல்', 'te': 'వ్యాధి నిర్ధారణ', 'bn': 'রোগ শনাক্তকরণ',
+        'mr': 'रोग निदान', 'gu': 'રોગ શોધ', 'kn': 'ರೋಗ ಪತ್ತೆ', 'ml': 'രോഗ നിർണ്ണയം',
+        'es': 'Detección de Enfermedades', 'fr': 'Détection des Maladies', 'de': 'Krankheitserkennung', 'ar': 'كشف الأمراض'
+    },
+    'Sign Up Free': {
+        'hi': 'मुफ्त साइन अप करें', 'ta': 'இலவசமாக பதிவுசெய்க', 'te': 'ఉచితంగా సైన్ అప్ చేయండి', 'bn': 'বিনামূল্যে সাইন আপ করুন',
+        'mr': 'विनामूल्य नोंदणी करा', 'gu': 'મફત સાઇન અપ કરો', 'kn': 'ಉಚಿತವಾಗಿ ಸೈನ್ ಅಪ್ ಮಾಡಿ', 'ml': 'സൗജന്യമായി സൈൻ അപ്പ് ചെയ്യുക',
+        'es': 'Regístrate Gratis', 'fr': 'S\'inscrire Gratuitement', 'de': 'Kostenlos Registrieren', 'ar': 'سجل مجاناً'
+    },
+    'See How It Works': {
+        'hi': 'देखें यह कैसे काम करता है', 'ta': 'செயல்பாட்டைப் பாருங்கள்', 'te': 'ఇది ఎలా పనిచేస్తుందో చూడండి', 'bn': 'কীভাবে কাজ করে দেখুন',
+        'mr': 'कसे कार्य करते ते पहा', 'gu': 'કેવી રીતે કાર્ય કરે છે તે જુઓ', 'kn': 'ಇದು ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ ನೋಡಿ', 'ml': 'പ്രവർത്തനം കാണുക',
+        'es': 'Ver Cómo Funciona', 'fr': 'Voir Comment ça marche', 'de': 'Funktionsweise ansehen', 'ar': 'شاهد كيف يعمل'
+    },
+    'Fast & Accurate': {
+        'hi': 'तेज़ और सटीक', 'ta': 'வேகமான மற்றும் துல்லியமான', 'te': 'వేగవంతమైన & ఖచ్చితమైన', 'bn': 'দ্রুত ও নির্ভুল',
+        'mr': 'जलद आणि अचूक', 'gu': 'ઝડપી અને સચોટ', 'kn': 'ವೇಗದ ಮತ್ತು ನಿಖರ', 'ml': 'വേഗതയേറിയതും കൃത്യവുമായ',
+        'es': 'Rápido y Preciso', 'fr': 'Rapide et Précis', 'de': 'Schnell und Präzise', 'ar': 'سريع ودقيق'
+    },
+    'AI-driven analysis': {
+        'hi': 'एआई-संचालित विश्लेषण', 'ta': 'AI-மூலம் பகுப்பாய்வு', 'te': 'AI విశ్లేషణ', 'bn': 'এআই চালিত বিশ্লেষণ',
+        'mr': 'एआय विश्लेषण', 'gu': 'AI આધારિત વિશ્લેષણ', 'kn': 'AI ಚಾಲಿತ ವಿಶ್ಲೇಷಣೆ', 'ml': 'AI അടിസ്ഥാനമാക്കിയ വിശകലനം',
+        'es': 'Análisis impulsado por IA', 'fr': 'Analyse guidée par l\'IA', 'de': 'KI-gestützte Analyse', 'ar': 'تحليل مدفوع بالذكاء الاصطناعي'
+    },
+    'Secure & Private': {
+        'hi': 'सुरक्षित और निजी', 'ta': 'பாதுகாப்பானது மற்றும் தனிப்பட்டது', 'te': 'సురక్షితమైన & ప్రైవేట్', 'bn': 'নিরাপদ এবং ব্যক্তিগত',
+        'mr': 'सुरक्षित आणि खाजगी', 'gu': 'સુરક્ષિત અને ખાનગી', 'kn': 'ಸುರಕ್ಷಿತ ಮತ್ತು ಖಾಸಗಿ', 'ml': 'സുരക്ഷിതവും സ്വകാര്യവുമായ',
+        'es': 'Seguro y Privado', 'fr': 'Sécurisé et Confidentiel', 'de': 'Sicher und Privat', 'ar': 'آمن وخاص'
+    },
+    'Your data is protected': {
+        'hi': 'आपका डेटा सुरक्षित है', 'ta': 'உங்கள் தரவு பாதுகாக்கப்படுகிறது', 'te': 'మీ డేటా రక్షించబడింది', 'bn': 'আপনার ডেটা সুরক্ষিত',
+        'mr': 'तुमचा डेटा सुरक्षित आहे', 'gu': 'તમારો ડેટા સુરક્ષિત છે', 'kn': 'ನಿಮ್ಮ ಡೇಟಾ ರಕ್ಷಿಸಲ್ಪಟ್ಟಿದೆ', 'ml': 'നിങ്ങളുടെ ഡാറ്റ സുരക്ഷിതമാണ്',
+        'es': 'Tus datos están protegidos', 'fr': 'Vos données sont protégées', 'de': 'Ihre Daten sind geschützt', 'ar': 'بياناتك محمية'
+    },
+    'Multi-Disease': {
+        'hi': 'बहु-रोग निदान', 'ta': 'பல-நோய் கண்டறிதல்', 'te': 'బహుళ-వ్యాధుల విశ్లేషణ', 'bn': 'বহু-রোগ নির্ণয়',
+        'mr': 'अनेक रोग निदान', 'gu': 'બહુવિધ રોગો', 'kn': 'ಬಹು-ರೋಗ ಪತ್ತೆ', 'ml': 'വിവിധ രോഗനിർണ്ണയം',
+        'es': 'Múltiples Enfermedades', 'fr': 'Multi-Pathologies', 'de': 'Multikrankheiten', 'ar': 'أمراض متعددة'
+    },
+    'Wide range of detection': {
+        'hi': 'विस्तृत जांच दायरा', 'ta': 'பரந்த அளவிலான கண்டறிதல்', 'te': 'విస్తృత గుర్తింపు పరిధి', 'bn': 'ব্যাপক শনাক্তকরণ পরিসর',
+        'mr': 'विस्तृत तपासणी श्रेणी', 'gu': 'તપાસની વિશાળ શ્રેણી', 'kn': 'ವ್ಯಾಪಕ ಪತ್ತೆ ಶ್ರೇಣಿ', 'ml': 'വിപുലമായ കണ്ടെത്തൽ ശ്രേണി',
+        'es': 'Amplio rango de detección', 'fr': 'Large éventail de détection', 'de': 'Breites Erkennungsspektrum', 'ar': 'نطاق واسع للكشف'
+    },
+    'Analyze medical data, detect potential diseases early, and support faster, more accurate diagnosis with AI.': {
+        'hi': '\u091a\u093f\u0915\u093f\u0924\u094d\u0938\u093e \u0921\u0947\u091f\u093e \u0915\u093e \u0935\u093f\u0936\u094d\u0932\u0947\u0937\u0923 \u0915\u0930\u0947\u0902, \u0938\u0902\u092d\u093e\u0935\u093f\u0924 \u092c\u0940\u092e\u093e\u0930\u093f\u092f\u094b\u0902 \u0915\u094b \u091c\u0932\u094d\u0926\u0940 \u092a\u0939\u091a\u093e\u0928\u0947\u0902 \u0914\u0930 AI \u0938\u0947 \u0924\u0947\u091c\u093c \u0928\u093f\u0926\u093e\u0928 \u092e\u0947\u0902 \u0938\u0939\u093e\u092f\u0924\u093e \u0932\u0947\u0902\u0964',
+        'ta': '\u0bae\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bc1\u0bb5 \u0ba4\u0bb0\u0bb5\u0bc8 \u0baa\u0b95\u0bc1\u0baa\u0bcd\u0baa\u0bbe\u0baf\u0bcd\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0ba4\u0bc1 \u0ba8\u0bcb\u0baf\u0bcd \u0b95\u0ba3\u0bcd\u0b9f\u0bb1\u0bbf\u0ba4\u0bb2\u0bc8 \u0b86\u0ba4\u0bb0\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bc1\u0bae\u0bcd.',
+        'te': 'AI \u0c38\u0c39\u0c3e\u0c2f\u0c02\u0c24\u0c4b \u0c35\u0c47\u0c17\u0c02\u0c17\u0c3e \u0c16\u0c1a\u0c4d\u0c1a\u0c3f\u0c24\u0c2e\u0c48\u0c28 \u0c35\u0c4d\u0c2f\u0c3e\u0c27\u0c3f \u0c28\u0c3f\u0c30\u0c4d\u0c27\u0c3e\u0c30\u0c23\u0c15\u0c41 \u0c2e\u0c26\u0c4d\u0c26\u0c24\u0c41 \u0c07\u0c35\u0c4d\u0c35\u0c02\u0c21\u0c3f.',
+        'bn': 'AI \u0a26\u0abf\u0aaf\u0a97 \u0aa4\u0acd\u0ab5\u0ab0\u0abf\u0aa4 \u0ab8\u0abe\u0a9a\u0abe \u0aa8\u0abf\u0aa6\u0abe\u0aa8 \u0aae\u0ac7\u0ab3\u0ab5\u0acb.',
+        'mr': 'AI \u0938\u0939 \u091c\u0932\u0926 \u0928\u093f\u0926\u093e\u0928\u093e\u0938 \u0938\u092e\u0930\u094d\u0925\u0928 \u0926\u094d\u092f\u093e.',
+        'gu': 'AI \u0938\u093e\u0925\u0947 \u0924\u092c\u0940\u092c\u0940 \u0921\u0947\u091f\u093e\u0928\u0941\u0902 \u0935\u093f\u0936\u094d\u0932\u0947\u0937\u0923 \u0915\u0930\u0940 \u091d\u0921\u092a\u0940 \u0928\u093f\u0926\u093e\u0928 \u092e\u0947\u0933\u0935\u094b.',
+        'kn': 'AI \u0cae\u0cc2\u0cb2\u0c95 \u0ca8\u0cbf\u0c96\u0cb0 \u0cb0\u0ccb\u0c97\u0ca8\u0cbf\u0cb0\u0ccd\u0ca3\u0caf\u0c95\u0ccd\u0c95\u0cc6 \u0cac\u0cc6\u0c82\u0cac\u0cb2 \u0ca8\u0cc0\u0ca1\u0cbf.',
+        'ml': 'AI \u0d09\u0d2a\u0d2f\u0d4b\u0d17\u0d3f\u0d1a\u0d4d\u0d1a\u0d4d \u0d15\u0d43\u0d24\u0d4d\u0d2f \u0d30\u0d4b\u0d17\u0d28\u0d3f\u0d7c\u0d23\u0d7d\u0d23\u0d2f\u0d24\u0d4d\u0d24\u0d46 \u0d2a\u0d3f\u0d28\u0d4d\u0d24\u0d41\u0d28\u0d2f\u0d4d\u0d15\u0d41\u0d15.',
+        'es': 'Analice datos médicos, detecte enfermedades con anticipación y apoye diagnósticos más rápidos con IA.',
+        'fr': 'Analysez les données médicales, détectez les maladies tôt et soutenez des diagnostics plus précis grâce à l\'IA.',
+        'de': 'Analysieren Sie medizinische Daten, erkennen Sie Krankheiten frühzeitig und unterstützen Sie präzise Diagnosen mit KI.',
+        'ar': '\u062a\u062d\u0644\u064a\u0644 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0648\u0627\u0644\u0643\u0634\u0641 \u0627\u0644\u0645\u0628\u0643\u0631 \u0648\u062f\u0639\u0645 \u0627\u0644\u062a\u0634\u062e\u064a\u0635 \u0627\u0644\u0623\u0633\u0631\u0639 \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a.'
     },
     'Dashboard': {
         'hi': 'डैशबोर्ड', 'ta': 'டாஷ்போர்டு', 'te': 'డాష్‌బోర్డ్', 'bn': 'ড্যাশবোর্ড',
