@@ -43,8 +43,12 @@ from utils.report_generator import generate_radiology_pdf
 app = Flask(__name__)
 
 # Configuration
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secrets.token_hex(16))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///mediscan.db')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'mediscan-secret-key-prod-2026')
+db_uri = os.getenv('DATABASE_URL', 'sqlite:///mediscan.db')
+# Fix Render / Heroku postgres:// uri scheme for SQLAlchemy 1.4+
+if db_uri and db_uri.startswith('postgres://'):
+    db_uri = db_uri.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
