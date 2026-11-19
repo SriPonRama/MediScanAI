@@ -181,34 +181,36 @@ def init_db(app):
         # First ensure all base tables are created
         db.create_all()
         
-        # Check and migrate columns dynamically if they don't exist yet
+        # Check and migrate columns dynamically if using SQLite
         try:
-            with db.engine.connect() as conn:
-                # 1. Check users table columns
-                res = conn.execute(db.text("PRAGMA table_info(users)")).fetchall()
-                col_names = [r[1] for r in res]
-                if 'role' not in col_names:
-                    conn.execute(db.text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'doctor'"))
-                if 'hospital_name' not in col_names:
-                    conn.execute(db.text("ALTER TABLE users ADD COLUMN hospital_name VARCHAR(150) DEFAULT 'MediScan Central Hospital'"))
-                if 'specialization' not in col_names:
-                    conn.execute(db.text("ALTER TABLE users ADD COLUMN specialization VARCHAR(100) DEFAULT 'Radiology & General Medicine'"))
-                if 'patient_id' not in col_names:
-                    conn.execute(db.text("ALTER TABLE users ADD COLUMN patient_id INTEGER"))
-                
-                # 2. Check patients table columns
-                res_pat = conn.execute(db.text("PRAGMA table_info(patients)")).fetchall()
-                pat_cols = [r[1] for r in res_pat]
-                if 'dob' not in pat_cols:
-                    conn.execute(db.text("ALTER TABLE patients ADD COLUMN dob VARCHAR(20)"))
-                
-                # 3. Check predictions table columns
-                res_pred = conn.execute(db.text("PRAGMA table_info(predictions)")).fetchall()
-                pred_cols = [r[1] for r in res_pred]
-                if 'is_sent_to_patient' not in pred_cols:
-                    conn.execute(db.text("ALTER TABLE predictions ADD COLUMN is_sent_to_patient BOOLEAN DEFAULT 1"))
+            is_sqlite = db.engine.url.drivername.startswith('sqlite')
+            if is_sqlite:
+                with db.engine.connect() as conn:
+                    # 1. Check users table columns
+                    res = conn.execute(db.text("PRAGMA table_info(users)")).fetchall()
+                    col_names = [r[1] for r in res]
+                    if 'role' not in col_names:
+                        conn.execute(db.text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'doctor'"))
+                    if 'hospital_name' not in col_names:
+                        conn.execute(db.text("ALTER TABLE users ADD COLUMN hospital_name VARCHAR(150) DEFAULT 'MediScan Central Hospital'"))
+                    if 'specialization' not in col_names:
+                        conn.execute(db.text("ALTER TABLE users ADD COLUMN specialization VARCHAR(100) DEFAULT 'Radiology & General Medicine'"))
+                    if 'patient_id' not in col_names:
+                        conn.execute(db.text("ALTER TABLE users ADD COLUMN patient_id INTEGER"))
                     
-                conn.commit()
+                    # 2. Check patients table columns
+                    res_pat = conn.execute(db.text("PRAGMA table_info(patients)")).fetchall()
+                    pat_cols = [r[1] for r in res_pat]
+                    if 'dob' not in pat_cols:
+                        conn.execute(db.text("ALTER TABLE patients ADD COLUMN dob VARCHAR(20)"))
+                    
+                    # 3. Check predictions table columns
+                    res_pred = conn.execute(db.text("PRAGMA table_info(predictions)")).fetchall()
+                    pred_cols = [r[1] for r in res_pred]
+                    if 'is_sent_to_patient' not in pred_cols:
+                        conn.execute(db.text("ALTER TABLE predictions ADD COLUMN is_sent_to_patient BOOLEAN DEFAULT 1"))
+                        
+                    conn.commit()
         except Exception as e:
             print(f"Database migration note: {e}")
             
