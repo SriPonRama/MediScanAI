@@ -41,6 +41,7 @@ desktop.ini
 
 # Generated upload outputs
 static/uploads/heatmap_*
+static/uploads/[0-9]*_*.*
 
 # Large medical datasets
 dataset/
