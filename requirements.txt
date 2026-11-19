@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
 Flask-Login==0.6.3
@@ -7,7 +8,7 @@ Flask-Mail>=0.9.1
 WTForms==3.0.1
 Werkzeug==2.3.7
 Pillow==10.0.1
-numpy>=1.24.0
+numpy<2.0.0,>=1.24.0
 opencv-python-headless>=4.8.0
 googletrans==4.0.0rc1
 requests>=2.31.0
@@ -15,5 +16,5 @@ python-dotenv>=1.0.0
 gunicorn>=21.0.0
 pydicom>=3.0.0
 reportlab>=4.0.0
-torch>=2.0.0
-torchvision>=0.15.0
+torch==2.2.2+cpu
+torchvision==0.17.2+cpu
