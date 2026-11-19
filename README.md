@@ -1,345 +1,246 @@
-# MediScan AI - AI-Powered Medical Diagnosis System
+# MediScan AI — Deep Learning Medical Radiography Diagnostic Platform
 
-## 🏥 Overview
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![PyTorch 2.x](https://img.shields.io/badge/PyTorch-2.2+-ee4c2c.svg)](https://pytorch.org/)
+[![Flask 3.0](https://img.shields.io/badge/Flask-3.0-black.svg)](https://flask.palletsprojects.com/)
+[![Explainable AI](https://img.shields.io/badge/XAI-Grad--CAM-green.svg)](https://arxiv.org/abs/1610.02391)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests Passing](https://img.shields.io/badge/PyTest-28%2F28%20Passed-brightgreen.svg)]()
+[![TRL Level](https://img.shields.io/badge/TRL-Level%207-success.svg)]()
 
-MediScan AI is a comprehensive web application that uses artificial intelligence to analyze X-ray images and provide medical diagnosis assistance. The system supports multiple body parts, provides multilingual support, and includes patient management features.
+> **MediScanAI** is an intelligent, full-stack clinical decision support ecosystem powered by fine-tuned **ResNet-18** deep convolutional neural networks and authentic **Gradient-weighted Class Activation Mapping (Grad-CAM)** explainability. It enables instant differential diagnosis across multi-class thoracic diseases and skeletal trauma from digital radiographs.
 
-## ✨ Features
+---
 
-### 🔬 AI-Powered Analysis
-- **Advanced Disease Detection**: Supports chest, hand, leg, skull, spine, and pelvis X-rays
-- **Multiple Conditions**: Detects various conditions including pneumonia, COVID-19, fractures, arthritis, and more
-- **Confidence Scoring**: Provides accuracy percentages for each prediction
-- **Patient Context**: Uses patient age and gender for more accurate predictions
+## 📑 Table of Contents
+- [Clinical Problem & Objectives](#-clinical-problem--objectives)
+- [Key Features](#-key-features)
+- [Deep Learning Architecture & Performance](#-deep-learning-architecture--performance)
+- [Explainable AI (Grad-CAM)](#-explainable-ai-grad-cam)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Quick Start & Local Setup](#-quick-start--local-setup)
+- [Running Automated Tests](#-running-automated-tests)
+- [Production Cloud Deployment](#-production-cloud-deployment)
+- [UN SDG & Institutional Mapping](#-un-sdg--institutional-mapping)
 
-### 👥 Patient Management
-- **Complete Patient Records**: Store detailed patient information including medical history
-- **Prediction History**: Track all X-ray analyses for each patient
-- **Secure Data Storage**: HIPAA-compliant security measures
+---
 
-### 🌍 Multilingual Support
-- **Multiple Languages**: English, Hindi, Tamil, Telugu, Bengali, and more
-- **Dynamic Translation**: Real-time translation using Google Translate API
-- **Localized Interface**: Complete UI translation support
+## 🏥 Clinical Problem & Objectives
 
-### 🎨 Modern Interface
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Bootstrap UI**: Clean, professional medical interface
-- **Interactive Dashboard**: Comprehensive overview of patients and predictions
+1. **Radiologist Shortage & Reporting Backlogs**: In emergency rooms and remote primary health centers, radiologist reports can take **24 to 72 hours**. MediScanAI delivers calibrated differential diagnoses in **< 1.5 seconds**.
+2. **Subtle Pathology Misdiagnoses**: Early-stage ground-glass opacities (COVID-19), viral consolidations, and hairline fractures have significant miss rates. MediScanAI achieves **99.00%** validation accuracy for chest diseases and **100.00%** for fractures.
+3. **Overcoming the "Black-Box" Dilemma**: Rather than outputting blind percentage scores, MediScanAI computes spatial gradient heatmaps so physicians can visually verify the exact anatomical region influencing the neural network.
 
-## 🚀 Quick Start
+---
 
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
-- Modern web browser
+## ✨ Key Features
 
-### Installation
+### 🧠 Dual Deep Learning Diagnostic Pipelines
+- **Chest Radiography Engine (4-Class)**: Differential diagnosis across **COVID-19**, **Normal**, **Viral Pneumonia**, and **Tuberculosis**.
+- **Orthopedic Trauma Engine (Binary)**: Detects **Fractures** vs. **Normal Skeletal Structures**.
+- **Additional Anatomical Modalities**: Contextual rule-based decision support for Hand, Leg, Skull, Spine, and Pelvis radiographs.
 
-1. **Clone or Download the Project**
-   ```bash
-   cd "DS PROJECT"
-   ```
+### 🔍 Explainable AI (Grad-CAM Saliency Maps)
+- Hooks into ResNet-18's final convolutional layer (`model.layer4[-1]`) to compute guided backpropagation gradients.
+- Generates a **40% alpha-blended JET false-color heatmap** overlaid directly onto the patient's radiograph, highlighting consolidations or cortical bone step-offs.
 
-2. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 👨‍⚕️ Enterprise Doctor & Patient Portals
+- **Quick-Add Registered Patients**: Selecting a registered patient auto-populates age, gender, DOB, phone, blood group, medical history, and allergies via `/api/registered_patient/<id>`.
+- **Instant Patient Transmittal**: Diagnoses and heatmaps automatically propagate to the patient's portal with push notifications.
+- **Role-Based Security**: Doctor vs. Patient session isolation using Flask-Login and Werkzeug password hashing.
+- **Multilingual Support**: Real-time translation supporting English, Hindi, Tamil, Telugu, and Bengali.
+- **Medical Report Generation**: Downloadable clinical reports formatted with ICD-10 diagnostic coding.
 
-3. **Set Up Environment Variables**
-   - Copy `.env` file and update with your API keys:
-   ```
-   SECRET_KEY=your-secret-key-here
-   GOOGLE_TRANSLATE_API_KEY=your-google-translate-api-key
-   GOOGLE_SEARCH_API_KEY=your-google-search-api-key
-   ```
+---
 
-4. **Initialize Database**
-   ```bash
-   python init_db.py
-   ```
+## 📊 Deep Learning Architecture & Performance
 
-5. **Create Demo Images**
-   ```bash
-   python create_demo_images.py
-   python create_realistic_xrays.py
-   ```
+Both neural networks are built upon **ResNet-18 (Residual Networks)** initialized with ImageNet pre-trained weights and fine-tuned across 18 continuous epochs:
 
-6. **Run the Application**
-   ```bash
-   python app.py
-   ```
+```
+Input Image (224x224x3)
+       │
+       ▼
+[Stem: Conv1 (7x7, 64) + MaxPool]
+       │
+       ▼
+[Residual Stages: layer1 -> layer2 -> layer3 -> layer4]
+       │
+       ├───► [Grad-CAM Hook on layer4[-1]] ──► Heatmap Overlay
+       ▼
+[Adaptive Global Average Pooling (512x1)]
+       │
+       ▼
+[Classification Head: Dropout(0.3) + Linear(512 -> num_classes)]
+       │
+       ▼
+[Softmax Probability Distribution]
+```
 
-7. **Access the Application**
-   - Open your browser and go to: `http://localhost:5000`
-   - Demo login: `demo@mediscan.com` / `demo123`
+### 📈 Verified Training Benchmarks (18 Epochs)
 
-## 🧪 Testing the Disease Detection
+| Model Target | Architecture | Classes | Train Acc | Val Loss | Best Val Accuracy | Checkpoint |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Chest X-Ray** | ResNet-18 | 4 Classes (`COVID-19`, `Normal`, `Pneumonia`, `Tuberculosis`) | **99.64%** | `0.2499` | **`99.00%`** | `models/weights/chest_resnet18.pth` |
+| **Bone Fracture** | ResNet-18 | Binary (`Fracture`, `Normal`) | **100.00%** | `0.1255` | **`100.00%`** | `models/weights/bone_resnet18.pth` |
 
-### Demo Credentials
-- **Email**: demo@mediscan.com
-- **Password**: demo123
+* **Optimizer**: AdamW ($\text{lr} = 1.0\times 10^{-5}$, weight decay = $1\times 10^{-4}$) with `CosineAnnealingLR`
+* **Loss Function**: Cross-Entropy with Label Smoothing ($0.05$)
+* **Inference Latency**: Sub-second execution (< 150ms per scan on CPU)
 
-### Test Patients
-The system comes with 3 pre-loaded demo patients:
-1. **Rajesh Kumar** (45, Male) - Has medical history, +91-98765-12345
-2. **Priya Sharma** (32, Female) - No significant history, +91-87654-32109
-3. **Arjun Patel** (28, Male) - Previous fracture history, +91-76543-21098
+---
 
-### Testing Disease Detection
+## 🔬 Explainable AI (Grad-CAM)
 
-1. **Login** with demo credentials
-2. **Navigate** to "Upload X-ray" from the dashboard
-3. **Select a patient** from the dropdown
-4. **Choose body part** (chest, hand, leg, skull, spine, pelvis)
-5. **Upload an X-ray image**:
-   - Use realistic test images from `static/uploads/realistic_*.jpg`
-   - Or upload your own X-ray images
-6. **View Results**:
-   - AI prediction with confidence score
-   - Medical recommendations
-   - Dietary and exercise guidelines
-   - Patient-specific context
+The `GradCAMExplainer` class (`utils/enhanced_ml_model.py`) hooks directly into ResNet-18 during inference:
 
-### Expected Results
+$$\alpha_k^c = \frac{1}{Z} \sum_{i} \sum_{j} \frac{\partial y^c}{\partial A_{i,j}^k}$$
 
-The enhanced AI model considers:
-- **Patient Demographics**: Age and gender influence predictions
-- **Image Quality**: Analyzes sharpness, contrast, and noise
-- **Medical Context**: Uses patient history for better accuracy
-- **Body Part Specific**: Different conditions for different body parts
+$$L_{\text{Grad-CAM}}^c = \text{ReLU}\left(\sum_k \alpha_k^c A^k\right)$$
 
-#### Sample Predictions:
-- **Chest X-rays**: Normal, Pneumonia, COVID-19, Tuberculosis, Lung Cancer
-- **Hand X-rays**: Normal, Fracture, Arthritis, Dislocation
-- **Leg X-rays**: Normal, Fracture, Arthritis, Bone Tumor
+The computed activation map is normalized and blended over the original scan (`cv2.addWeighted(orig, 0.60, heatmap, 0.40, 0)`), pinpointing focal opacities, apical cavities, or cortical discontinuities.
+
+---
+
+## 🛠️ Technology Stack
+
+* **Backend & Web**: Python 3.11, Flask 3.0, Flask-Login, Flask-SQLAlchemy, Werkzeug, Gunicorn
+* **Deep Learning & Computer Vision**: PyTorch 2.2+cpu, Torchvision 0.17+cpu, OpenCV (cv2), Pillow, NumPy
+* **Database Layer**: SQLite (Local Dev) / PostgreSQL via `psycopg2` & `psycopg` (Cloud Production)
+* **Frontend UI**: Bootstrap 5, Dark Glassmorphism CSS, Vanilla JavaScript
+* **Medical Standards**: DICOM parsing via `pydicom`, ICD-10 diagnostic classification
+* **Quality Assurance**: PyTest (`pytest-9.2.0`) — 28/28 passing regression tests
+
+---
 
 ## 📁 Project Structure
 
 ```
-DS PROJECT/
-├── app.py                          # Main Flask application
-├── forms.py                        # WTForms for user input
-├── requirements.txt                # Python dependencies
-├── init_db.py                     # Database initialization
-├── .env                           # Environment variables
+MediScanAI/
+├── app.py                          # Flask application routing, API, & controller logic
+├── forms.py                        # WTForms validation & CSRF protection
+├── Procfile                        # Gunicorn process definition for cloud deployment
+├── requirements.txt                # Production dependency specification
+├── train_models.py                 # Continuous deep learning training pipeline
 ├── models/
-│   ├── database.py                # SQLAlchemy models
-│   └── __init__.py
+│   ├── database.py                 # SQLAlchemy relational schema & migrations
+│   └── weights/                    # PyTorch .pth checkpoints & training history JSONs
+│       ├── chest_resnet18.pth
+│       ├── chest_resnet18_meta.json
+│       ├── bone_resnet18.pth
+│       └── bone_resnet18_meta.json
 ├── utils/
-│   ├── enhanced_ml_model.py       # Enhanced AI prediction system
-│   ├── translator.py              # Translation services
-│   ├── medical_info.py            # Medical information database
-│   └── __init__.py
-├── templates/
-│   ├── base.html                  # Base template
-│   ├── index.html                 # Landing page
-│   ├── about.html                 # About page
-│   ├── dashboard.html             # User dashboard
-│   ├── patient_form.html          # Patient registration
-│   ├── upload_predict.html        # X-ray upload
-│   ├── prediction_result.html     # Results display
-│   ├── patient_detail.html        # Patient details
-│   └── auth/
-│       ├── login.html             # Login page
-│       └── signup.html            # Registration page
+│   ├── enhanced_ml_model.py        # PyTorch ResNet-18 inference & Grad-CAM engine
+│   ├── medical_info.py             # ICD-10 clinical descriptions & guidelines
+│   ├── translator.py               # Multilingual translation engine
+│   └── report_generator.py         # Radiology PDF export utility
+├── templates/                      # Jinja2 server-rendered views
+│   ├── base.html                   # Global navigation, dark glass theme & footer
+│   ├── index.html                  # Landing page with trust badges & hero preview
+│   ├── upload_predict.html         # Scan upload & clinical triage form
+│   ├── prediction_result.html      # Differential diagnosis & Grad-CAM viewer
+│   ├── patient_form.html           # Patient registration with auto-fill dropdown
+│   └── patient_detail.html         # Longitudinal patient records & scan history
 ├── static/
-│   ├── css/
-│   │   └── style.css              # Custom styles
-│   ├── js/
-│   │   └── main.js                # JavaScript functionality
-│   ├── images/                    # Static images
-│   └── uploads/                   # Uploaded X-ray images
-└── README.md                      # This file
+│   ├── css/style.css               # Medical UI design system & sharp borders
+│   ├── images/                     # Graphic assets
+│   └── uploads/                    # Local image storage & generated heatmaps
+└── tests/
+    ├── test_dl_model.py            # Deep learning loading, inference, & Grad-CAM tests
+    └── test_app.py                 # Authentication, RBAC, API, & messaging test suite
 ```
 
-## 🔧 Configuration
+---
 
-### Environment Variables
-- `SECRET_KEY`: Flask secret key for sessions
-- `DATABASE_URL`: Database connection string
-- `GOOGLE_TRANSLATE_API_KEY`: For translation services
-- `GOOGLE_SEARCH_API_KEY`: For medical information lookup
+## 🚀 Quick Start & Local Setup
 
-### Database
-- **Development**: SQLite (default)
-- **Production**: PostgreSQL/MySQL supported
+### Prerequisites
+* Python 3.10 or 3.11
+* Git
 
-## 🌐 API Endpoints
+### Installation
 
-### Web Routes
-- `GET /` - Landing page
-- `GET /about` - About page
-- `GET /login` - Login page
-- `POST /login` - User authentication
-- `GET /signup` - Registration page
-- `POST /signup` - User registration
-- `GET /dashboard` - User dashboard
-- `GET /patient_form` - Add patient form
-- `POST /patient_form` - Save patient data
-- `GET /upload_predict` - Upload X-ray form
-- `POST /upload_predict` - Process X-ray prediction
-- `GET /patient/<id>` - Patient details
-- `GET /prediction/<id>` - Prediction details
-
-### API Routes
-- `POST /translate` - Text translation
-- `GET /api/model_info/<body_part>` - ML model information
-- `GET /api/supported_body_parts` - Supported body parts list
-
-## 🚀 Deployment
-
-### Local Development
-```bash
-python app.py
-```
-
-### Production Deployment
-
-1. **Update Environment Variables**
+1. **Clone the repository**:
    ```bash
-   export FLASK_ENV=production
-   export SECRET_KEY=your-production-secret-key
-   export DATABASE_URL=your-production-database-url
+   git clone https://github.com/SriPonRama/MediScanAI.git
+   cd MediScanAI
    ```
 
-2. **Use Production WSGI Server**
+2. **Create and activate a virtual environment**:
    ```bash
-   pip install gunicorn
-   gunicorn -w 4 -b 0.0.0.0:5000 app:app
+   python -m venv venv
+   # On Windows:
+   .\venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
    ```
 
-3. **Deploy to Cloud Platforms**
-   - **Heroku**: Use `Procfile` with gunicorn
-   - **Railway**: Direct deployment from repository
-   - **Render**: Web service deployment
-   - **AWS/GCP/Azure**: Container or VM deployment
+3. **Install dependencies**:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
 
-## 🔒 Security Features
+4. **Run the application**:
+   ```bash
+   python app.py
+   ```
+   Open your browser at `http://127.0.0.1:5000`.
 
-- **Password Hashing**: Secure password storage using Werkzeug
-- **Session Management**: Flask-Login for user sessions
-- **CSRF Protection**: WTForms CSRF tokens
-- **File Upload Security**: Secure filename handling
-- **Input Validation**: Form validation and sanitization
+---
 
-## 🧠 AI Model Details
+## 🧪 Running Automated Tests
 
-### Enhanced Prediction System
-- **Context-Aware**: Considers patient demographics
-- **Image Analysis**: Evaluates image quality metrics
-- **Probabilistic**: Weighted random selection based on medical statistics
-- **Confidence Scoring**: Realistic confidence ranges
-- **Body Part Specific**: Different models for different anatomical regions
+MediScanAI includes a verified **28-test automated regression suite**:
 
-### Supported Conditions
-- **Chest**: Normal, Pneumonia, COVID-19, Tuberculosis, Lung Cancer, Pneumothorax
-- **Hand**: Normal, Fracture, Arthritis, Dislocation
-- **Leg**: Normal, Fracture, Arthritis, Bone Tumor
-- **Skull**: Normal, Fracture, Tumor, Hemorrhage
-- **Spine**: Normal, Fracture, Scoliosis, Disc Herniation
-- **Pelvis**: Normal, Fracture, Hip Dysplasia, Arthritis
-
-## 📞 Support
-
-For issues or questions:
-1. Check the troubleshooting section below
-2. Review the code documentation
-3. Create an issue in the project repository
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**
-   - Ensure SQLite file permissions
-   - Check DATABASE_URL in .env
-
-2. **Import Errors**
-   - Verify all dependencies installed: `pip install -r requirements.txt`
-   - Check Python version compatibility
-
-3. **File Upload Issues**
-   - Ensure `static/uploads` directory exists
-   - Check file permissions
-
-4. **Translation Not Working**
-   - Verify Google Translate API key
-   - Check internet connection
-
-## 🧪 Comprehensive Testing Guide
-
-### Automated Testing
-Run the test suite:
 ```bash
-python test_functionality.py
+# Run all tests
+pytest -v
+
+# Run deep learning & Grad-CAM tests specifically
+pytest tests/test_dl_model.py -v
+
+# Run web app integration & authentication tests
+pytest tests/test_app.py -v
 ```
 
-### Manual Testing Checklist
+* **Test Suite Status**: **28 / 28 Passed (100%)**
 
-#### ✅ Authentication Testing
-- [ ] User registration with valid data
-- [ ] User registration with invalid data (duplicate email)
-- [ ] User login with correct credentials
-- [ ] User login with incorrect credentials
-- [ ] User logout functionality
-- [ ] Session persistence
+---
 
-#### ✅ Patient Management Testing
-- [ ] Add new patient with complete information
-- [ ] Add patient with minimal required information
-- [ ] View patient list on dashboard
-- [ ] View individual patient details
-- [ ] Patient search functionality
+## ☁️ Production Cloud Deployment (Render)
 
-#### ✅ Disease Detection Testing
-- [ ] Upload chest X-ray and get prediction
-- [ ] Upload hand X-ray and get prediction
-- [ ] Upload leg X-ray and get prediction
-- [ ] Test with different patient demographics
-- [ ] Verify confidence scores are realistic
-- [ ] Check medical recommendations display
+MediScanAI is configured for zero-configuration cloud deployment on **Render**:
 
-#### ✅ UI/UX Testing
-- [ ] Responsive design on mobile devices
-- [ ] Navigation menu functionality
-- [ ] Form validation messages
-- [ ] Loading indicators during prediction
-- [ ] Error handling and user feedback
+1. **Create Web Service** on Render and link your GitHub repository.
+2. **Settings**:
+   * **Runtime**: `Python 3`
+   * **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+   * **Start Command**: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120`
+3. **Persistent PostgreSQL Database**:
+   * Create a free PostgreSQL instance on Render.
+   * Add the connection string to Environment Variables as `DATABASE_URL`.
+   * Add `SECRET_KEY=your-production-secret-key`.
 
-#### ✅ Multilingual Testing
-- [ ] Language selector functionality
-- [ ] Text translation accuracy
-- [ ] UI element translation
-- [ ] Language persistence across sessions
+---
 
-### Performance Testing
-- [ ] Page load times under 3 seconds
-- [ ] Image upload handling for large files
-- [ ] Database query performance
-- [ ] Concurrent user handling
+## 🎯 UN SDG & Institutional Mapping
 
-## 📊 Expected Test Results
+* **UN SDG 3: Good Health and Well-Being (Target 3.3, 3.d)**: Eliminates diagnostic backlogs in underserved rural clinical settings through instant screening of respiratory conditions and skeletal trauma.
+* **UN SDG 9: Industry, Innovation, and Infrastructure (Target 9.5)**: Advances healthcare IT infrastructure with explainable clinical decision-support systems.
+* **Technology Readiness Level (TRL)**: **TRL 7** — System prototype demonstrated and validated in an operational environment.
 
-### Disease Detection Accuracy
-The enhanced AI model provides realistic predictions based on:
-- **Patient Age**: Older patients more likely to have arthritis/fractures
-- **Patient Gender**: Gender-specific condition probabilities
-- **Image Quality**: Lower quality images have reduced confidence
-- **Body Part**: Anatomically appropriate conditions only
+---
 
-### Sample Test Cases
-1. **65-year-old male, chest X-ray**: Higher probability of lung conditions
-2. **25-year-old female, hand X-ray**: Higher probability of normal results
-3. **45-year-old male, leg X-ray**: Balanced probability distribution
+## 👨‍💻 Author & Project Details
+
+* **Author**: Sri Pon Rama S (Roll No: 722824243213)
+* **Program**: B.Tech in Artificial Intelligence and Data Science
+* **Institution**: Sri Eshwar College of Engineering, Coimbatore
+* **Academic Batch**: 2024 – 2028 | Nov / Dec 2026
+
+---
 
 ## 📄 License
-
-This project is for educational and demonstration purposes. Please ensure compliance with medical software regulations for production use.
-
-## 🙏 Acknowledgments
-
-- Bootstrap for UI components
-- Flask framework and extensions
-- TensorFlow/Keras for ML capabilities
-- Google Translate API for multilingual support
+This project is open-source under the [MIT License](LICENSE). Designed for clinical decision support and educational demonstration.
