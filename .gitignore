@@ -45,7 +45,6 @@ static/uploads/[0-9]*_*.*
 
 # Large medical datasets
 dataset/
-models/weights/*.pth
 models/weights/*.h5
 
 # Pytest cache
